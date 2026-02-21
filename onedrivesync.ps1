@@ -1,10 +1,10 @@
 # ============================================================
-# ONEDRIVE RESTORE & CLEANUP AUDIT - V7 (FINAL)
-# Logic : Full (Default), Delta, Offline
+# ONEDRIVE RESTORE & CLEANUP AUDIT - V9.2 (FINAL STABLE)
+# Logic : Full (Défaut), Delta, Offline
 # ============================================================
 param (
     [ValidateSet("Full", "Delta", "Offline")]
-    [string]$Mode = "Delta"
+    [string]$Mode = "Full"
 )
 
 Clear-Host
@@ -19,7 +19,7 @@ $LogFile        = Join-Path $ReportFolder "deleted_files.log"
 $DupLogFile     = Join-Path $ReportFolder "duplicates_found.csv"
 $DupFolder      = Join-Path $LocalFolder "_Doublons"
 
-# Whitelist étendue (Vidéo, Photo, Office, PDF, Archives)
+# Extensions autorisées (Whitelist)
 $AllowedExt = @(
     ".avi", ".mov", ".mp4", ".mpg", ".mpeg", ".mkv", ".wmv", ".flv", ".webm", ".m4v",
     ".bmp", ".gif", ".jpg", ".jpeg", ".png", ".svg", ".tiff", ".tif", ".webp", ".heic", ".heif", ".psd", ".ai",
@@ -29,7 +29,7 @@ $AllowedExt = @(
     ".zip", ".7z", ".rar", ".tar", ".gz"
 )
 
-# Initialisation des répertoires de travail
+# Initialisation des répertoires
 foreach ($path in $ReportFolder, $DupFolder) { 
     if (!(Test-Path $path)) { New-Item -ItemType Directory -Path $path -Force | Out-Null } 
 }
@@ -39,64 +39,77 @@ $Cache = [ordered]@{ DeltaToken = $null; Files = [ordered]@{} }
 
 if (Test-Path $IndexFile) {
     Write-Host "[1/5] Chargement du cache local..." -ForegroundColor Gray
-    $RawCache = Get-Content $IndexFile -Raw | ConvertFrom-Json
-    $Cache.DeltaToken = $RawCache.DeltaToken
-    if ($RawCache.Files) {
-        foreach ($prop in $RawCache.Files.psobject.Properties) { $Cache.Files[$prop.Name] = $prop.Value }
-    }
+    try {
+        $RawCache = Get-Content $IndexFile -Raw | ConvertFrom-Json
+        $Cache.DeltaToken = $RawCache.DeltaToken
+        if ($RawCache.Files) {
+            foreach ($prop in $RawCache.Files.psobject.Properties) { $Cache.Files[$prop.Name] = $prop.Value }
+        }
+    } catch { Write-Host "Cache corrompu, il sera recréé." -ForegroundColor Yellow }
 }
 
 # ---------------- LOGIQUE DE SYNCHRONISATION ----------------
 if ($Mode -eq "Offline") {
-    Write-Host "[2/5] MODE OFFLINE : Analyse basée sur le cache existant." -ForegroundColor Yellow
-    if ($Cache.Files.Count -eq 0) { 
-        Write-Error "Le cache est vide. Lancez un scan 'Full' ou 'Delta' d'abord."
-        return 
-    }
+    Write-Host "[2/5] MODE OFFLINE : Basé sur $($Cache.Files.Count) fichiers." -ForegroundColor Yellow
 } else {
     Write-Host "[2/5] Connexion à Microsoft Graph..." -ForegroundColor Cyan
-    $Scopes = "offline_access openid Files.Read"
-    try {
-        $DeviceCode = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/devicecode" -Body @{ client_id = $ClientId; scope = $Scopes }
-        Write-Host "`n" $DeviceCode.message "`n" -ForegroundColor Yellow
-        
-        $Auth = $null
-        while (!$Auth) { 
-            Start-Sleep 5
-            try { $Auth = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token" -Body @{ grant_type = "urn:ietf:params:oauth:grant-type:device_code"; client_id = $ClientId; device_code = $DeviceCode.device_code } } catch {} 
-        }
-        
-        $AccessToken = $Auth.access_token
-        $BaseUri = "https://graph.microsoft.com/v1.0/me/drive/root/delta?select=name,id,size,file,hashes"
-        $NextLink = if ($Mode -eq "Full") { $BaseUri } else { if ($Cache.DeltaToken) { $Cache.DeltaToken } else { $BaseUri } }
-        
-        Write-Host "Synchronisation OneDrive (Mode: $Mode)..." -ForegroundColor Cyan
-        while ($NextLink) {
+    $Scopes = "offline_access openid Files.Read.All"
+    
+    $DeviceCode = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/devicecode" -Body @{ client_id = $ClientId; scope = $Scopes }
+    Write-Host "`n" $DeviceCode.message "`n" -ForegroundColor Yellow
+    
+    $Auth = $null
+    while (!$Auth) { 
+        Start-Sleep 5
+        try { $Auth = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token" -Body @{ grant_type = "urn:ietf:params:oauth:grant-type:device_code"; client_id = $ClientId; device_code = $DeviceCode.device_code } } catch {} 
+    }
+    
+    $AccessToken = $Auth.access_token
+    # On force le top=999 pour accélérer le passage des gros volumes
+    $BaseUri = "https://graph.microsoft.com/v1.0/me/drive/root/delta?`$select=name,id,size,file,hashes&`$top=999"
+    $NextLink = if ($Mode -eq "Full") { $BaseUri } else { if ($Cache.DeltaToken) { $Cache.DeltaToken } else { $BaseUri } }
+    
+    Write-Host "Synchronisation en cours (Mode: $Mode)..." -ForegroundColor Cyan
+    $pageCount = 0
+    $retryCount = 0
+
+    while ($NextLink) {
+        try {
             $Response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $NextLink -Method GET
+            $pageCount++
+            
             foreach ($item in $Response.value) {
                 if ($item.deleted) { $Cache.Files.Remove($item.id) }
                 elseif ($item.file) { $Cache.Files[$item.id] = $item }
             }
-            Write-Progress -Activity "Indexation Cloud" -Status "Fichiers : $($Cache.Files.Count)"
+            
+            Write-Progress -Activity "Indexation Cloud" -Status "Page: $pageCount | Fichiers: $($Cache.Files.Count)"
+            
             $NextLink = $Response.'@odata.nextLink'
-            if (!$NextLink) {
-                $Cache.DeltaToken = $Response.'@odata.deltaLink'
-                $Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
-            }
+            if (!$NextLink) { $Cache.DeltaToken = $Response.'@odata.deltaLink' }
+            
+            # Sauvegarde de sécurité toutes les 15 pages
+            if ($pageCount % 15 -eq 0) { $Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile }
+            $retryCount = 0
         }
-    } catch {
-        Write-Error "Erreur lors de la synchronisation : $($_.Exception.Message)"
-        return
+        catch {
+            if ($retryCount -lt 5) {
+                $retryCount++; $wait = 15 * $retryCount
+                Write-Host "`n[!] Erreur serveur. Tentative $retryCount/5 dans $wait sec..." -ForegroundColor Yellow
+                Start-Sleep -Seconds $wait
+                continue
+            } else { break }
+        }
     }
+    $Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
 }
 
-# ---------------- PRÉPARATION LOOKUPS ----------------
-Write-Host "[3/5] Préparation des index de recherche..." -ForegroundColor Gray
+# ---------------- ANALYSE LOCALE ----------------
+Write-Host "[3/5] Préparation des index..." -ForegroundColor Gray
 $CloudSha1List = [string[]]($Cache.Files.Values | Where-Object { $_.file.hashes.sha1Hash } | ForEach-Object { $_.file.hashes.sha1Hash.ToLower() })
 $CloudPathList = [string[]]($Cache.Files.Values | ForEach-Object { "$($_.name.ToLower())|$($_.size)" })
 
-# ---------------- ANALYSE LOCALE PARALLÈLE ----------------
-Write-Host "[4/5] Analyse du disque local (Mode Parallèle PS7)..." -ForegroundColor Cyan
+Write-Host "[4/5] Analyse locale (Multithreading)..." -ForegroundColor Cyan
 $AllLocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse | Where-Object { 
     $_.FullName -notlike "*_Doublons*" -and $_.FullName -notlike "*$ReportFolder*" 
 }
@@ -120,19 +133,18 @@ $results = $AllLocalFiles | ForEach-Object -Parallel {
 } -ThrottleLimit 8
 
 # ---------------- ACTIONS PHYSIQUES ----------------
-Write-Host "[5/5] Application des actions sur les fichiers..." -ForegroundColor Cyan
+Write-Host "[5/5] Traitement des fichiers..." -ForegroundColor Cyan
 $NotBackedUp = @()
 $DupEntries  = @()
 $DelLog      = [System.IO.StreamWriter]$LogFile
 $i = 0; $total = $results.Count
 
 foreach ($res in $results) {
-    $i++; Write-Progress -Activity "Traitement physique" -Status "$i / $total" -PercentComplete (($i/$total)*100)
+    $i++; Write-Progress -Activity "Application" -Status "$i / $total" -PercentComplete (($i/$total)*100)
     
     switch ($res.Action) {
         'Delete' {
             $DelLog.WriteLine("REMOVED: $($res.Path)")
-            # Suppression forcée, récursive et sans confirmation pour les fichiers/dossiers corrompus
             Remove-Item -LiteralPath $res.Path -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
         }
         'Move' {
@@ -148,8 +160,7 @@ foreach ($res in $results) {
 }
 $DelLog.Close()
 
-# --- Nettoyage final des dossiers vides ---
-Write-Host "Nettoyage des dossiers vides..." -ForegroundColor Gray
+# Nettoyage final
 Get-ChildItem -Path $LocalFolder -Directory -Recurse | Sort-Object { $_.FullName.Length } -Descending | ForEach-Object {
     if ($_.FullName -notlike "*_Doublons*" -and (Get-ChildItem -Path $_.FullName -Recurse | Measure-Object).Count -eq 0) {
         Remove-Item -LiteralPath $_.FullName -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
@@ -157,14 +168,13 @@ Get-ChildItem -Path $LocalFolder -Directory -Recurse | Sort-Object { $_.FullName
 }
 
 # ---------------- RÉSUMÉ ----------------
-Write-Progress -Activity "Traitement physique" -Completed
+Write-Progress -Activity "Application" -Completed
 $NotBackedUp | Export-Csv -Path (Join-Path $ReportFolder "Fichiers_Uniques.csv") -NoTypeInformation
 $DupEntries  | Export-Csv -Path $DupLogFile -NoTypeInformation
 
-Write-Host "`n[RÉSUMÉ FINAL DU RUN]" -ForegroundColor White -BackgroundColor DarkBlue
-Write-Host "- Mode utilisé          : $Mode"
-Write-Host "- Fichiers OneDrive     : $($Cache.Files.Count)"
-Write-Host "- Écartés (Hors WL)     : $(($results | ? Action -eq 'Delete').Count)"
-Write-Host "- Doublons (Déplacés)   : $(($results | ? Action -eq 'Move').Count)"
-Write-Host "- Uniques (À SAUVER)    : $($NotBackedUp.Count)"
-Write-Host "- Dossier des rapports  : $ReportFolder"
+Write-Host "`n[BILAN FINAL]" -ForegroundColor White -BackgroundColor DarkCyan
+Write-Host "- Mode                : $Mode"
+Write-Host "- Index OneDrive      : $($Cache.Files.Count) fichiers"
+Write-Host "- Supprimés (Hors WL) : $(($results | Where-Object Action -eq 'Delete').Count)"
+Write-Host "- Doublons écartés    : $(($results | Where-Object Action -eq 'Move').Count)"
+Write-Host "- Uniques détectés    : $($NotBackedUp.Count)"
