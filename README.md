@@ -67,3 +67,75 @@ Remove-Item "$env:LOCALAPPDATA\syncOnedrive\token.json" -ErrorAction SilentlyCon
 ---
 Si vous voulez que je génère des commandes exactes pour créer l'app, ajouter les permissions et appliquer l'admin-consent, dites‑le — je peux automatiser via Azure CLI/Graph.
 ```
+
+## App manifest (extrait)
+Le manifeste de l'application a été configuré avec les paramètres suivants :
+
+```json
+{
+	"id": "88f54651-d478-414c-8029-f91d89b25b12",
+	"acceptMappedClaims": null,
+	"accessTokenAcceptedVersion": 2,
+	"addIns": [],
+	"allowPublicClient": true,
+	"appId": "176fc7bc-42c9-4a25-82b5-0ad584d3c061",
+	"appRoles": [],
+	"oauth2AllowUrlPathMatching": false,
+	"createdDateTime": "2026-02-21T17:45:32Z",
+	"description": null,
+	"certification": null,
+	"disabledByMicrosoftStatus": null,
+	"groupMembershipClaims": null,
+	"identifierUris": [],
+	"informationalUrls": {
+		"termsOfService": null,
+		"support": null,
+		"privacy": null,
+		"marketing": null
+	},
+	"keyCredentials": [],
+	"knownClientApplications": [],
+	"logoUrl": null,
+	"logoutUrl": null,
+	"name": "requete onedrive",
+	"notes": null,
+	"oauth2AllowIdTokenImplicitFlow": false,
+	"oauth2AllowImplicitFlow": false,
+	"oauth2Permissions": [],
+	"oauth2RequirePostResponse": false,
+	"optionalClaims": null,
+	"orgRestrictions": [],
+	"parentalControlSettings": {
+		"countriesBlockedForMinors": [],
+		"legalAgeGroupRule": "Allow"
+	},
+	"passwordCredentials": [],
+	"preAuthorizedApplications": [],
+	"publisherDomain": "jeanph01gmail.onmicrosoft.com",
+	"replyUrlsWithType": [],
+	"requiredResourceAccess": [
+		{
+			"resourceAppId": "00000003-0000-0000-c000-000000000000",
+			"resourceAccess": [
+				{
+					"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+					"type": "Scope"
+				},
+				{
+					"id": "10465720-29dd-4523-a11a-6a75c743c9d9",
+					"type": "Scope"
+				}
+			]
+		}
+	],
+	"samlMetadataUrl": null,
+	"signInUrl": null,
+	"signInAudience": "AzureADandPersonalMicrosoftAccount",
+	"tags": [
+		"apiConsumer",
+		"desktopApp"
+	],
+	"tokenEncryptionKeyId": null
+}
+```
+
