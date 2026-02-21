@@ -1,12 +1,14 @@
 # ============================================================
-# ONEDRIVE RESTORE & CLEANUP AUDIT - V9.2 (FINAL STABLE)
-# Logic : Full (Défaut), Delta, Offline
+# ONEDRIVE DEEP INDEXER & CLEANUP - V10.4 (CLEAN DISPLAY)
 # ============================================================
 param (
-    [ValidateSet("Full", "Delta", "Offline")]
-    [string]$Mode = "Full"
+    [ValidateSet("Online", "Offline")]
+    [string]$Mode = "Online",
+    [switch]$Silent = $true 
 )
 
+# Supprime les barres de progression natives de PowerShell (la ligne bleue/blanche)
+$ProgressPreference = 'SilentlyContinue'
 Clear-Host
 
 # ---------------- CONFIGURATION ----------------
@@ -15,116 +17,77 @@ $ClientId       = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
 $TenantId       = "common"
 $IndexFile      = ".\onedrive_cache.json"
 $ReportFolder   = ".\Reports"
-$LogFile        = Join-Path $ReportFolder "deleted_files.log"
-$DupLogFile     = Join-Path $ReportFolder "duplicates_found.csv"
 $DupFolder      = Join-Path $LocalFolder "_Doublons"
 
-# Extensions autorisées (Whitelist)
-$AllowedExt = @(
-    ".avi", ".mov", ".mp4", ".mpg", ".mpeg", ".mkv", ".wmv", ".flv", ".webm", ".m4v",
-    ".bmp", ".gif", ".jpg", ".jpeg", ".png", ".svg", ".tiff", ".tif", ".webp", ".heic", ".heif", ".psd", ".ai",
-    ".doc", ".docx", ".docm", ".dotx", ".xls", ".xlsx", ".xlsm", ".xlsb", ".ppt", ".pptx", ".pptm",
-    ".pdf", ".rtf", ".txt", ".csv", ".odt", ".ods", ".odp",
-    ".mp3", ".wav", ".wma", ".aac", ".flac", ".m4a", ".ogg",
-    ".zip", ".7z", ".rar", ".tar", ".gz"
-)
+# ---------------- NETTOYAGE INITIAL ----------------
+Write-Host "[0/5] Nettoyage des anciens fichiers..." -ForegroundColor Gray
+if (Test-Path $IndexFile) { Remove-Item $IndexFile -Force -ErrorAction SilentlyContinue }
+if (Test-Path $ReportFolder) { Remove-Item $ReportFolder -Recurse -Force -ErrorAction SilentlyContinue }
 
-# Initialisation des répertoires
-foreach ($path in $ReportFolder, $DupFolder) { 
-    if (!(Test-Path $path)) { New-Item -ItemType Directory -Path $path -Force | Out-Null } 
-}
+if (!(Test-Path $DupFolder)) { New-Item -ItemType Directory -Path $DupFolder -Force | Out-Null }
+if (!$Silent) { New-Item -ItemType Directory -Path $ReportFolder -Force | Out-Null }
 
-# ---------------- GESTION DU CACHE ----------------
-$Cache = [ordered]@{ DeltaToken = $null; Files = [ordered]@{} }
+$AllowedExt = @(".avi",".mov",".mp4",".mpg",".mpeg",".mkv",".wmv",".flv",".webm",".m4v",".bmp",".gif",".jpg",".jpeg",".png",".svg",".tiff",".tif",".webp",".heic",".heif",".psd",".ai",".doc",".docx",".docm",".dotx",".xls",".xlsx",".xlsm",".xlsb",".ppt",".pptx",".pptm",".pdf",".rtf",".txt",".csv",".odt",".ods",".odp",".mp3",".wav",".wma",".aac",".flac",".m4a",".ogg",".zip",".7z",".rar",".tar",".gz")
 
-if (Test-Path $IndexFile) {
-    Write-Host "[1/5] Chargement du cache local..." -ForegroundColor Gray
-    try {
-        $RawCache = Get-Content $IndexFile -Raw | ConvertFrom-Json
-        $Cache.DeltaToken = $RawCache.DeltaToken
-        if ($RawCache.Files) {
-            foreach ($prop in $RawCache.Files.psobject.Properties) { $Cache.Files[$prop.Name] = $prop.Value }
-        }
-    } catch { Write-Host "Cache corrompu, il sera recréé." -ForegroundColor Yellow }
-}
+$script:Cache = [ordered]@{ Files = [ordered]@{} }
+$script:folderCount = 0
 
-# ---------------- LOGIQUE DE SYNCHRONISATION ----------------
-if ($Mode -eq "Offline") {
-    Write-Host "[2/5] MODE OFFLINE : Basé sur $($Cache.Files.Count) fichiers." -ForegroundColor Yellow
-} else {
-    Write-Host "[2/5] Connexion à Microsoft Graph..." -ForegroundColor Cyan
+# ---------------- LOGIQUE DE SCAN RÉCURSIF ----------------
+if ($Mode -eq "Online") {
+    Write-Host "[2/5] Connexion à Microsoft Graph (Deep Scan)..." -ForegroundColor Cyan
     $Scopes = "offline_access openid Files.Read.All"
     
     $DeviceCode = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/devicecode" -Body @{ client_id = $ClientId; scope = $Scopes }
     Write-Host "`n" $DeviceCode.message "`n" -ForegroundColor Yellow
     
     $Auth = $null
-    while (!$Auth) { 
-        Start-Sleep 5
-        try { $Auth = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token" -Body @{ grant_type = "urn:ietf:params:oauth:grant-type:device_code"; client_id = $ClientId; device_code = $DeviceCode.device_code } } catch {} 
-    }
-    
+    while (!$Auth) { Start-Sleep 5; try { $Auth = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token" -Body @{ grant_type = "urn:ietf:params:oauth:grant-type:device_code"; client_id = $ClientId; device_code = $DeviceCode.device_code } } catch {} }
     $AccessToken = $Auth.access_token
-    # On force le top=999 pour accélérer le passage des gros volumes
-    $BaseUri = "https://graph.microsoft.com/v1.0/me/drive/root/delta?`$select=name,id,size,file,hashes&`$top=999"
-    $NextLink = if ($Mode -eq "Full") { $BaseUri } else { if ($Cache.DeltaToken) { $Cache.DeltaToken } else { $BaseUri } }
-    
-    Write-Host "Synchronisation en cours (Mode: $Mode)..." -ForegroundColor Cyan
-    $pageCount = 0
-    $retryCount = 0
 
-    while ($NextLink) {
-        try {
-            $Response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $NextLink -Method GET
-            $pageCount++
-            
-            foreach ($item in $Response.value) {
-                if ($item.deleted) { $Cache.Files.Remove($item.id) }
-                elseif ($item.file) { $Cache.Files[$item.id] = $item }
-            }
-            
-            Write-Progress -Activity "Indexation Cloud" -Status "Page: $pageCount | Fichiers: $($Cache.Files.Count)"
-            
-            $NextLink = $Response.'@odata.nextLink'
-            if (!$NextLink) { $Cache.DeltaToken = $Response.'@odata.deltaLink' }
-            
-            # Sauvegarde de sécurité toutes les 15 pages
-            if ($pageCount % 15 -eq 0) { $Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile }
-            $retryCount = 0
-        }
-        catch {
-            if ($retryCount -lt 5) {
-                $retryCount++; $wait = 15 * $retryCount
-                Write-Host "`n[!] Erreur serveur. Tentative $retryCount/5 dans $wait sec..." -ForegroundColor Yellow
-                Start-Sleep -Seconds $wait
-                continue
-            } else { break }
+    function Get-OneDriveRecursive {
+        param ($FolderId = "root", $Path = "Racine")
+        $Uri = "https://graph.microsoft.com/v1.0/me/drive/items/$FolderId/children?`$select=name,id,size,file,folder,hashes&`$top=999"
+        
+        while ($Uri) {
+            try {
+                $Response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $Uri -Method GET
+                foreach ($item in $Response.value) {
+                    if ($item.file) { $script:Cache.Files[$item.id] = $item }
+                    elseif ($item.folder) {
+                        if ($item.name -match "Vault|Coffre-fort") { continue }
+                        $script:folderCount++
+                        Write-Host "  Exploration : $Path/$($item.name) ($($script:Cache.Files.Count) fichiers...)" -ForegroundColor Gray
+                        
+                        if ($script:folderCount % 10 -eq 0) {
+                            $script:Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
+                        }
+                        Get-OneDriveRecursive -FolderId $item.id -Path "$Path/$($item.name)"
+                    }
+                }
+                $Uri = $Response.'@odata.nextLink'
+            } catch { $Uri = $null }
         }
     }
-    $Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
+
+    Write-Host "Début de l'énumération récursive..." -ForegroundColor Cyan
+    Get-OneDriveRecursive
+    $script:Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
 }
 
 # ---------------- ANALYSE LOCALE ----------------
 Write-Host "[3/5] Préparation des index..." -ForegroundColor Gray
-$CloudSha1List = [string[]]($Cache.Files.Values | Where-Object { $_.file.hashes.sha1Hash } | ForEach-Object { $_.file.hashes.sha1Hash.ToLower() })
-$CloudPathList = [string[]]($Cache.Files.Values | ForEach-Object { "$($_.name.ToLower())|$($_.size)" })
+$CloudSha1List = [string[]]($script:Cache.Files.Values | Where-Object { $_.file.hashes.sha1Hash } | ForEach-Object { $_.file.hashes.sha1Hash.ToLower() })
+$CloudPathList = [string[]]($script:Cache.Files.Values | ForEach-Object { "$($_.name.ToLower())|$($_.size)" })
 
-Write-Host "[4/5] Analyse locale (Multithreading)..." -ForegroundColor Cyan
-$AllLocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse | Where-Object { 
-    $_.FullName -notlike "*_Doublons*" -and $_.FullName -notlike "*$ReportFolder*" 
-}
+Write-Host "[4/5] Analyse disque (Multithread)..." -ForegroundColor Cyan
+$AllLocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse | Where-Object { $_.FullName -notlike "*_Doublons*" -and $_.FullName -notlike "*$ReportFolder*" }
 
 $results = $AllLocalFiles | ForEach-Object -Parallel {
     $file = $_
     $ext = [System.IO.Path]::GetExtension($file.FullName).ToLower()
-    
-    if ($using:AllowedExt -notcontains $ext) {
-        return [PSCustomObject]@{ Action = 'Delete'; Path = $file.FullName }
-    }
-
+    if ($using:AllowedExt -notcontains $ext) { return [PSCustomObject]@{ Action = 'Delete'; Path = $file.FullName } }
     $localSha1 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA1).Hash.ToLower()
     $key = "$($file.Name.ToLower())|$($file.Length)"
-
     if ($using:CloudSha1List -contains $localSha1 -or $using:CloudPathList -contains $key) {
         return [PSCustomObject]@{ Action = 'Move'; Path = $file.FullName; Name = $file.Name; Hash = $localSha1 }
     } else {
@@ -132,49 +95,36 @@ $results = $AllLocalFiles | ForEach-Object -Parallel {
     }
 } -ThrottleLimit 8
 
-# ---------------- ACTIONS PHYSIQUES ----------------
-Write-Host "[5/5] Traitement des fichiers..." -ForegroundColor Cyan
-$NotBackedUp = @()
-$DupEntries  = @()
-$DelLog      = [System.IO.StreamWriter]$LogFile
-$i = 0; $total = $results.Count
+# ---------------- ACTIONS ----------------
+Write-Host "[5/5] Nettoyage et Tri..." -ForegroundColor Cyan
+$NotBackedUp = @(); $DupEntries = @()
 
 foreach ($res in $results) {
-    $i++; Write-Progress -Activity "Application" -Status "$i / $total" -PercentComplete (($i/$total)*100)
-    
     switch ($res.Action) {
-        'Delete' {
-            $DelLog.WriteLine("REMOVED: $($res.Path)")
-            Remove-Item -LiteralPath $res.Path -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
-        }
+        'Delete' { Remove-Item -LiteralPath $res.Path -Force -ErrorAction SilentlyContinue }
         'Move' {
             $dest = Join-Path $DupFolder $res.Name
             $idx = 1; while (Test-Path $dest) { $dest = Join-Path $DupFolder "$([System.IO.Path]::GetFileNameWithoutExtension($res.Name))_$idx$([System.IO.Path]::GetExtension($res.Name))"; $idx++ }
-            Move-Item -LiteralPath $res.Path -Destination $dest -Force
-            $DupEntries += [PSCustomObject]@{ OriginalPath = $res.Path; Hash = $res.Hash; Date = (Get-Date) }
+            Move-Item -LiteralPath $res.Path -Destination $dest -Force -ErrorAction SilentlyContinue
+            if (!$Silent) { $DupEntries += [PSCustomObject]@{ Path = $res.Path; Hash = $res.Hash; Date = (Get-Date) } }
         }
-        'Keep' {
-            $NotBackedUp += [PSCustomObject]@{ Nom = $res.Name; Chemin = $res.Path; TailleMB = [math]::Round($res.Size/1MB,2); SHA1 = $res.Hash }
-        }
+        'Keep' { if (!$Silent) { $NotBackedUp += [PSCustomObject]@{ Nom = $res.Name; Chemin = $res.Path; TailleMB = [math]::Round($res.Size/1MB,2); SHA1 = $res.Hash } } }
     }
 }
-$DelLog.Close()
 
-# Nettoyage final
+# Dossiers vides
 Get-ChildItem -Path $LocalFolder -Directory -Recurse | Sort-Object { $_.FullName.Length } -Descending | ForEach-Object {
     if ($_.FullName -notlike "*_Doublons*" -and (Get-ChildItem -Path $_.FullName -Recurse | Measure-Object).Count -eq 0) {
-        Remove-Item -LiteralPath $_.FullName -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
     }
 }
 
-# ---------------- RÉSUMÉ ----------------
-Write-Progress -Activity "Application" -Completed
-$NotBackedUp | Export-Csv -Path (Join-Path $ReportFolder "Fichiers_Uniques.csv") -NoTypeInformation
-$DupEntries  | Export-Csv -Path $DupLogFile -NoTypeInformation
-
+# ---------------- BILAN ----------------
+if (!$Silent) {
+    $NotBackedUp | Export-Csv -Path (Join-Path $ReportFolder "Fichiers_Uniques.csv") -NoTypeInformation
+    $DupEntries  | Export-Csv -Path (Join-Path $ReportFolder "doublons_ecartes.csv") -NoTypeInformation
+}
 Write-Host "`n[BILAN FINAL]" -ForegroundColor White -BackgroundColor DarkCyan
-Write-Host "- Mode                : $Mode"
-Write-Host "- Index OneDrive      : $($Cache.Files.Count) fichiers"
-Write-Host "- Supprimés (Hors WL) : $(($results | Where-Object Action -eq 'Delete').Count)"
-Write-Host "- Doublons écartés    : $(($results | Where-Object Action -eq 'Move').Count)"
-Write-Host "- Uniques détectés    : $($NotBackedUp.Count)"
+Write-Host "- OneDrive Indexé     : $($script:Cache.Files.Count) fichiers"
+Write-Host "- Supprimés (Extras)  : $(($results | ? Action -eq 'Delete').Count)"
+Write-Host "- Doublons déplacés   : $(($results | ? Action -eq 'Move').Count)"
