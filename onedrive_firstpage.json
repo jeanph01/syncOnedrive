@@ -1,6 +1,6 @@
 {
   "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#Collection(microsoft.graph.driveItem)",
-  "@odata.nextLink": "https://graph.microsoft.com/v1.0/me/drive/root/delta?select=name%2cid%2chashes%2csize%2cfile&token=NDslMjMzOyUyMzE7MztiYmM1ZTc3MS01ODljLTQ2NzktOGQ5Yi00OTA3YjZlNGM5MGM7NjM5MDczMDE1MzI3ODMwMDAwOzk3NTIxMjE5MzslMjNQYWdlZD1UUlVFJTI2cF9JRD01NzElMjZpeF9QYWdlZD1UUlVFJTI2aXhfSUQ9NTcxJTI2aXhfS2V5PTcxN0U2MjAzM0U5QTIwMEI4MDQ0M0M0NjAyMDAwMDAwOyUyMzslMjMwOyUyMw",
+  "@odata.nextLink": "https://graph.microsoft.com/v1.0/me/drive/root/delta?select=name%2cid%2chashes%2csize%2cfile&token=NDslMjMzOyUyMzE7MztiYmM1ZTc3MS01ODljLTQ2NzktOGQ5Yi00OTA3YjZlNGM5MGM7NjM5MDczMDMwMjkyNjAwMDAwOzk3NTIyMzEwNzslMjNQYWdlZD1UUlVFJTI2cF9JRD01NzElMjZpeF9QYWdlZD1UUlVFJTI2aXhfSUQ9NTcxJTI2aXhfS2V5PTcxN0U2MjAzM0U5QTIwMEI4MDQ0M0M0NjAyMDAwMDAwOyUyMzslMjMwOyUyMw",
   "value": [
     {
       "id": "440B3E9A717E6203!sea8cc6beffdb43d7976fbc7da445c639",
