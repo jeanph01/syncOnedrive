@@ -1,150 +1,169 @@
-# ================================
-# CONFIGURATION
-# ================================
-$LocalFolder = "D:\recup\test"
-# Use the app registration for personal accounts and the consumer tenant
-# (created earlier: syncOnedrive-personal)
-# $ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
-# $TenantId = "e3f75fb4-c0eb-4d7d-a335-65e4e3e32c76"
+# ============================================================
+# ONEDRIVE BACKUP AUDIT AVEC HASHES COMPLETS ET MISE À JOUR PROGRESSIVE
+# Compatible OneDrive Personal / Family
+# ============================================================
 
-# ID de votre application "requete onedrive"
-$ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
-# Utilisation de 'common' pour autoriser les comptes personnels (Famille/Perso)
-$TenantId = "common"
-clear-host
+# ---------------- CONFIGURATION ----------------
+$LocalFolder       = "D:\recup\test"
+$ClientId          = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
+$TenantId          = "common"
+$IndexFile         = ".\onedrive_index.json"
+$DeltaTokenFile    = ".\onedrive_delta.token"
+$ReportFolder      = ".\Reports"
 
-# ================================
-# AUTHENTICATION
-# ================================
-Write-Host "Authenticating to Microsoft Graph..."
-## Request openid/offline_access so we can get refresh tokens if needed
+if (!(Test-Path $ReportFolder)) { New-Item -ItemType Directory -Path $ReportFolder | Out-Null }
+Clear-Host
+
+# ---------------- AUTHENTICATION ----------------
+Write-Host "Authenticating to Microsoft Graph..." -ForegroundColor Cyan
+
 $Scopes = "offline_access openid Files.Read"
 
-# Using device-code flow below; removed incorrect immediate token request.
-
-# Device code flow step 1
-$DeviceCode = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/devicecode" `
+$DeviceCode = Invoke-RestMethod -Method POST `
+    -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/devicecode" `
     -Body @{
         client_id = $ClientId
         scope     = $Scopes
     }
 
-Write-Host $DeviceCode.message
+Write-Host $DeviceCode.message -ForegroundColor Yellow
 
-# Poll until authenticated, respecting server-provided interval and expiry
-$interval = if ($DeviceCode.interval) { $DeviceCode.interval } else { 5 }
-$expiresAt = (Get-Date).AddSeconds($DeviceCode.expires_in)
-
-# Poll for token until success or expiry
-$Auth = $null
-while (-not $Auth -or -not $Auth.access_token) {
-    Start-Sleep -Seconds $interval
+do {
+    Start-Sleep 5
     try {
-        $tokenResponse = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token" -Body @{
-            grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
-            client_id   = $ClientId
-            device_code = $DeviceCode.device_code
-        } -ErrorAction Stop
-
-        $Auth = $tokenResponse
-        break
-    } catch {
-        # Try to read structured error from response body
-        $resp = $_.Exception.Response
-        $handled = $false
-        if ($resp) {
-            try {
-                $sr = New-Object System.IO.StreamReader($resp.GetResponseStream())
-                $body = $sr.ReadToEnd()
-                $js = $body | ConvertFrom-Json -ErrorAction SilentlyContinue
-                if ($js -and $js.error) {
-                    switch ($js.error) {
-                        'authorization_pending' { Write-Host 'Waiting for user to authenticate...'; $handled = $true }
-                        'authorization_declined' { Write-Host 'User declined authentication.'; exit 1 }
-                        default { Write-Host "Token request error: $($js.error) - $($js.error_description)"; exit 1 }
-                    }
-                }
-            } catch {
-                # fallback to a simple wait
-                Write-Host 'Waiting for user to authenticate...'
-                $handled = $true
+        $Auth = Invoke-RestMethod -Method POST `
+            -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token" `
+            -Body @{
+                grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
+                client_id   = $ClientId
+                device_code = $DeviceCode.device_code
             }
-        }
-        if (-not $handled) { Write-Host 'Waiting for user to authenticate...' }
-    }
-
-    if ((Get-Date) -gt $expiresAt) {
-        Write-Host "Device code expired. Please restart the script to request a new code."
-        exit 1
-    }
-}
+    } catch {}
+} until ($Auth.access_token)
 
 $AccessToken = $Auth.access_token
-Write-Host "Authentication successful."
+Write-Host "Authentication successful.`n" -ForegroundColor Green
 
-# ================================
-# GET ALL ONEDRIVE FILES + HASHES
-# ================================
-Write-Host "Retrieving OneDrive file list..." -ForegroundColor Cyan
-
-$OneDriveFiles = @()
-# On utilise 'delta' qui est le moyen le plus efficace de lister tout le contenu récursivement
-$NextLink = "https://graph.microsoft.com/v1.0/me/drive/root/delta?select=name,id,hashes,size,file"
-
-while ($NextLink) {
-    try {
-        $Response = Invoke-RestMethod -Headers @{Authorization = "Bearer $AccessToken"} -Uri $NextLink -Method GET
-        # On ne garde que les éléments qui sont des fichiers (on ignore les dossiers)
-        $FilesOnly = $Response.value | Where-Object { $_.file -ne $null }
-        $OneDriveFiles += $FilesOnly
-        $NextLink = $Response.'@odata.nextLink'
-    } catch {
-        Write-Host "Error retrieving files: $($_.Exception.Message)" -ForegroundColor Red
-        $NextLink = $null
-    }
+# ---------------- LOAD CACHED INDEX ----------------
+$OneDriveHashes = @{}
+if (Test-Path $IndexFile) {
+    Write-Host "Loading cached OneDrive index..."
+    $OneDriveHashes = Get-Content $IndexFile | ConvertFrom-Json
 }
 
-Write-Host "Retrieved $($OneDriveFiles.Count) files from OneDrive."
+# ---------------- DELTA OR FULL ----------------
+if (Test-Path $DeltaTokenFile) {
+    Write-Host "Running incremental DELTA sync..."
+    $NextLink = Get-Content $DeltaTokenFile
+} else {
+    Write-Host "Running FULL OneDrive scan..."
+    $NextLink = "https://graph.microsoft.com/v1.0/me/drive/root/delta?select=name,id,hashes,size,file"
+}
 
+$page = 0
+while ($NextLink) {
 
-# ================================
-# SCAN LOCAL FOLDER
-# ================================
-Write-Host "Scanning local folder: $LocalFolder"
+    $page++
 
-$LocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse
+    try {
+        $Response = Invoke-RestMethod -Headers @{Authorization = "Bearer $AccessToken"} -Uri $NextLink -Method GET
+    } catch {
+        Write-Host "Error reading OneDrive: $($_.Exception.Message)" -ForegroundColor Red
+        break
+    }
 
-$Duplicates = @()
-$TotalScanned = 0
-foreach ($file in $LocalFiles) {
-    $TotalScanned++
-    Write-Host "Checking $($file.FullName)..."
+    $updatedThisPage = 0
+    foreach ($item in $Response.value) {
 
-    # Compute SHA1
-    $LocalHash = (Get-FileHash -Path $file.FullName -Algorithm SHA1).Hash.ToLower()
-
-    if ($OneDriveHashIndex.ContainsKey($LocalHash)) {
-        foreach ($Match in $OneDriveHashIndex[$LocalHash]) {
-            Write-Host ">>> DUPLICATE FOUND!"
-            Write-Host " Local: $($file.FullName)"
-            Write-Host " OneDrive: $($Match.name)  (ID: $($Match.id))"
-            Write-Host ""
-            $Duplicates += [PSCustomObject]@{
-                LocalPath = $file.FullName
-                OneDriveName = $Match.name
-                OneDriveId = $Match.id
+        if ($item.deleted) {
+            if ($item.id -and $OneDriveHashes.ContainsKey($item.id)) {
+                $OneDriveHashes.Remove($item.id)
+                $updatedThisPage++
             }
+            continue
+        }
+
+        if ($item.file) {
+            $hashEntry = @{}
+
+            if ($item.hashes?.quickXorHash) { $hashEntry.quickXorHash = $item.hashes.quickXorHash }
+            if ($item.hashes?.sha1Hash) { $hashEntry.sha1Hash = $item.hashes.sha1Hash.ToLower() }
+            if ($item.hashes?.crc32Hash) { $hashEntry.crc32Hash = $item.hashes.crc32Hash }
+            if ($hashEntry.Count -eq 0) { $hashEntry.fallback = "$($item.name.ToLower())|$($item.size)" }
+
+            $OneDriveHashes[$item.id] = $hashEntry
+            $updatedThisPage++
+        }
+    }
+
+    # ---------------- UPDATE CACHE AND TOKEN AFTER EACH PAGE ----------------
+    $OneDriveHashes | ConvertTo-Json | Set-Content $IndexFile
+    if ($Response.'@odata.deltaLink') { $Response.'@odata.deltaLink' | Set-Content $DeltaTokenFile }
+
+    Write-Progress `
+        -Activity "Updating OneDrive cache" `
+        -Status "Page $page | Updated items this page: $updatedThisPage | Total indexed: $($OneDriveHashes.Count)" `
+        -PercentComplete 0
+
+    $NextLink = $Response.'@odata.nextLink'
+}
+
+Write-Host "`nCloud index ready: $($OneDriveHashes.Count) files.`n" -ForegroundColor Green
+
+# ---------------- LOCAL SCAN ----------------
+Write-Host "Scanning local folder: $LocalFolder" -ForegroundColor Cyan
+$LocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse
+$total = $LocalFiles.Count
+Write-Host "Total local files: $total`n"
+
+$NotBackedUp = @()
+$i = 0
+foreach ($file in $LocalFiles) {
+    $i++
+    Write-Progress -Activity "Checking local files" -Status "$i / $total" -PercentComplete (($i / $total) * 100)
+
+    $sha1 = (Get-FileHash $file.FullName -Algorithm SHA1).Hash.ToLower()
+    $fallback = "$($file.Name.ToLower())|$($file.Length)"
+
+    $found = $false
+    foreach ($cloudFile in $OneDriveHashes.GetEnumerator()) {
+        $hashObj = $cloudFile.Value
+
+        if (($hashObj.sha1Hash -and $hashObj.sha1Hash -eq $sha1) -or
+            ($hashObj.quickXorHash -and $hashObj.quickXorHash -eq $null) -or
+            ($hashObj.crc32Hash -and $hashObj.crc32Hash -eq $null) -or
+            ($hashObj.fallback -and $hashObj.fallback -eq $fallback)) {
+            $found = $true
+            break
+        }
+    }
+
+    if (-not $found) {
+        $NotBackedUp += [PSCustomObject]@{
+            Path = $file.FullName
+            Size = $file.Length
         }
     }
 }
 
-# Summary
-Write-Host "Scan complete. Scanned $TotalScanned local files."
-if ($Duplicates.Count -gt 0) {
-    Write-Host "Found $($Duplicates.Count) duplicate(s):"
-    foreach ($d in $Duplicates) {
-        Write-Host " - $($d.LocalPath)  =>  $($d.OneDriveName) (ID: $($d.OneDriveId))"
-    }
-} else {
-    Write-Host "No duplicates found."
-}
+Write-Progress -Completed
+
+# ---------------- STATISTICS ----------------
+Write-Host "`n===== BACKUP AUDIT =====" -ForegroundColor Cyan
+$TotalLocalSize = ($LocalFiles | Measure-Object Length -Sum).Sum
+$NotBackedSize  = ($NotBackedUp | Measure-Object Size -Sum).Sum
+$TotalGB = [math]::Round($TotalLocalSize / 1GB, 2)
+$RiskGB  = [math]::Round($NotBackedSize / 1GB, 2)
+$Coverage = 100 - (($NotBackedUp.Count / $LocalFiles.Count) * 100)
+
+Write-Host "Local files scanned       : $($LocalFiles.Count)"
+Write-Host "Files NOT in OneDrive     : $($NotBackedUp.Count)"
+Write-Host "Size NOT in OneDrive      : $RiskGB GB"
+Write-Host "Backup coverage           : $([math]::Round($Coverage,2)) %"
+
+# ---------------- EXPORT CSV ----------------
+$Report = Join-Path $ReportFolder ("backup_report_$(Get-Date -Format yyyyMMdd_HHmm).csv")
+$NotBackedUp | Export-Csv $Report -NoTypeInformation
+Write-Host "`nReport saved: $Report" -ForegroundColor Yellow
+
+Write-Host "`nAudit complete." -ForegroundColor Green
