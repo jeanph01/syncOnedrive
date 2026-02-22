@@ -1,173 +1,121 @@
 <#
 .SYNOPSIS
-    V14.0 - Organisateur avec Feedback détaillé, Chronométrage et Cache GPS Persistant.
+    V14.8 - Organisateur Ultra-Rapide (Arrondi 1km / 2 décimales).
     
 .DESCRIPTION
     NOMENCLATURE ET ARCHITECTURE CIBLE :
-    
     1. PHOTOS (.jpg, .png, .heic) -> /Images/Pellicule/Année/Mois/
-       Format : yyyyMMdd_HHmmss_[Ville]_[Dossiers_Tags]_[Nom_Original]_[Appareil].ext
-       
+       Format : yyyyMMdd_HHmmss_[Ville-Province-Pays]_[Tags]_[Nom]_[Appareil].ext
     2. VIDÉOS (.mp4, .mov) -> /Vidéos/Pellicule/Année/Mois/
-       Format : yyyyMMdd_HHmmss_[Ville]_[Dossiers_Tags]_[Durée]_[Résolution].ext
-       
+       Format : yyyyMMdd_HHmmss_[Ville-Province-Pays]_[Tags]_[Durée]_[Résol].ext
     3. AUDIO (.mp3, .m4a, .flac) -> /Musique/Artiste/Album/
        Format : [Artiste] - [Album] - [Titre].ext
 
-    FONCTIONNEMENT :
-    - WhatIf par défaut : Analyse et génère un log sans déplacer de fichiers.
-    - Cache GPS Persistant : Sauvegarde automatique à chaque découverte de lieu.
-    - Tags de Chemin : Préserve le contexte hiérarchique original.
-
-    FONCTIONNEMENT DU CACHE :
-    Si une entrée GPS existe mais ne contient pas la hiérarchie complète (ex: juste "Palma"),
-    le script force un rafraîchissement via l'API pour obtenir Province et Pays.
-.PARAMETER Execute
-    $false (DÉFAUT) : Mode simulation. Génère le fichier de log.
-    $true : Applique les changements sur OneDrive.
+    OPTIMISATION GPS : 
+    Arrondi à 2 décimales (~1.1 km). Idéal pour grouper massivement les requêtes API.
 #>
+
+<#
+.SYNOPSIS
+    V15.5 - Limite Stricte 100 Caractères & Nettoyage Redondance.
+#>
+
 param (
     [bool]$Execute = $false,
     [string]$LogFile = ".\organisation_log.txt",
     [string]$GpsCacheFile = ".\gps_cache.json"
 )
 
+Clear-Host
+
 # --- 1. INITIALISATION ---
 $IndexFile = ".\onedrive_cache.json"
-if (!(Test-Path $IndexFile)) { Write-Error "Cache introuvable."; exit }
+if (!(Test-Path $IndexFile)) { Write-Error "Cache JSON introuvable."; exit }
+
+Write-Host "--- OPTIMISATION POUR NOMS COURTS (Max 100 char) ---" -ForegroundColor Cyan
 $Cache = Get-Content $IndexFile | ConvertFrom-Json -AsHashtable
 $FileIds = $Cache.Files.Keys
-$TotalFiles = $FileIds.Count
-$StartTime = Get-Date
-
 $script:GpsCache = @{}
 if (Test-Path $GpsCacheFile) { $script:GpsCache = Get-Content $GpsCacheFile | ConvertFrom-Json -AsHashtable }
 
-# --- 2. FONCTIONS ---
-
-function Get-LocationName($gps) {
-    if (!$gps -or $gps -eq "," -or $gps -match "^0,0$") { return $null }
-    
-    $cachedValue = $script:GpsCache[$gps]
-    
-    # CRITÈRES DE RAFRAÎCHISSEMENT
-    $isIncomplete = $cachedValue -and ($cachedValue -split "-").Count -lt 3
-    $hasSpecialChars = $cachedValue -and ($cachedValue -match "[^\x00-\x7F]") # Détecte tout ce qui n'est pas ASCII standard
-
-    if ($cachedValue -and !$isIncomplete -and !$hasSpecialChars) { 
-        return $cachedValue 
-    }
-    
-    $reason = if ($hasSpecialChars) { "Caractères Spéciaux" } elseif ($isIncomplete) { "Incomplet" } else { "Nouveau" }
-    Write-Host " [API GPS] $reason ($gps)..." -ForegroundColor DarkYellow -NoNewline
-    
-    try {
-        $lat, $lon = $gps -split ","
-        $Uri = "https://nominatim.openstreetmap.org/reverse?format=json&lat=$($lat.Trim())&lon=$($lon.Trim())&zoom=10&addressdetails=1"
-        $res = Invoke-RestMethod -Uri $Uri -UserAgent "OneDriveOrganizer_JPM" -ErrorAction SilentlyContinue
-        
-        $addr = $res.address
-        $city = if ($addr.city) { $addr.city } elseif ($addr.town) { $addr.town } else { $addr.village }
-        $state = if ($addr.state) { $addr.state } else { $addr.county }
-        $country = $addr.country
-
-        if ($city -and $country) { 
-            # 1. Concaténation
-            $fullLoc = "$city-$state-$country" -replace " ", "-"
-            
-            # 2. Nettoyage strict (ASCII uniquement + tirets)
-            # On normalise pour transformer les accents (é -> e) si possible, sinon on supprime le non-latin
-            $normalized = $fullLoc.Normalize([System.Text.NormalizationForm]::FormD)
-            $cleanBuilder = New-Object System.Text.StringBuilder
-            foreach ($char in $normalized.ToCharArray()) {
-                if ([System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($char) -ne [System.Globalization.UnicodeCategory]::NonSpacingMark) {
-                    [void]$cleanBuilder.Append($char)
-                }
-            }
-            $fullLoc = $cleanBuilder.ToString()
-            $fullLoc = [Regex]::Replace($fullLoc, "[^a-zA-Z0-9\-]", "")
-            $fullLoc = ($fullLoc -replace "-+", "-").Trim("-")
-            
-            $script:GpsCache[$gps] = $fullLoc
-            $script:GpsCache | ConvertTo-Json | Set-Content $GpsCacheFile
-            Write-Host " OK: $fullLoc" -ForegroundColor Green
-            Start-Sleep -Milliseconds 1100 
-            return $fullLoc
-        }
-    } catch { Write-Host " Échec." -ForegroundColor Red }
-    return $null
-}
+# --- 2. FONCTIONS DE COMPRESSION ---
 
 function Get-PathTags($fullPath) {
+    # On ignore les dossiers racines et chronologiques
     $parts = $fullPath -replace "^/drive/root:/?", "" -split "/" | 
-             Where-Object { $_ -and $_ -notmatch "Documents|Images|Vidéos|Musique|Pellicule|JPM" }
-    return ($parts -join "_")
+             Where-Object { $_ -and $_ -notmatch "^(Documents|Images|Vidéos|Musique|Pellicule|JPM|drive|root|\d{4}|\d{2})$" }
+    
+    if ($parts.Count -eq 0) { return "" }
+    [array]::Reverse($parts)
+    
+    $compactTags = New-Object System.Collections.Generic.List[string]
+    $currentLength = 0
+    $MaxChars = 25 # Limite très serrée pour les tags de dossiers
+
+    foreach ($p in $parts) {
+        if (($currentLength + $p.Length) -lt $MaxChars) {
+            $compactTags.Add($p)
+            $currentLength += $p.Length + 1
+        } else { break }
+    }
+    $final = $compactTags.ToArray(); [array]::Reverse($final)
+    return ($final -join "_")
 }
 
-# --- 3. TRAITEMENT ---
+# --- 3. GÉNÉRATION DU LOG ---
+Write-Host "Traitement des $($FileIds.Count) fichiers..." -ForegroundColor Green
 $Log = New-Object System.Collections.Generic.List[string]
-$Log.Add("=== RAPPORT V14.5 - $(Get-Date) ===")
 
-Write-Host "`n--- DÉMARRAGE DE L'ANALYSE ($TotalFiles fichiers) ---" -ForegroundColor Cyan
-
-$count = 0
 foreach ($id in $FileIds) {
-    $count++
     $f = $Cache.Files[$id]
-    
-    # Progression
-    $elapsed = (Get-Date) - $StartTime
-    $avgTime = $elapsed.TotalSeconds / $count
-    $remainingStr = "{0:hh\:mm\:ss}" -f [TimeSpan]::FromSeconds($avgTime * ($TotalFiles - $count))
-
-    if ($count % 10 -eq 0) {
-        Write-Progress -Activity "Analyse $([Math]::Round(($count/$TotalFiles)*100,1))%" `
-                       -Status "Fichiers: $count/$TotalFiles | Restant: $remainingStr" `
-                       -PercentComplete (($count / $TotalFiles) * 100)
-    }
-
     if (!$f.d) { continue }
+
+    # Extraction Ville (On ne garde que le premier mot de la ville pour gagner de la place)
+    $villeStr = $null
+    if ($f.gps) {
+        $latRaw, $lonRaw = $f.gps -split ","
+        $approx = "$([Math]::Round([double]$latRaw.Trim(), 2)),$([Math]::Round([double]$lonRaw.Trim(), 2))"
+        $fullVille = $script:GpsCache[$approx]
+        if ($fullVille) { $villeStr = ($fullVille -split "-")[0] } # Juste "Montreal" au lieu de "Montreal-Quebec-Canada"
+    }
+    
     $ext = [System.IO.Path]::GetExtension($f.n).ToLower()
-    $dateRef = [DateTime]$f.d
-    
-    $villeStr = Get-LocationName $f.gps
+    $ts = ([DateTime]$f.d).ToString("yyyyMMdd_HHmmss")
     $tags = Get-PathTags $f.p
-    $name = ([System.IO.Path]::GetFileNameWithoutExtension($f.n) -replace "\(Copie.*\)|- Copie|\(1\)", "").Trim()
     
-    $newName = ""
-    $targetDir = ""
+    # Nettoyage du nom original
+    $cleanName = [System.IO.Path]::GetFileNameWithoutExtension($f.n) -replace "\(Copie.*\)|- Copie|\(1\)", ""
+    # Supprimer si c'est une date (ex: 20231225...)
+    if ($cleanName -match "\d{8}") { $cleanName = "" }
+    $cleanName = $cleanName.Trim("_").Trim("-").Trim()
 
-    # NOMENCLATURE PHOTOS / VIDÉOS
-    if ($ext -match ".jpg|.jpeg|.png|.heic|.mp4|.mov") {
-        $parts = New-Object System.Collections.Generic.List[string]
-        $parts.Add($dateRef.ToString("yyyyMMdd_HHmmss"))
-        if ($villeStr) { $parts.Add($villeStr) }
-        if ($tags) { $parts.Add($tags) }
-        
-        if ($ext -match ".mp4|.mov") {
-            if($f.dur){$parts.Add($f.dur)}; if($f.res){$parts.Add($f.res)}
-            $targetDir = "/Vidéos/Pellicule/$($dateRef.Year)/$($dateRef.ToString('MM'))"
-        } else {
-            if ($name -and $tags -notlike "*$name*" -and $name -notmatch "^\d+$") { $parts.Add($name) }
-            if($f.cam){$parts.Add($f.cam)}
-            $targetDir = "/Images/Pellicule/$($dateRef.Year)/$($dateRef.ToString('MM'))"
-        }
-        $newName = ($parts -join "_") + $ext
+    # Assemblage intelligent
+    $parts = New-Object System.Collections.Generic.List[string]
+    $parts.Add($ts)
+    if ($villeStr) { $parts.Add($villeStr) }
+    if ($tags) { $parts.Add($tags) }
+    
+    if ($ext -match ".mp4|.mov") {
+        if($f.dur){$parts.Add($f.dur)}
+        $targetDir = "/Vidéos/Pellicule/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))"
+    } else {
+        # On n'ajoute le nom d'origine que s'il reste beaucoup de place
+        if ($cleanName -and $cleanName.Length -gt 2 -and $cleanName -notmatch "^\d+$") { $parts.Add($cleanName) }
+        $targetDir = "/Images/Pellicule/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))"
     }
-    # NOMENCLATURE AUDIO
-    elseif ($ext -match ".mp3|.m4a|.flac") {
-        $artiste = if($f.art){$f.art}else{"Inconnu"}
-        $album = if($f.alb){$f.alb}else{"Inconnu"}
-        $newName = "$artiste - $album - $name$ext"
-        $targetDir = "/Musique/$artiste/$album"
+    
+    # --- LA LIMITE DES 100 CARACTÈRES ---
+    $finalBase = ($parts -join "_") -replace '[\\\/:*?"<>|]', '-' -replace '_+', '_'
+    
+    # Si trop long, on coupe à 100 moins l'extension
+    $maxBaseLength = 100 - $ext.Length
+    if ($finalBase.Length -gt $maxBaseLength) {
+        $finalBase = $finalBase.Substring(0, $maxBaseLength).Trim("_")
     }
-
-    if ($newName) {
-        $newName = ($newName -replace '[\\\/:*?"<>|]', '-') -replace '_+', '_'
-        $Log.Add("SRC : $($f.p)/$($f.n)")
-        $Log.Add("DST : $targetDir/$newName")
-    }
+    
+    $newName = $finalBase + $ext
+    $Log.Add("SRC : $($f.p)/$($f.n) | DST : $targetDir/$newName")
 }
 
 $Log | Set-Content $LogFile
-Write-Host "`nTERMINÉ. Log généré : $LogFile" -ForegroundColor Green
+Write-Host "`nTerminé ! Noms limités à 100 caractères." -ForegroundColor Cyan
