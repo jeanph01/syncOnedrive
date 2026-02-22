@@ -1,44 +1,50 @@
-# ===============================
-# TEMP SCRIPT - Récupère 1 page de delta et dump JSON complet
-# ===============================
+# ============================================================
+# ONEDRIVE INDEXER V12.1 - FOCUS EXCLUSIF (FORCE)
+# ============================================================
 $ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
-$TenantId = "common"
-$Scopes = "offline_access openid Files.Read"
+$IndexFile = ".\onedrive_cache.json"
 
-# Auth
-$DeviceCode = Invoke-RestMethod -Method POST `
-    -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/devicecode" `
-    -Body @{ client_id = $ClientId; scope = $Scopes }
+# ID spécifique du dossier 'ensemble' que nous avons identifié
+$TargetID = "440B3E9A717E6203!130354" 
 
-Write-Host $DeviceCode.message
-
-do {
-    Start-Sleep 5
-    try {
-        $Auth = Invoke-RestMethod -Method POST `
-            -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token" `
-            -Body @{
-                grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
-                client_id   = $ClientId
-                device_code = $DeviceCode.device_code
-            }
-    } catch {}
-} until ($Auth.access_token)
-
-$AccessToken = $Auth.access_token
-Write-Host "Authenticated.`n"
-
-# Première page delta
-$NextLink = "https://graph.microsoft.com/v1.0/me/drive/root/delta?select=name,id,hashes,size,file"
-try {
-    $Response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $NextLink -Method GET
-} catch {
-    Write-Host "Error retrieving delta: $($_.Exception.Message)" -ForegroundColor Red
-    exit 1
+# --- CHARGEMENT DE L'INDEX EXISTANT ---
+if (Test-Path $IndexFile) {
+    $script:Cache = Get-Content $IndexFile | ConvertFrom-Json -AsHashtable
+    Write-Host "Index existant chargé : $($script:Cache.Files.Count) fichiers." -ForegroundColor Cyan
+} else {
+    $script:Cache = @{ Files = @{} }
 }
 
-# Écrire tout le JSON dans un fichier pour inspection
-$DumpFile = ".\onedrive_firstpage.json"
-$Response | ConvertTo-Json -Depth 10 | Set-Content $DumpFile
+# --- AUTH --- (On réutilise la méthode DeviceCode)
+$DeviceCode = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/devicecode" -Body @{ client_id = $ClientId; scope = "Files.Read.All" }
+Write-Host "`n$($DeviceCode.message)" -ForegroundColor Yellow
+$Auth = $null; while (!$Auth) { Start-Sleep 5; try { $Auth = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/token" -Body @{ grant_type = "urn:ietf:params:oauth:grant-type:device_code"; client_id = $ClientId; device_code = $DeviceCode.device_code } } catch {} }
+$Headers = @{ Authorization = "Bearer $($Auth.access_token)" }
 
-Write-Host "First page JSON dumped to $DumpFile. Stop processing now." -ForegroundColor Green
+function Get-OneDriveDeepFocus {
+    param ($FolderId, $PathName)
+    $Uri = "https://graph.microsoft.com/v1.0/me/drive/items/$FolderId/children?`$top=999"
+    
+    while ($Uri) {
+        try {
+            $Dir = Invoke-RestMethod -Headers $Headers -Uri $Uri -Method GET
+            foreach ($item in $Dir.value) {
+                if ($item.file) {
+                    $script:Cache.Files[$item.id] = $item
+                } elseif ($item.folder) {
+                    Write-Host " -> Dossier Photos : $PathName/$($item.name) (Total index : $($script:Cache.Files.Count))" -ForegroundColor Gray
+                    Get-OneDriveDeepFocus -FolderId $item.id -PathName "$PathName/$($item.name)"
+                }
+            }
+            $Uri = $Dir.'@odata.nextLink'
+        } catch { $Uri = $null }
+    }
+}
+
+# --- ACTION ---
+Write-Host "Ciblage forcé sur le dossier 'ensemble'..." -ForegroundColor Green
+Get-OneDriveDeepFocus -FolderId $TargetID -PathName "ENSEMBLE"
+
+# Sauvegarde
+$script:Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
+Write-Host "`nTerminé. Nouvel index global : $($script:Cache.Files.Count) fichiers." -ForegroundColor Green
