@@ -280,22 +280,42 @@ if ($Execute -and $NewLog.Count -gt 0) {
     $uniqueFolders = $NewLog | ForEach-Object { if ($_ -match "DST:(.*)/.*$") { $Matches[1] } } | Select-Object -Unique | Sort-Object
     foreach ($fld in $uniqueFolders) { Ensure-OneDrivePath -Headers $Headers -Path $fld }
 
-    Write-Host "`n[3/4] Déplacement..." -ForegroundColor Magenta
+Write-Host "`n[3/4] Déplacement..." -ForegroundColor Magenta
     $interactive = $true; $successList = @()
+    
     foreach ($line in $NewLog) {
         if ($line -match "ID:(.*) \| SRC:(.*) \| DST:(.*)") {
             $fId = $Matches[1]; $src = $Matches[2]; $dst = $Matches[3]
             $dstDir = [System.IO.Path]::GetDirectoryName($dst).Replace("\", "/"); $dstName = [System.IO.Path]::GetFileName($dst)
             $encodedDstDir = ($dstDir -split '/' | Where-Object {$_} | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
 
-            Write-Host "`nFichier : $dstName" -ForegroundColor Gray
+            # --- AFFICHAGE DU COMPARATIF ---
+            Write-Host "`n" + ("-" * 80) -ForegroundColor Gray
+            Write-Host "FICHIER : " -NoNewline -ForegroundColor White; Write-Host $dstName -ForegroundColor Cyan
+            Write-Host "SOURCE  : " -NoNewline -ForegroundColor White; Write-Host $src -ForegroundColor Yellow
+            Write-Host "DEST    : " -NoNewline -ForegroundColor White; Write-Host $dst -ForegroundColor Green
+            Write-Host ("-" * 80) -ForegroundColor Gray
+
             if ($interactive) {
-                $c = Read-Host "Confirmer ? [O] Oui / [N] Non / [T] Tout / [Q] Quitter"
-                if ($c -eq "T") { $interactive = $false } elseif ($c -eq "Q") { break } elseif ($c -ne "O") { continue }
+                $c = Read-Host "Confirmer le déplacement ? [O] Oui / [N] Non / [T] Tout / [Q] Quitter"
+                $c = $c.ToUpper()
+                if ($c -eq "T") { $interactive = $false } 
+                elseif ($c -eq "Q") { break } 
+                elseif ($c -ne "O") { 
+                    Write-Host "  [Passé] Fichier ignoré." -ForegroundColor Gray
+                    continue 
+                }
             }
+
             try {
-                $body = @{ parentReference = @{ path = "/drive/root:/$($encodedDstDir):" }; name = $dstName } | ConvertTo-Json
+                $body = @{ 
+                    parentReference = @{ path = "/drive/root:/$($encodedDstDir):" }; 
+                    name = $dstName 
+                } | ConvertTo-Json
+                
                 Invoke-RestMethod -Headers $Headers -Uri "https://graph.microsoft.com/v1.0/me/drive/items/$fId" -Method PATCH -Body $body -ErrorAction Stop
+                
+                Write-Host "  [OK] Déplacement réussi." -ForegroundColor Green
                 "$(Get-Date -Format 'HH:mm'),$fId,SUCCESS,$src,$dst," | Add-Content $ExecutionReport
                 $fId | Add-Content $ProcessedLog
             } catch {
