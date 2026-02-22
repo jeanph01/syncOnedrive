@@ -26,7 +26,6 @@
     $false (DÉFAUT) : Mode simulation. Génère le fichier de log.
     $true : Applique les changements sur OneDrive.
 #>
-
 param (
     [bool]$Execute = $false,
     [string]$LogFile = ".\organisation_log.txt",
@@ -49,15 +48,17 @@ if (Test-Path $GpsCacheFile) { $script:GpsCache = Get-Content $GpsCacheFile | Co
 function Get-LocationName($gps) {
     if (!$gps -or $gps -eq "," -or $gps -match "^0,0$") { return $null }
     
-    # Vérification de la complétude du cache (doit avoir Ville-Province-Pays)
     $cachedValue = $script:GpsCache[$gps]
+    
+    # CRITÈRES DE RAFRAÎCHISSEMENT
     $isIncomplete = $cachedValue -and ($cachedValue -split "-").Count -lt 3
+    $hasSpecialChars = $cachedValue -and ($cachedValue -match "[^\x00-\x7F]") # Détecte tout ce qui n'est pas ASCII standard
 
-    if ($cachedValue -and !$isIncomplete) { 
+    if ($cachedValue -and !$isIncomplete -and !$hasSpecialChars) { 
         return $cachedValue 
     }
     
-    $reason = if ($isIncomplete) { "Incomplet" } else { "Nouveau" }
+    $reason = if ($hasSpecialChars) { "Caractères Spéciaux" } elseif ($isIncomplete) { "Incomplet" } else { "Nouveau" }
     Write-Host " [API GPS] $reason ($gps)..." -ForegroundColor DarkYellow -NoNewline
     
     try {
@@ -71,8 +72,21 @@ function Get-LocationName($gps) {
         $country = $addr.country
 
         if ($city -and $country) { 
-            # Nettoyage des caractères spéciaux et espaces
-            $fullLoc = "$city-$state-$country" -replace " ", "-" -replace "[^\w-]", ""
+            # 1. Concaténation
+            $fullLoc = "$city-$state-$country" -replace " ", "-"
+            
+            # 2. Nettoyage strict (ASCII uniquement + tirets)
+            # On normalise pour transformer les accents (é -> e) si possible, sinon on supprime le non-latin
+            $normalized = $fullLoc.Normalize([System.Text.NormalizationForm]::FormD)
+            $cleanBuilder = New-Object System.Text.StringBuilder
+            foreach ($char in $normalized.ToCharArray()) {
+                if ([System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($char) -ne [System.Globalization.UnicodeCategory]::NonSpacingMark) {
+                    [void]$cleanBuilder.Append($char)
+                }
+            }
+            $fullLoc = $cleanBuilder.ToString()
+            $fullLoc = [Regex]::Replace($fullLoc, "[^a-zA-Z0-9\-]", "")
+            $fullLoc = ($fullLoc -replace "-+", "-").Trim("-")
             
             $script:GpsCache[$gps] = $fullLoc
             $script:GpsCache | ConvertTo-Json | Set-Content $GpsCacheFile
@@ -92,22 +106,22 @@ function Get-PathTags($fullPath) {
 
 # --- 3. TRAITEMENT ---
 $Log = New-Object System.Collections.Generic.List[string]
-$Log.Add("=== RAPPORT V14.3 - $(Get-Date) ===")
+$Log.Add("=== RAPPORT V14.5 - $(Get-Date) ===")
 
-Write-Host "`n--- ANALYSE EN COURS ---" -ForegroundColor Cyan
+Write-Host "`n--- DÉMARRAGE DE L'ANALYSE ($TotalFiles fichiers) ---" -ForegroundColor Cyan
 
 $count = 0
 foreach ($id in $FileIds) {
     $count++
     $f = $Cache.Files[$id]
     
-    # UI Progression
+    # Progression
     $elapsed = (Get-Date) - $StartTime
     $avgTime = $elapsed.TotalSeconds / $count
     $remainingStr = "{0:hh\:mm\:ss}" -f [TimeSpan]::FromSeconds($avgTime * ($TotalFiles - $count))
 
     if ($count % 10 -eq 0) {
-        Write-Progress -Activity "Analyse $(([Math]::Round(($count/$TotalFiles)*100,1)))%" `
+        Write-Progress -Activity "Analyse $([Math]::Round(($count/$TotalFiles)*100,1))%" `
                        -Status "Fichiers: $count/$TotalFiles | Restant: $remainingStr" `
                        -PercentComplete (($count / $TotalFiles) * 100)
     }
@@ -123,7 +137,7 @@ foreach ($id in $FileIds) {
     $newName = ""
     $targetDir = ""
 
-    # Attribution de la nomenclature selon type
+    # NOMENCLATURE PHOTOS / VIDÉOS
     if ($ext -match ".jpg|.jpeg|.png|.heic|.mp4|.mov") {
         $parts = New-Object System.Collections.Generic.List[string]
         $parts.Add($dateRef.ToString("yyyyMMdd_HHmmss"))
@@ -134,15 +148,18 @@ foreach ($id in $FileIds) {
             if($f.dur){$parts.Add($f.dur)}; if($f.res){$parts.Add($f.res)}
             $targetDir = "/Vidéos/Pellicule/$($dateRef.Year)/$($dateRef.ToString('MM'))"
         } else {
-            if ($name -and $tags -notlike "*$name*") { $parts.Add($name) }
+            if ($name -and $tags -notlike "*$name*" -and $name -notmatch "^\d+$") { $parts.Add($name) }
             if($f.cam){$parts.Add($f.cam)}
             $targetDir = "/Images/Pellicule/$($dateRef.Year)/$($dateRef.ToString('MM'))"
         }
         $newName = ($parts -join "_") + $ext
     }
+    # NOMENCLATURE AUDIO
     elseif ($ext -match ".mp3|.m4a|.flac") {
-        $newName = "$($f.art) - $($f.alb) - $name$ext"
-        $targetDir = "/Musique/$($f.art)/$($f.alb)"
+        $artiste = if($f.art){$f.art}else{"Inconnu"}
+        $album = if($f.alb){$f.alb}else{"Inconnu"}
+        $newName = "$artiste - $album - $name$ext"
+        $targetDir = "/Musique/$artiste/$album"
     }
 
     if ($newName) {
@@ -153,4 +170,4 @@ foreach ($id in $FileIds) {
 }
 
 $Log | Set-Content $LogFile
-Write-Host "`nFIN. Cache mis à jour et log généré." -ForegroundColor Green
+Write-Host "`nTERMINÉ. Log généré : $LogFile" -ForegroundColor Green
