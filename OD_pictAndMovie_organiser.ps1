@@ -61,40 +61,24 @@
     4. ARCHITECTURE DES DOSSIERS :
        - Racine Pellicule : /Images/Pellicule/AAAA/MM/
        - Exception Coffre-Fort : /Pour coffre fort/Images (ou Videos)/AAAA/MM/
-#>
-<#
-.SYNOPSIS
     V18.8 - Organisateur OneDrive Intégral avec Archivage des Logs.
     Nouveauté : Paramètre -KeepLogs pour conserver l'historique des exécutions.
-#>
-<#
-.SYNOPSIS
     V18.9 - Organisateur OneDrive Intégral (Édition Stable)
     - Correction Compatibilité PS7+ (Response.Content)
     - Encodage URL Strict pour dossiers avec espaces
     - Archivage des logs via -KeepLogs
     - Nettoyage Base64/Hexa et Tags Vidéo
-#>
-<#
-.SYNOPSIS
     V19.1 - Organisateur OneDrive Intégral (Édition Debug & Stable)
     - Correction PS7+ (Exception.Response.Content)
     - Encodage URL sécurisé segmenté
     - Archivage des logs via -KeepLogs
     - Nettoyage Base64/Hexa et Tags Vidéo
-#>
-<#
-.SYNOPSIS
     V19.3 - Organisateur OneDrive (Mode Reprise Rapide)
     - Skip calcul si organisation_log.txt existe et KeepLogs = true
     - Correction syntaxique Microsoft Graph (root:/path:)
-#>
-<#
-.SYNOPSIS
     V19.4 - Organisateur OneDrive "Smart-Resume" & Microsoft Graph Ultra-Stable.
     Optimisé pour : PowerShell 7.4+, API Microsoft Graph v1.0.
 
-.DESCRIPTION
     Transforme un vrac OneDrive en archive chronologique épurée (Images/Videos/Audio).
     HIÉRARCHIE DE NOMMAGE (Limite 100 char) :
     [Date_Heure]_[Nom_Épuré]_[Contexte_Dossier]_[Tags]__v_.ext
@@ -109,12 +93,39 @@ param (
     [string]$ExecutionReport = ".\azure_sync_report.csv"
 )
 
+# ===============================
+# DEBUG & TELEMETRY SYSTEM
+# ===============================
+
+[string]$DebugLog = ".\debug_trace.log"
+$Global:DebugEnabled = $true
+$ErrorActionPreference = "Stop"
+
+function Write-DebugLog {
+    param(
+        [string]$Step,
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+
+    if (-not $Global:DebugEnabled) { return }
+
+    $line = "{0} | {1,-8} | {2,-20} | {3}" -f `
+        (Get-Date -Format "yyyy-MM-dd HH:mm:ss"),
+        $Level,
+        $Step,
+        $Message
+
+    Add-Content $DebugLog $line
+}
+
 Clear-Host
 Write-Host "--- ONEDRIVE ORGANIZER V19.4 ---" -ForegroundColor Cyan
 
 # --- 1. GESTION DES LOGS ET REPRISE ---
 $TimestampLog = Get-Date -Format "yyyyMMdd_HHmmss"
 $CanResume = $KeepLogs -and (Test-Path $LogFile)
+Write-DebugLog "AUTH" "Token reçu longueur=$($Auth.access_token.Length)"
 $NewLog = New-Object System.Collections.Generic.List[string]
 
 if ($CanResume) {
@@ -136,24 +147,38 @@ $FolderInventory = @{}
 
 function Get-ErrorDetails {
     param($Ex)
+
+    $status  = ""
     $details = ""
+
     try {
-        if ($Ex.Response.Content) {
-            $details = $Ex.Response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-        } elseif ($Ex.Response) {
-            $reader = New-Object System.IO.StreamReader($Ex.Response.GetResponseStream())
+
+        if ($Ex.Exception.Response) {
+            $status = $Ex.Exception.Response.StatusCode.Value__
+        }
+
+        if ($Ex.Exception.Response.Content) {
+            $details = $Ex.Exception.Response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+        }
+        elseif ($Ex.Exception.Response) {
+            $reader = New-Object System.IO.StreamReader(
+                $Ex.Exception.Response.GetResponseStream()
+            )
             $details = $reader.ReadToEnd()
         }
-    } catch { $details = "Flux d'erreur illisible." }
-    
-    # Correction de la syntaxe PowerShell ici
-    if ([string]::IsNullOrWhiteSpace($details)) { 
-        return $Ex.Message 
-    } else { 
-        return $details 
     }
-}
+    catch {
+        $details = "Impossible de lire la réponse Graph"
+    }
 
+    Write-DebugLog "GRAPH_ERROR" "Status=$status | $details" "ERROR"
+
+    if ([string]::IsNullOrWhiteSpace($details)) {
+        return $Ex.Exception.Message
+    }
+
+    return $details
+}
 # --- 3. FONCTIONS CORE ---
 
 function Ensure-OneDrivePath {

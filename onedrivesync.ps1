@@ -3,8 +3,8 @@
 # ============================================================
 param (
     [ValidateSet("Online", "Offline")]
-    [string]$Mode = "Offline",
-    [switch]$ForceNewScan = $false
+    [string]$Mode = "Online",
+    [switch]$ForceNewScan = $true
 )
 
 $ProgressPreference = 'SilentlyContinue' # Désactivé car Write-Host est plus fluide pour des milliers de fichiers
