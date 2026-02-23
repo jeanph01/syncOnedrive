@@ -86,7 +86,7 @@
 
 param (
     [bool]$Execute = $true,
-    [bool]$KeepLogs = $false,
+    [bool]$KeepLogs = $true,
     [string]$IndexFile = ".\onedrive_cache.json",
     [string]$LogFile = ".\organisation_log.txt",
     [string]$ProcessedLog = ".\processed_ids.log",
@@ -184,11 +184,6 @@ function Ensure-OneDrivePath {
         $uriGet = "https://graph.microsoft.com/v1.0/me/drive/root:/$($segments):"
 
         try {
-            write-Host "  Vérification : /$currentPath" -ForegroundColor Gray
-            write-Host "    Segments encodés : $segments" -ForegroundColor DarkGray
-            write-Host "    URI GET : $uriGet" -ForegroundColor DarkGray
-            write-Host "    Headers : $($Headers | Out-String)" -ForegroundColor DarkGray            
-
             Invoke-RestMethod -Headers $Headers -Uri $uriGet -Method Get -ErrorAction Stop > $null
         } catch {
             Write-Host "    [Dossier] Création : /$currentPath" -ForegroundColor Cyan
@@ -209,28 +204,15 @@ function Ensure-OneDrivePath {
             } | ConvertTo-Json -Compress
 
             try {
-                write-host "headers = $Headers"
-                write-host "URI POST = $uriPost"
-                write-host "Body = $body"
-
-                $resp = Invoke-RestMethod -Headers $Headers -Uri $uriPost -Method POST -Body $body -ErrorAction Stop > $null
+                Invoke-RestMethod -Headers $Headers -Uri $uriPost -Method POST -Body $body -ErrorAction Stop > $null
             } catch {
                 $err = Get-ErrorDetails $_
-                Write-Host "      [!] Détail : $err, resp = $resp" -ForegroundColor Yellow
+                Write-Host "      [!] Détail : $err" -ForegroundColor Yellow
             }
         }
     }
 }
 
-function Get-TargetRoot {
-    param([string]$SourcePath) 
-    # Détection des racines spécifiques selon vos dossiers de départ 
-    if ($SourcePath -like "*Pour coffre fort/Michelle*") { return "Pour coffre fort/Michelle" } 
-    if ($SourcePath -like "*Pour coffre fort/relations*") { return "Pour coffre fort/relations" } 
-    if ($SourcePath -like "*Pour coffre fort/archives*") { return "Pour coffre fort/archives" } 
-    if ($SourcePath -like "*Videos*") { return "Videos" } 
-    return "Images/Pellicule" # Par défaut pour les photos 
-}
 
 # --- 4. ANALYSE ET CALCULS ---
 if (!(Test-Path $IndexFile)) { Write-Error "Cache introuvable."; exit }
@@ -257,17 +239,6 @@ foreach ($id in $Cache.Files.Keys) {
     $rawDest = if ($f.p -match "Pour coffre fort") { "Pour coffre fort/$subType/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))" }
                else { "$subType/Pellicule/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))" }
     
-
-    # Appel correct de la fonction
-    $targetRoot = Get-TargetRoot -SourcePath $f.p
-
-    # Utilisation de la racine déterminée pour construire le chemin final
-    $rawDest = if ($targetRoot -like "Pour coffre fort*") { 
-        "$targetRoot/$subType/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))" 
-    } else { 
-        "$targetRoot/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))" 
-    }
-
     $cleanDest = Get-CleanAscii $rawDest $true
     $targetKey = "/$cleanDest/$newName"
     $suffix = 1
