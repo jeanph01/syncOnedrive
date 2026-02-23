@@ -61,27 +61,27 @@
     4. ARCHITECTURE DES DOSSIERS :
        - Racine Pellicule : /Images/Pellicule/AAAA/MM/
        - Exception Coffre-Fort : /Pour coffre fort/Images (ou Videos)/AAAA/MM/
-#>
-<#
-.SYNOPSIS
     V18.8 - Organisateur OneDrive Intégral avec Archivage des Logs.
     Nouveauté : Paramètre -KeepLogs pour conserver l'historique des exécutions.
-#>
-<#
-.SYNOPSIS
     V18.9 - Organisateur OneDrive Intégral (Édition Stable)
     - Correction Compatibilité PS7+ (Response.Content)
     - Encodage URL Strict pour dossiers avec espaces
     - Archivage des logs via -KeepLogs
     - Nettoyage Base64/Hexa et Tags Vidéo
-#>
-<#
-.SYNOPSIS
     V19.1 - Organisateur OneDrive Intégral (Édition Debug & Stable)
     - Correction PS7+ (Exception.Response.Content)
     - Encodage URL sécurisé segmenté
     - Archivage des logs via -KeepLogs
     - Nettoyage Base64/Hexa et Tags Vidéo
+    V19.3 - Organisateur OneDrive (Mode Reprise Rapide)
+    - Skip calcul si organisation_log.txt existe et KeepLogs = true
+    - Correction syntaxique Microsoft Graph (root:/path:)
+    V19.4 - Organisateur OneDrive "Smart-Resume" & Microsoft Graph Ultra-Stable.
+    Optimisé pour : PowerShell 7.4+, API Microsoft Graph v1.0.
+
+    Transforme un vrac OneDrive en archive chronologique épurée (Images/Videos/Audio).
+    HIÉRARCHIE DE NOMMAGE (Limite 100 char) :
+    [Date_Heure]_[Nom_Épuré]_[Contexte_Dossier]_[Tags]__v_.ext
 #>
 
 param (
@@ -93,15 +93,44 @@ param (
     [string]$ExecutionReport = ".\azure_sync_report.csv"
 )
 
+# ===============================
+# DEBUG & TELEMETRY SYSTEM
+# ===============================
+
+[string]$DebugLog = ".\debug_trace.log"
+$Global:DebugEnabled = $true
+$ErrorActionPreference = "Stop"
+
+function Write-DebugLog {
+    param(
+        [string]$Step,
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+
+    if (-not $Global:DebugEnabled) { return }
+
+    $line = "{0} | {1,-8} | {2,-20} | {3}" -f `
+        (Get-Date -Format "yyyy-MM-dd HH:mm:ss"),
+        $Level,
+        $Step,
+        $Message
+
+    Add-Content $DebugLog $line
+}
+
 Clear-Host
 Write-Host "--- ONEDRIVE ORGANIZER V19.1 ---" -ForegroundColor Cyan
 
 # --- 1. GESTION DES LOGS ---
 $TimestampLog = Get-Date -Format "yyyyMMdd_HHmmss"
-if ($KeepLogs) {
-    Write-Host "[Info] Archivage des logs activé." -ForegroundColor Gray
-    if (Test-Path $LogFile) { Rename-Item $LogFile "organisation_log_$TimestampLog.txt" }
-    if (Test-Path $ExecutionReport) { Rename-Item $ExecutionReport "azure_sync_report_$TimestampLog.csv" }
+$CanResume = $KeepLogs -and (Test-Path $LogFile)
+$NewLog = New-Object System.Collections.Generic.List[string]
+
+if ($CanResume) {
+    $LogSize = (Get-Item $LogFile).Length / 1KB
+    Write-Host "[Info] Mode Reprise : Chargement du plan existant ($([math]::Round($LogSize,2)) KB)..." -ForegroundColor Yellow
+    $NewLog = Get-Content $LogFile
 } else {
     if (Test-Path $LogFile) { Remove-Item $LogFile -Force }
 }
@@ -114,58 +143,28 @@ $FolderInventory = @{}
 
 function Get-ErrorDetails {
     param($Ex)
+
+    $status  = ""
     $details = ""
+
     try {
-        # Si PowerShell 7 (utilise HttpResponseMessage)
         if ($Ex.Response.Content) {
             $details = $Ex.Response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-        } 
-        # Si PowerShell 5.1 (utilise WebResponse)
-        elseif ($Ex.Response) {
+        } elseif ($Ex.Response) {
             $reader = New-Object System.IO.StreamReader($Ex.Response.GetResponseStream())
             $details = $reader.ReadToEnd()
         }
-    } catch {
-        $details = "Flux d'erreur illisible."
-    }
+    } catch { $details = "Flux d'erreur illisible." }
     
-    if ([string]::IsNullOrWhiteSpace($details)) { $details = $Ex.Message }
-    return $details
-}
-
-# --- 3. FONCTIONS DE NETTOYAGE ET DOSSIERS ---
-
-function Get-CleanAscii {
-    param([string]$text, [bool]$isPath = $false)
-    if ([string]::IsNullOrWhiteSpace($text)) { return "" }
-    $normalized = $text.Normalize([System.Text.NormalizationForm]::FormD)
-    $sb = New-Object System.Collections.Generic.List[char]
-    foreach ($c in $normalized.ToCharArray()) {
-        if ([System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($c) -ne [System.Globalization.UnicodeCategory]::NonSpacingMark) {
-            $sb.Add($c)
-        }
+    # Correction de la syntaxe PowerShell ici
+    if ([string]::IsNullOrWhiteSpace($details)) { 
+        return $Ex.Message 
+    } else { 
+        return $details 
     }
-    $clean = (-join $sb) -replace "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}", ""
-    $clean = $clean -replace "[a-zA-Z0-9]{16,}", ""
-    $pattern = if ($isPath) { "[^a-zA-Z0-9\.\-/]" } else { "[^a-zA-Z0-9\.\-]" }
-    return ($clean -replace $pattern, "_" -replace "_+", "_").Trim("_")
 }
 
-function Get-SmartMergedName {
-    param($ts, $context, $oldName, $marker, $ext, $vTags)
-    $cleanOld = Get-CleanAscii $oldName $false
-    $cleanCtx = Get-CleanAscii $context $false
-    $filteredWords = ($cleanOld -split "_" | Where-Object { $ts -notmatch $_ -and $_.Length -gt 1 }) -join "_"
-    $fixedLen = $ts.Length + $filteredWords.Length + $marker.Length + $vTags.Length + $ext.Length + 4
-    $avail = 100 - $fixedLen
-    $finalCtx = ""
-    if ($avail -gt 5 -and $cleanCtx) {
-        $finalCtx = if ($cleanCtx.Length -gt $avail) { $cleanCtx.Substring($cleanCtx.Length - $avail).Trim("_") } else { $cleanCtx }
-    }
-    $parts = New-Object System.Collections.Generic.List[string]
-    $parts.Add($ts); if ($filteredWords) { $parts.Add($filteredWords) }; if ($finalCtx) { $parts.Add($finalCtx) }; if ($vTags) { $parts.Add($vTags) }
-    return "$(($parts -join "_").Trim('_'))$marker$ext"
-}
+# --- 3. FONCTIONS CORE ---
 
 function Ensure-OneDrivePath {
     param($Headers, $Path)
