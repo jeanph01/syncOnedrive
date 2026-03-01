@@ -4,7 +4,8 @@
 param (
     [ValidateSet("Online", "Offline")]
     [string]$Mode = "Online",
-    [switch]$ForceNewScan = $true
+    [switch]$ForceNewScan = $false,
+    [string]$LocalFolder    = "F:\versodjpm2"
 )
 
 $ProgressPreference = 'SilentlyContinue' # Désactivé car Write-Host est plus fluide pour des milliers de fichiers
@@ -19,13 +20,13 @@ $Header = @"
   Date de lancement : $($TimeStart.ToString("dd/MM/yyyy HH:mm:ss"))
   Mode sélectionné  : $Mode
   Forcer Scan      : $($ForceNewScan ? "OUI" : "NON")
-  Dossier cible    : D:\recup
+  Dossier cible    : $LocalFolder 
 ************************************************************
 "@
 Write-Host $Header -ForegroundColor Cyan
 
 # ---------------- CONFIGURATION ----------------
-$LocalFolder    = "D:\recup"
+
 $IndexFile      = ".\onedrive_cache.json"
 $ReportFile     = ".\onedrive_doublons_rapport.txt"
 $DupFolder      = Join-Path $LocalFolder "_Doublons"

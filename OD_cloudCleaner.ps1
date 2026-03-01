@@ -43,6 +43,7 @@ foreach ($hash in $HashGroups.Keys) {
         }
 
         $ToKeep = $sorted[0]
+         
         $ToDelete = $sorted | Select-Object -Skip 1
 
         Write-Host "`nGroupe $hash :" -ForegroundColor Gray
