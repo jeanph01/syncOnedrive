@@ -4,8 +4,8 @@
 param (
     [ValidateSet("Online", "Offline")]
     [string]$Mode = "Online",
-    [switch]$ForceNewScan = $false,
-    [string]$LocalFolder    = "F:\versodjpm2"
+    [switch]$ForceNewScan = $true,
+    [string]$LocalFolder    = "D:\recup"
 )
 
 $ProgressPreference = 'SilentlyContinue' # Désactivé car Write-Host est plus fluide pour des milliers de fichiers

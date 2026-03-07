@@ -15,37 +15,31 @@
 #>
 
 param (
-    [bool]$Execute = $true,
-    [bool]$KeepLogs = $true,
-    [string]$IndexFile = ".\onedrive_cache.json",
-    [string]$LogFile = ".\organisation_log.txt",
-    [string]$ProcessedLog = ".\processed_ids.log",
-    [string]$ExecutionReport = ".\azure_sync_report.csv",
-    [bool]$VerboseMode = $false
+    [bool]$Execute = $false,        # Par défaut, le script affiche un aperçu sans effectuer de modifications. Passer à $true pour exécuter les changements.
+    #[bool]$KeepLogs = $true,
+    [string]$IndexFile = ".\onedrive_cache.json", # Fichier de cache local (JSON) contenant les métadonnées des fichiers OneDrive.
+    [string]$LogFile = ".\organisation_log.txt", # Fichier de log détaillé des actions planifiées et exécutées.
+    [string]$ProcessedLog = ".\processed_ids.log", # Fichier contenant les IDs des fichiers déjà traités pour éviter les doublons.
+    [string]$ExecutionReport = ".\azure_sync_report.csv", # Fichier CSV structuré avec les résultats de l'exécution (succès/erreur).
+    [bool]$VerboseMode = $false # Affiche des informations détaillées sur le processus pour le débogage et la validation.
 )
 
 Clear-Host
 Write-Host "--- ONEDRIVE ORGANIZER (refactor v1.0) ---" -ForegroundColor Cyan
 
-# -------------------------
-# 1. LOGS ET INITIALISATION
-# -------------------------
-$TimestampLog = Get-Date -Format "yyyyMMdd_HHmmss"
-if ($KeepLogs) {
-    Write-Host "[Info] Archivage des logs activé." -ForegroundColor Gray
-    if (Test-Path $LogFile) { Rename-Item $LogFile "organisation_log_$TimestampLog.txt" -Force }
-    if (Test-Path $ExecutionReport) { Rename-Item $ExecutionReport "azure_sync_report_$TimestampLog.csv" -Force }
-} else {
+# Init-Logs : Prépare l'environnement en supprimant les anciens fichiers de logs et en créant
+# les nouveaux fichiers de rapport (.txt et .csv) pour garantir un suivi propre.
+function Init-Logs {
+    # supprime l'ancien log 
     if (Test-Path $LogFile) { Remove-Item $LogFile -Force }
+
+    # entete csv
+    "Timestamp,ID,Status,OldPath,NewPath,Error" | Set-Content $ExecutionReport
+
+    $RenameMarker = "_v_"
+    $FolderInventory = @{}    # clé = "/cleanDest/newName" -> valeur = $true
 }
-"Timestamp,ID,Status,OldPath,NewPath,Error" | Set-Content $ExecutionReport
 
-$RenameMarker = "_v_"
-$FolderInventory = @{}    # clé = "/cleanDest/newName" -> valeur = $true
-
-# -------------------------
-# 2. FONCTIONS UTILITAIRES
-# -------------------------
 
 function Get-ErrorDetails {
     <#
@@ -172,19 +166,34 @@ function Ensure-OneDrivePath {
         $segments = ($currentPath -split '/' | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
         $uriGet = "https://graph.microsoft.com/v1.0/me/drive/root:/$($segments):"
         try {
-            if ($VerboseMode) { Write-Host "  Vérif: /$currentPath -> $uriGet" -ForegroundColor DarkGray }
+            write-Host "  Vérification : /$currentPath" -ForegroundColor Gray
+            write-Host "    Segments encodés : $segments" -ForegroundColor DarkGray
+            write-Host "    URI GET : $uriGet" -ForegroundColor DarkGray
+            write-Host "    Headers : $($Headers | Out-String)" -ForegroundColor DarkGray            
             Invoke-RestMethod -Headers $Headers -Uri $uriGet -Method Get -ErrorAction Stop > $null
         } catch {
-            Write-Host "    Création dossier : /$currentPath" -ForegroundColor Cyan
+            Write-Host "    [Dossier] Création : /$currentPath" -ForegroundColor Cyan
             $parentSegments = ($parentPath -split '/' | Where-Object {$_} | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
-            $uriPost = if ($parentPath -eq "") { "https://graph.microsoft.com/v1.0/me/drive/root/children" } else { "https://graph.microsoft.com/v1.0/me/drive/root:/$($parentSegments):/children" }
-            $body = @{ name = $part; folder = @{}; "@microsoft.graph.conflictBehavior" = "ignore" } | ConvertTo-Json -Compress
+            
+            # Pour la création (POST), la syntaxe est root:/chemin:/children
+            $uriPost = if ($parentPath -eq "") { 
+                "https://graph.microsoft.com/v1.0/me/drive/root/children" 
+            } else { 
+                "https://graph.microsoft.com/v1.0/me/drive/root:/$($parentSegments):/children" 
+            }
+            $body = @{ 
+                name = $part; 
+                folder = @{}; 
+                "@microsoft.graph.conflictBehavior" = "ignore" 
+            } | ConvertTo-Json -Compress
             try {
-                if ($VerboseMode) { Write-Host "    POST -> $uriPost ; Body: $body" -ForegroundColor DarkGray }
-                Invoke-RestMethod -Headers $Headers -Uri $uriPost -Method POST -Body $body -ErrorAction Stop > $null
+                write-host "headers = $Headers"
+                write-host "URI POST = $uriPost"
+                write-host "Body = $body"
+                $resp = Invoke-RestMethod -Headers $Headers -Uri $uriPost -Method POST -Body $body -ErrorAction Stop > $null
             } catch {
                 $err = Get-ErrorDetails $_
-                Write-Host "      [!] Erreur création dossier : $err" -ForegroundColor Yellow
+                Write-Host "      [!] Détail : $err, resp = $resp" -ForegroundColor Yellow
             }
         }
     }
@@ -207,130 +216,230 @@ function Determine-TargetRoot {
     return "Images/Pellicule"
 }
 
-# -------------------------
-# 3. CHARGEMENT DU CACHE
-# -------------------------
-if (!(Test-Path $IndexFile)) { Write-Error "Cache introuvable: $IndexFile"; exit 1 }
-$Cache = Get-Content $IndexFile -Raw | ConvertFrom-Json -AsHashtable
-$ProcessedIds = @{}
-if (Test-Path $ProcessedLog) { Get-Content $ProcessedLog | ForEach-Object { $ProcessedIds[$_] = $true } }
+# Load-Cache : Charge les métadonnées de vos fichiers OneDrive depuis le fichier JSON 
+# (onedrive_cache.json) et identifie les fichiers déjà traités pour éviter de travailler en double.
+function Load-Cache {
+    if (!(Test-Path $IndexFile)) { Write-Error "Cache introuvable: $IndexFile"; exit 1 }
+    write-host "Chargement du cache local..." -ForegroundColor Gray
+    $Cache = Get-Content $IndexFile -Raw | ConvertFrom-Json -AsHashtable
+    $ProcessedIds = @{}
+    if (Test-Path $ProcessedLog) { Get-Content $ProcessedLog | ForEach-Object { $ProcessedIds[$_] = $true } }
 
-Write-Host "[1/4] Analyse des fichiers..." -ForegroundColor Gray
-$PlannedActions = New-Object System.Collections.Generic.List[string]
+} # Load-Cache
 
-foreach ($fileId in $Cache.Files.Keys) {
-    if ($ProcessedIds.ContainsKey($fileId)) { continue }
-    $fileEntry = $Cache.Files[$fileId]
-    if ($fileEntry.n -match $RenameMarker) { continue }
+# Create-Plan : Analyse la liste des fichiers, filtre ceux qui sont pris en charge 
+# (photos, vidéos, audio), calcule les nouveaux noms « intelligents » (basés sur la 
+# date et le contexte), définit les dossiers de destination et génère un plan d'action.
+function Create-Plan {
+        
+    Write-Host "[1/4] Analyse des fichiers..." -ForegroundColor Gray
+    $PlannedActions = New-Object System.Collections.Generic.List[string]
 
-    $extension = [System.IO.Path]::GetExtension($fileEntry.n).ToLower()
-    if ($extension -notmatch ".jpg|.jpeg|.png|.heic|.mp4|.mov") { continue }
+    foreach ($fileId in $Cache.Files.Keys) {
+        if ($ProcessedIds.ContainsKey($fileId)) { continue }
+        $fileEntry = $Cache.Files[$fileId]
+        if ($fileEntry.n -match $RenameMarker) { continue }
 
-    $timestampStr = ([DateTime]$fileEntry.d).ToString("yyyyMMdd_HHmmss")
-    $videoTags = if ($fileEntry.dur -or $fileEntry.res) { (($fileEntry.dur, $fileEntry.res | Where-Object {$_}) -join "_") } else { "" }
+        $AllowedExtensions = @(
+            ".jpg", ".jpeg", ".png", ".heic",        # Photos
+            ".mp4", ".mov", ".avi", ".mpg", ".mpeg", ".wmv", # Vidéos
+            ".mp3", ".m4a",                          # Audio
+            ".bmp", ".gif", ".pcx"                   # Autres images
+        )
 
-    $pathParts = $fileEntry.p -split "/" | Where-Object { $_ -and $_ -notmatch "drive|root|Images|Videos|Pellicule" }
-    $context = if ($pathParts.Length -gt 0) { ($pathParts[[Math]::Max(0, $pathParts.Length-3)..($pathParts.Length-1)]) -join "_" } else { "" }
+        $extension = [System.IO.Path]::GetExtension($fileEntry.n).ToLower()
 
-    $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($fileEntry.n)
-    $newName = Build-SmartFileName -timestampStr $timestampStr -contextStr $context -originalName $originalNameNoExt -marker $RenameMarker -extension $extension -videoTags $videoTags
+        # Logique inversée : Si l'extension n'est PAS dans la liste autorisée, on passe au suivant
+        if ($AllowedExtensions -notcontains $extension) {
+            if ($VerboseMode) { 
+                Write-Host " [Skip] Extension non supportée : $extension ($($fileEntry.n))" -ForegroundColor DarkGray 
+            }
+            continue 
+        }
 
-    $subType = if ($extension -match "mp4|mov") { "Videos" } else { "Images" }
-    $targetRoot = Determine-TargetRoot -SourcePath $fileEntry.p
+        $timestampStr = ([DateTime]$fileEntry.d).ToString("yyyyMMdd_HHmmss")
+        $videoTags = if ($fileEntry.dur -or $fileEntry.res) { (($fileEntry.dur, $fileEntry.res | Where-Object {$_}) -join "_") } else { "" }
 
-    if ($targetRoot -like "Pour coffre fort*") {
-        $rawDestination = "$targetRoot/$subType/$(([DateTime]$fileEntry.d).Year)/$(([DateTime]$fileEntry.d).ToString('MM'))"
-    } else {
-        $rawDestination = "$targetRoot/$(([DateTime]$fileEntry.d).Year)/$(([DateTime]$fileEntry.d).ToString('MM'))"
-    }
+        $pathParts = $fileEntry.p -split "/" | Where-Object { $_ -and $_ -notmatch "drive|root|Images|Videos|Pellicule" }
+        $context = if ($pathParts.Length -gt 0) { ($pathParts[[Math]::Max(0, $pathParts.Length-3)..($pathParts.Length-1)]) -join "_" } else { "" }
 
-    $cleanDestination = Normalize-ToAscii -text $rawDestination -isPath:$true
-    $targetKey = "/$cleanDestination/$newName"
+        $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($fileEntry.n)
+        $newName = Build-SmartFileName -timestampStr $timestampStr -contextStr $context -originalName $originalNameNoExt -marker $RenameMarker -extension $extension -videoTags $videoTags
 
-    # Anti-collision local (avant envoi)
-    $suffix = 1
-    while ($FolderInventory.ContainsKey($targetKey)) {
-        $newName = $newName -replace "$RenameMarker", "_$suffix$RenameMarker"
+        #$subType = if ($extension -match "mp4|mov") { "Videos" } else { "Images" }
+
+        # 1. Définir une configuration centralisée (à mettre idéalement en haut de script)
+        $ExtensionMap = @{
+            ".jpg"  = "Images"
+            ".jpeg" = "Images"
+            ".png"  = "Images"
+            ".heic" = "Images"
+            ".bmp"  = "Images"
+            ".gif"  = "Images"
+            ".pcx"  = "Images"
+            ".mp4"  = "Videos"
+            ".mov"  = "Videos"
+            ".avi"  = "Videos"
+            ".mpg"  = "Videos"
+            ".mpeg" = "Videos"
+            ".wmv"  = "Videos"
+            ".mp3"  = "Audio"
+            ".m4a"  = "Audio"
+        }
+
+        # 2. Utilisation simplifiée dans votre boucle
+        # On récupère directement la valeur via la clé. 
+        # Si l'extension n'existe pas dans la table, on peut définir une valeur par défaut "Autres"
+        $subType = if ($ExtensionMap.ContainsKey($extension)) { $ExtensionMap[$extension] } else { "Autres" }
+
+        $targetRoot = Determine-TargetRoot -SourcePath $fileEntry.p
+
+        # Utilisation de la racine déterminée pour construire le chemin final
+        if ($targetRoot -like "Pour coffre fort*") {
+            $rawDestination = "$targetRoot/$subType/$(([DateTime]$fileEntry.d).Year)/$(([DateTime]$fileEntry.d).ToString('MM'))"
+        } else {
+            $rawDestination = "$targetRoot/$(([DateTime]$fileEntry.d).Year)/$(([DateTime]$fileEntry.d).ToString('MM'))"
+        }
+
+        $cleanDestination = Normalize-ToAscii -text $rawDestination -isPath:$true
         $targetKey = "/$cleanDestination/$newName"
-        $suffix++
+
+        # Anti-collision local (avant envoi)
+        $suffix = 1
+        while ($FolderInventory.ContainsKey($targetKey)) {
+            $newName = $newName -replace "$RenameMarker", "_$suffix$RenameMarker"
+            $targetKey = "/$cleanDestination/$newName"
+            $suffix++
+        }
+        $FolderInventory[$targetKey] = $true
+
+        $PlannedActions.Add("ID:$fileId | SRC:$($fileEntry.p)/$($fileEntry.n) | DST:$targetKey")
     }
-    $FolderInventory[$targetKey] = $true
 
-    $PlannedActions.Add("ID:$fileId | SRC:$($fileEntry.p)/$($fileEntry.n) | DST:$targetKey")
-}
+    # Écriture du plan d'action
+    $PlannedActions | Set-Content $LogFile
+    Write-Host "[2/4] Plan d'action : $($PlannedActions.Count) fichiers." -ForegroundColor Green
 
-# Écriture du plan d'action
-$PlannedActions | Set-Content $LogFile
-Write-Host "[2/4] Plan d'action : $($PlannedActions.Count) fichiers." -ForegroundColor Green
+} # Create-Plan
+
 
 # -------------------------
 # 4. AUTHENTIFICATION ET PRE-CREATION DES DOSSIERS
 # -------------------------
-if ($Execute -and $PlannedActions.Count -gt 0) {
-    $ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
-    $DeviceCodeRequest = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/devicecode" -Body @{ client_id = $ClientId; scope = "Files.ReadWrite.All" }
-    Write-Host "`n[Connexion] Login : https://microsoft.com/devicelogin Code : $($DeviceCodeRequest.user_code)" -ForegroundColor Yellow
+# AuthenticateAzure : Gère la connexion sécurisée à Microsoft Graph (via le flux Device
+#  Code), indispensable pour obtenir les droits d'écriture sur votre OneDrive.
+function AuthenticateAzure {
+    if ($Execute -and $PlannedActions.Count -gt 0) {
+        $ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
+        $DeviceCodeRequest = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/devicecode" -Body @{ client_id = $ClientId; scope = "Files.ReadWrite.All" }
+        Write-Host "`n[Connexion] Login : https://microsoft.com/devicelogin Code : $($DeviceCodeRequest.user_code)" -ForegroundColor Yellow
 
-    $Auth = $null
-    while (!$Auth) {
-        Start-Sleep 5
-        try {
-            $Auth = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/token" -Body @{ grant_type = "urn:ietf:params:oauth:grant-type:device_code"; client_id = $ClientId; device_code = $DeviceCodeRequest.device_code }
-        } catch {
-            if ($VerboseMode) { Write-Host "Attente token..." -ForegroundColor DarkGray }
+        $Auth = $null
+        while (!$Auth) {
+            Start-Sleep 5
+            try {
+                $Auth = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/token" -Body @{ grant_type = "urn:ietf:params:oauth:grant-type:device_code"; client_id = $ClientId; device_code = $DeviceCodeRequest.device_code }
+            } catch {
+                if ($VerboseMode) { Write-Host "Attente token..." -ForegroundColor DarkGray }
+            }
         }
+        $oneDriveHeaders = @{ Authorization = "Bearer $($Auth.access_token)"; "Content-Type" = "application/json" }
     }
-    $oneDriveHeaders = @{ Authorization = "Bearer $($Auth.access_token)"; "Content-Type" = "application/json" }
+} # AuthenticateAzure
 
+# Prepare-Folders : Parcourt le plan généré et crée physiquement les dossiers manquants 
+# sur OneDrive avant de tenter de déplacer les fichiers.
+function Prepare-Folders {
     Write-Host "`n[2.5/4] Pré-création de l'arborescence..." -ForegroundColor Magenta
     $uniqueFolders = $PlannedActions | ForEach-Object { if ($_ -match "DST:(.*)/.*$") { $Matches[1] } } | Select-Object -Unique | Sort-Object
-    foreach ($folder in $uniqueFolders) { Ensure-OneDrivePath -Headers $oneDriveHeaders -Path $folder }
-}
+    foreach ($folder in $uniqueFolders) { 
+        Ensure-OneDrivePath -Headers $oneDriveHeaders -Path $folder 
+    }
+} # Prepare-Folders
 
-# -------------------------
-# 5. EXÉCUTION DES DÉPLACEMENTS
-# -------------------------
-if ($Execute -and $PlannedActions.Count -gt 0) {
-    Write-Host "`n[3/4] Déplacement..." -ForegroundColor Magenta
-    $interactive = $true
-    $successList = @()
 
-    foreach ($line in $PlannedActions) {
-        if ($line -match "ID:(.*) \| SRC:(.*) \| DST:(.*)") {
-            $fileId = $Matches[1]; $srcPath = $Matches[2]; $dstFull = $Matches[3]
-            $dstDir = [System.IO.Path]::GetDirectoryName($dstFull).Replace("\", "/")
-            $dstName = [System.IO.Path]::GetFileName($dstFull)
+# Execute-Deplacement : C'est l'étape finale. Elle applique réellement les renommages 
+# et les déplacements (via des requêtes API HTTP/PATCH) et met à jour votre fichier 
+# de cache local avec les nouvelles informations pour que le prochain lancement soit à jour.
+function Execute-Deplacement {
+    if ($Execute -and $PlannedActions.Count -gt 0) {
+        Write-Host "`n[3/4] Déplacement..." -ForegroundColor Magenta
+        $interactive = $true
+        $successList = @()
 
-            Write-Host "`nFichier : $dstName" -ForegroundColor Gray
-            if ($interactive) {
-                $c = Read-Host "Confirmer ? [O] Oui / [N] Non / [T] Tout / [Q] Quitter"
-                if ($c -eq "T") { $interactive = $false } elseif ($c -eq "Q") { break } elseif ($c -ne "O") { continue }
-            }
+        foreach ($line in $PlannedActions) {
+            if ($line -match "ID:(.*) \| SRC:(.*) \| DST:(.*)") {
+                $fileId = $Matches[1]; $srcPath = $Matches[2]; $dstFull = $Matches[3]
+                $dstDir = [System.IO.Path]::GetDirectoryName($dstFull).Replace("\", "/")
+                $dstName = [System.IO.Path]::GetFileName($dstFull)
 
-            try {
-                $body = @{ parentReference = @{ path = "/drive/root:$dstDir" }; name = $dstName } | ConvertTo-Json
-                Invoke-RestMethod -Headers $oneDriveHeaders -Uri "https://graph.microsoft.com/v1.0/me/drive/items/$fileId" -Method PATCH -Body $body -ErrorAction Stop
-                "$(Get-Date -Format 'HH:mm'),$fileId,SUCCESS,$srcPath,$dstFull," | Add-Content $ExecutionReport
-                $fileId | Add-Content $ProcessedLog
-                $successList += [PSCustomObject]@{ Id = $fileId; NewPath = $dstDir; NewName = $dstName }
-            } catch {
-                $err = Get-ErrorDetails $_
-                Write-Host "  [ERREUR] $err" -ForegroundColor Red
-                "$(Get-Date -Format 'HH:mm'),$fileId,ERROR,$srcPath,$dstFull,$err" | Add-Content $ExecutionReport
+                Write-Host "`nFichier : $dstName" -ForegroundColor Gray
+                if ($interactive) {
+                    $c = Read-Host "Confirmer ? [O] Oui / [N] Non / [T] Tout / [Q] Quitter"
+                    if ($c -eq "T") { $interactive = $false } elseif ($c -eq "Q") { break } elseif ($c -ne "O") { continue }
+                }
+
+                try {
+                    $body = @{ parentReference = @{ path = "/drive/root:$dstDir" }; name = $dstName } | ConvertTo-Json
+                    Invoke-RestMethod -Headers $oneDriveHeaders -Uri "https://graph.microsoft.com/v1.0/me/drive/items/$fileId" -Method PATCH -Body $body -ErrorAction Stop
+                    "$(Get-Date -Format 'HH:mm'),$fileId,SUCCESS,$srcPath,$dstFull," | Add-Content $ExecutionReport
+                    $fileId | Add-Content $ProcessedLog
+                    $successList += [PSCustomObject]@{ Id = $fileId; NewPath = $dstDir; NewName = $dstName }
+                } catch {
+                    $err = Get-ErrorDetails $_
+                    Write-Host "  [ERREUR] $err" -ForegroundColor Red
+                    "$(Get-Date -Format 'HH:mm'),$fileId,ERROR,$srcPath,$dstFull,$err" | Add-Content $ExecutionReport
+                }
             }
         }
-    }
 
-    # Mise à jour du cache local avec les nouveaux chemins/noms
-    foreach ($item in $successList) {
-        $Cache.Files[$item.Id].p = "/drive/root:$($item.NewPath)"
-        $Cache.Files[$item.Id].n = $item.NewName
-    }
-    $Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
-} else {
-    if ($PlannedActions.Count -gt 0) {
-        Write-Host "`n[Aperçu] Première action : $($PlannedActions[0])" -ForegroundColor Yellow
+        # Mise à jour du cache local avec les nouveaux chemins/noms
+        foreach ($item in $successList) {
+            $Cache.Files[$item.Id].p = "/drive/root:$($item.NewPath)"
+            $Cache.Files[$item.Id].n = $item.NewName
+        }
+        $Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
     } else {
-        Write-Host "`n[Aperçu] Aucun fichier à traiter." -ForegroundColor Yellow
+        if ($PlannedActions.Count -gt 0) {
+            Write-Host "`n[Aperçu] Première action : $($PlannedActions[0])" -ForegroundColor Yellow
+        } else {
+            Write-Host "`n[Aperçu] Aucun fichier à traiter." -ForegroundColor Yellow
+        }
+    }    
+} # Execute-Deplacement
+
+
+# -------------------------
+function main {
+    try {
+        Write-Host "--- Démarrage du processus ---" -ForegroundColor Cyan
+        
+        Init-Logs
+        Load-Cache
+        Create-Plan
+        
+        # On vérifie si un plan a été généré avant de lancer l'authentification
+        if ($PlannedActions.Count -eq 0) {
+            Write-Warning "Aucun fichier à traiter. Arrêt du processus."
+            return
+        }
+
+        # On exige une authentification réussie avant de continuer
+        AuthenticateAzure
+        if (-not $oneDriveHeaders) {
+            throw "Échec de l'authentification. Impossible de poursuivre sans accès OneDrive."
+        }
+
+        Prepare-Folders
+        Execute-Deplacement
+        
+        Write-Host "--- Processus terminé avec succès ---" -ForegroundColor Green
     }
-}
+    catch {
+        Write-Error "Une erreur critique a interrompu le script : $_"
+        # Ici, vous pourriez ajouter une notification par mail ou log d'erreur spécifique
+        exit 1
+    }
+} # main
+
+main
