@@ -1,0 +1,16 @@
+﻿name: DeepSeek Agent
+version: 1.0.0
+schema: v1
+
+models:
+  - name: deepseek
+    provider: ollama
+    model: deepseek-coder:1.3b
+
+defaultModel:
+  provider: ollama
+  model: deepseek-coder:1.3b
+
+autocompleteModel:
+  provider: ollama
+  model: deepseek-coder:1.3b

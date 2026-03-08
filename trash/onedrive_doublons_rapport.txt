@@ -1,0 +1,8 @@
+=== RAPPORT DES DOUBLONS SUR ONEDRIVE (02/22/2026 12:14:09) ===
+Fichiers ayant le même contenu (SHA1 identique)
+
+HASH: 2a0670438077f78437772909d2e0e5b9794aa7f1
+  - Nom: f5660672.mp4 | Chemin: /drive/root:/Pour coffre fort/Michelle Michalkovic/videos
+  - Nom: 20240317_094243.mp4 | Chemin: /drive/root:/Pour coffre fort/Michelle Michalkovic/Doublons/videos
+--------------------------------------------------
+
