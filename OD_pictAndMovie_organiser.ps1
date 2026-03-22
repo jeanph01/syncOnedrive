@@ -39,14 +39,20 @@ param (
 )
 
 # =====================================================================
+# MODULE EXTERNE
+# =====================================================================
+
+Import-Module ".\OneDriveTools.psm1" -Force -ArgumentList "176fc7bc-42c9-4a25-82b5-0ad584d3c061", ".\graph_token.json", $LogFile
+
+# =====================================================================
 # 1. CONFIGURATION GLOBALE
 # =====================================================================
 
 # Mapping des extensions vers leur catégorie
 $ExtensionMap = @{}
-@(".jpg",".jpeg",".png",".heic",".bmp",".gif",".pcx",".webp") | ForEach-Object { $ExtensionMap[$_] = "Images" }
-@(".mp4",".mov",".avi",".mpg",".mpeg",".wmv",".flv",".m4v",".webm") | ForEach-Object { $ExtensionMap[$_] = "Videos" }
-@(".mp3",".m4a",".flac",".wma",".wav") | ForEach-Object { $ExtensionMap[$_] = "Musique" }
+@(".jpg", ".jpeg", ".png", ".heic", ".bmp", ".gif", ".pcx", ".webp") | ForEach-Object { $ExtensionMap[$_] = "Images" }
+@(".mp4", ".mov", ".avi", ".mpg", ".mpeg", ".wmv", ".flv", ".m4v", ".webm") | ForEach-Object { $ExtensionMap[$_] = "Videos" }
+@(".mp3", ".m4a", ".flac", ".wma", ".wav") | ForEach-Object { $ExtensionMap[$_] = "Musique" }
 
 # Configuration centrale
 $Config = [PSCustomObject]@{
@@ -78,11 +84,11 @@ function Write-Log {
     $timestamp = Get-Date -Format "HH:mm:ss"
 
     $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
+        "ERROR" { "Red" }
+        "WARN" { "Yellow" }
         "SUCCESS" { "Green" }
-        "DEBUG"   { "DarkGray" }
-        default   { "Gray" }
+        "DEBUG" { "DarkGray" }
+        default { "Gray" }
     }
 
     if ($Level -ne "DEBUG" -or $VerboseMode) {
@@ -105,7 +111,8 @@ function Get-ErrorDetails {
             $reader = New-Object System.IO.StreamReader($Exception.Response.GetResponseStream())
             return $reader.ReadToEnd()
         }
-    } catch {}
+    }
+    catch {}
 
     return $Exception.Message
 }
@@ -181,7 +188,8 @@ function Get-LocationName($gps) {
             Start-Sleep -Milliseconds 1100 
             return $fullLoc
         }
-    } catch { Write-Host " Échec." -ForegroundColor Red }
+    }
+    catch { Write-Host " Échec." -ForegroundColor Red }
     return $null
 } # Get-LocationName
 
@@ -261,7 +269,7 @@ function Get-TargetRoot {
         # 2. Dossiers administratifs (renommer sur place)
         @{
             Name       = "Administratif"
-            Patterns   = @("Finance","Fiscalité","Impôts","Banque","Assurance","Documents","Contrats","Notaire","Municipalité","Syndicat")
+            Patterns   = @("Finance", "Fiscalité", "Impôts", "Banque", "Assurance", "Documents", "Contrats", "Notaire", "Municipalité", "Syndicat")
             Action     = "Stay"
             TargetRoot = $null
             Priority   = 2
@@ -270,7 +278,7 @@ function Get-TargetRoot {
         # 3. Dossiers de travail / projets (renommer sur place)
         @{
             Name       = "TravailEtudes"
-            Patterns   = @("Projets","Travail","Études","Recherche","Cours","Université")
+            Patterns   = @("Projets", "Travail", "Études", "Recherche", "Cours", "Université")
             Action     = "Stay"
             TargetRoot = $null
             Priority   = 3
@@ -279,7 +287,7 @@ function Get-TargetRoot {
         # 4. Dossiers techniques (renommer sur place)
         @{
             Name       = "Technique"
-            Patterns   = @("Scripts","Dev","GitHub","Backups","Exports")
+            Patterns   = @("Scripts", "Dev", "GitHub", "Backups", "Exports")
             Action     = "Stay"
             TargetRoot = $null
             Priority   = 4
@@ -288,7 +296,7 @@ function Get-TargetRoot {
         # 5. Dossiers d’applications (déplacer vers Pellicule)
         @{
             Name       = "Applications"
-            Patterns   = @("WhatsApp","Messenger","Facebook","Instagram","Screenshots","Camera Roll","DCIM","Android","iOS")
+            Patterns   = @("WhatsApp", "Messenger", "Facebook", "Instagram", "Screenshots", "Camera Roll", "DCIM", "Android", "iOS")
             Action     = "Move"
             TargetRoot = "Images/Pellicule"
             Priority   = 5
@@ -346,7 +354,7 @@ function Get-TargetRoot {
 
 function Get-PathTags($fullPath) {
     $parts = $fullPath -replace "^/drive/root:/?", "" -split "/" | 
-             Where-Object { $_ -and $_ -notmatch "Documents|Images|Vidéos|Musique|Pellicule|JPM" }
+    Where-Object { $_ -and $_ -notmatch "Documents|Images|Vidéos|Musique|Pellicule|JPM" }
     return ($parts -join "_")
 }
 
@@ -465,10 +473,10 @@ function New-SmartFileName {
 
     # --- Normalisation ASCII ---
     $cleanOriginal = Convert-ToAscii $OriginalName
-    $cleanTags     = Convert-ToAscii $PathTags
-    $cleanGps      = Convert-ToAscii $GpsLocation
-    $cleanCam      = Convert-ToAscii $Camera
-    $cleanSource   = Convert-ToAscii $SourceHint
+    $cleanTags = Convert-ToAscii $PathTags
+    $cleanGps = Convert-ToAscii $GpsLocation
+    $cleanCam = Convert-ToAscii $Camera
+    $cleanSource = Convert-ToAscii $SourceHint
 
     # --- Découpage en mots ---
     function Split-Words($txt) {
@@ -476,14 +484,14 @@ function New-SmartFileName {
         return ($txt -split "[ _\-]" | Where-Object { $_ -and $_.Trim().Length -gt 0 })
     }
 
-    $gpsWords    = Split-Words $cleanGps
-    $tagWords    = Split-Words $cleanTags
-    $origWords   = Split-Words $cleanOriginal
-    $camWords    = Split-Words $cleanCam
-    $srcWords    = Split-Words $cleanSource
+    $gpsWords = Split-Words $cleanGps
+    $tagWords = Split-Words $cleanTags
+    $origWords = Split-Words $cleanOriginal
+    $camWords = Split-Words $cleanCam
+    $srcWords = Split-Words $cleanSource
 
     # --- Liste des mots vides ---
-    $stopWords = @("de","du","des","la","le","les","avec","pour","sur","dans","et","en","a","au","aux")
+    $stopWords = @("de", "du", "des", "la", "le", "les", "avec", "pour", "sur", "dans", "et", "en", "a", "au", "aux")
 
     # --- Filtre stopwords (version robuste) ---
     function Remove-StopWords($list) {
@@ -491,8 +499,8 @@ function New-SmartFileName {
         return $list | Where-Object { $stopWords -notcontains $_.ToLower() }
     }
 
-    $gpsWords  = Remove-StopWords $gpsWords
-    $tagWords  = Remove-StopWords $tagWords
+    $gpsWords = Remove-StopWords $gpsWords
+    $tagWords = Remove-StopWords $tagWords
     $origWords = Remove-StopWords $origWords
 
     # --- Suppression des mots déjà présents dans GPS ---
@@ -504,7 +512,7 @@ function New-SmartFileName {
         return $list | Where-Object { -not $gpsSet.ContainsKey($_.ToLower()) }
     }
 
-    $tagWords  = Remove-GpsRedundancy $tagWords
+    $tagWords = Remove-GpsRedundancy $tagWords
     $origWords = Remove-GpsRedundancy $origWords
 
     # --- Assemblage global ---
@@ -543,39 +551,20 @@ function New-SmartFileName {
 # =====================================================================
 
 function Connect-AzureGraph {
-    [CmdletBinding()]
-    param()
+    Write-Log "Obtention du token Graph via module..."
+    $auth = Get-GraphToken
 
-    Write-Log "Obtention du code d’authentification..." "WARN"
-
-    $deviceCodeResponse = Invoke-RestMethod -Method POST `
-        -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/devicecode" `
-        -Body @{ client_id = $Config.ClientId; scope = "Files.ReadWrite.All" }
-
-    Write-Host "`n--- AUTHENTIFICATION REQUISE ---" -ForegroundColor Cyan
-    Write-Host "Ouvrez : https://microsoft.com/devicelogin"
-    Write-Host "Code : $($deviceCodeResponse.user_code)" -ForegroundColor Yellow
-    Write-Host "-----------------------------------`n"
-
-    while (!$Global:State.Headers) {
-        Start-Sleep 5
-        try {
-            $auth = Invoke-RestMethod -Method POST `
-                -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/token" `
-                -Body @{
-                    grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
-                    client_id   = $Config.ClientId
-                    device_code = $deviceCodeResponse.device_code
-                }
-
-            $Global:State.Headers = @{
-                Authorization = "Bearer $($auth.access_token)"
-                "Content-Type" = "application/json"
-            }
-        } catch {}
+    if (-not $auth.access_token) {
+        Write-Log "Échec token Graph" "ERROR"
+        throw "Impossible d'obtenir un token Graph."
     }
 
-    Write-Log "Authentification réussie." "SUCCESS"
+    $Global:State.Headers = @{
+        Authorization  = "Bearer $($auth.access_token)"
+        "Content-Type" = "application/json"
+    }
+
+    Write-Log "Token Graph chargé." "SUCCESS"
 }
 
 # =====================================================================
@@ -606,11 +595,12 @@ function Test-OneDrivePath {
         catch {
             Write-Log "Création du dossier : /$currentPath" "DEBUG"
 
-            $encodedParent = ($parentPath -split '/' | Where-Object {$_} | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
+            $encodedParent = ($parentPath -split '/' | Where-Object { $_ } | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
 
             $uriPost = if ($parentPath -eq "") {
                 "https://graph.microsoft.com/v1.0/me/drive/root/children"
-            } else {
+            }
+            else {
                 "https://graph.microsoft.com/v1.0/me/drive/root:/${encodedParent}:/children"
             }
 
@@ -630,12 +620,12 @@ function Import-Set-Cache {
     [CmdletBinding()]
     param()
 
-    Write-Log "Nettoyage du vieux log d'exécution ... "
+    Write-Log "Nettoyage du vieux log d'exécution $LogFile si present "
     if (Test-Path $LogFile) {
         Remove-Item $LogFile -Force
     }
 
-    Write-Log "Chargement du cache OneDrive ... "
+    Write-Log "Chargement du cache OneDrive $IndexFile ... "
     if (!(Test-Path $IndexFile)) {
         Write-Log "Cache introuvable : $IndexFile" "ERROR"
         exit 1
@@ -648,8 +638,8 @@ function Import-Set-Cache {
     }
 
     # 3. Chargement des IDs déjà traités
-    Write-Log "Chargement de la liste des ids/fichiers déjà traités ... "
-    $Global:State.ProcessedIds   = @{}
+    Write-Log "Chargement de la liste des ids/fichiers déjà traités ($ProcessedLog) ... "
+    $Global:State.ProcessedIds = @{}
     $Global:State.FilesToProcess = @{}
 
     if (Test-Path $ProcessedLog) {
@@ -660,35 +650,41 @@ function Import-Set-Cache {
             }
         }
         Write-Log "Fichiers déjà traités chargés : $($Global:State.ProcessedIds.Count)"
-    } else {
+    }
+    else {
         Write-Log "Aucun fichier traité précédemment (fichier $ProcessedLog absent)."
     }
 
     Write-Log "Découverte des fichiers déjà traités ayant le marqueur '$($Config.RenameMarker)' ..."
-
+    $index = 0
+    $total = $Global:State.Cache.Files.Count
     foreach ($id in $Global:State.Cache.Files.Keys) {
+
+        $index++
+        Write-Progress -Activity "Analyse des fichiers" `
+            -Status "$index / $total" `
+            -PercentComplete (($index / $total) * 100)
+
         $fileMeta = $Global:State.Cache.Files[$id]
 
         # a) Si déjà dans ProcessedIds → ignorer
         if ($Global:State.ProcessedIds.ContainsKey($id)) {
-            Write-Log "[DEBUG] Ignoré (déjà traité) : $id" "DEBUG"
+            Write-Log "Ignoré (déjà traité) : $id" "DEBUG"
             continue
         }
 
         # b) Si le nom contient le marqueur → l'ajouter à ProcessedIds
         if ($fileMeta.n -like "*$($Config.RenameMarker)*") {
-            Write-Log "[DEBUG] Ajouté à ProcessedIds (déjà renommé) : $($fileMeta.p)/$($fileMeta.n)" "DEBUG"
+            Write-Log "Ajouté à ProcessedIds (déjà renommé) : $($fileMeta.p)/$($fileMeta.n)" "DEBUG"
             $Global:State.ProcessedIds[$id] = $true
             continue
         }
 
         # c) Sinon → fichier à traiter
         $Global:State.FilesToProcess[$id] = $fileMeta
-
-        # tempo
-        "$($fileMeta.p)/$($fileMeta.n)" | Add-Content "liste.txt" -ErrorAction SilentlyContinue
     }
 
+    Write-Progress -Activity "Analyse terminée" -Completed
     Write-Log "Indexation terminée. Fichiers à traiter : $($Global:State.FilesToProcess.Count)"
 
     "Timestamp,ID,Status,OldPath,NewPath,Error" | Set-Content $ExecutionReport
@@ -704,29 +700,29 @@ function New-Plan {
     param()
 
     Write-Log "Analyse des fichiers..."
-    Write-Log "[DEBUG] Début de New-Plan" "DEBUG"
+    Write-Log "Début de New-Plan" "DEBUG"
 
+    
     foreach ($fileId in $Global:State.FilesToProcess.Keys) {
 
-        $fileMeta  = $Global:State.Cache.Files[$fileId]
+        $fileMeta = $Global:State.Cache.Files[$fileId]
         $extension = [System.IO.Path]::GetExtension($fileMeta.n).ToLower()
 
-        Write-Log "[DEBUG] ----------------------------------------------" "DEBUG"
-        Write-Log "[DEBUG] Analyse du fichier" "DEBUG"
-        Write-Log "[DEBUG] ID             : $fileId" "DEBUG"
-        Write-Log "[DEBUG] Nom original   : $($fileMeta.n)" "DEBUG"
-        Write-Log "[DEBUG] Chemin source  : $($fileMeta.p)" "DEBUG"
-        Write-Log "[DEBUG] Extension      : $extension" "DEBUG"
-        Write-Log "[DEBUG] Date fichier   : $($fileMeta.d)" "DEBUG"
+        #Write-Log "----------------------------------------------" "DEBUG"
+        Write-Log "Analyse du fichier" "DEBUG"
+        Write-Log "ID             : $fileId" "DEBUG"
+        Write-Log "Nom original   : $($fileMeta.n)" "DEBUG"
+        Write-Log "Chemin source  : $($fileMeta.p)" "DEBUG"
+        Write-Log "Extension      : $extension" "DEBUG"
+        Write-Log "Date fichier   : $($fileMeta.d)" "DEBUG"
 
         # 1. Classification intelligente
         $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension
+        Write-Log "Classification intelligente = ($category)" "DEBUG"
 
         # On prépare les données de base
-
-
         if (-not $Config.ExtensionMap.ContainsKey($extension)) {
-            Write-Log "[DEBUG] Ignoré : extension non supportée ($extension)" "DEBUG"
+            Write-Log "Ignoré : extension non supportée ($extension)" "DEBUG"
             continue
         }
 
@@ -736,12 +732,12 @@ function New-Plan {
         $gpsLocation = $null
         if ($fileMeta.gps) {
             $gpsLocation = Get-LocationName $fileMeta.gps
-            Write-Log "[DEBUG] Localisation GPS : $gpsLocation" "DEBUG"
+            Write-Log "Localisation GPS : $gpsLocation" "DEBUG"
         }
 
         # Tags de chemin (hiérarchie utile)
         $pathTags = Get-PathTags $fileMeta.p
-        Write-Log "[DEBUG] Tags de chemin : $pathTags" "DEBUG"
+        Write-Log "Tags de chemin : $pathTags" "DEBUG"
 
         # Appareil / source (si dispo dans le cache)
         $camera = $null
@@ -749,7 +745,7 @@ function New-Plan {
 
         # Hint de source (WhatsApp, etc.) basé sur le chemin
         $sourceHint = ""
-        if ($fileMeta.p -match "WhatsApp")   { $sourceHint = "WhatsApp" }
+        if ($fileMeta.p -match "WhatsApp") { $sourceHint = "WhatsApp" }
         elseif ($fileMeta.p -match "Messenger") { $sourceHint = "Messenger" }
         elseif ($fileMeta.p -match "Instagram") { $sourceHint = "Instagram" }
 
@@ -764,14 +760,14 @@ function New-Plan {
             -Camera       $camera `
             -SourceHint   $sourceHint
 
-        Write-Log "[DEBUG] Nouveau nom généré : $newName" "DEBUG"
+        Write-Log "Nouveau nom généré : $newName" "DEBUG"
 
         # # Règle de destination
         # $rule = Get-TargetRoot $fileMeta.p
 
-        # Write-Log "[DEBUG] Règle appliquée   : $($rule.Rule)" "DEBUG"
-        # Write-Log "[DEBUG] Action           : $($rule.Action)" "DEBUG"
-        # Write-Log "[DEBUG] Racine cible     : $($rule.TargetRoot)" "DEBUG"
+        # Write-Log "Règle appliquée   : $($rule.Rule)" "DEBUG"
+        # Write-Log "Action           : $($rule.Action)" "DEBUG"
+        # Write-Log "Racine cible     : $($rule.TargetRoot)" "DEBUG"
 
         # $root = $rule.TargetRoot
 
@@ -784,7 +780,7 @@ function New-Plan {
         # $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
         # $fullDestination  = "/$cleanDestination/$newName"
 
-        # Write-Log "[DEBUG] Destination finale : $fullDestination" "DEBUG"
+        # Write-Log "Destination finale : $fullDestination" "DEBUG"
 
         # $Global:State.PlannedActions.Add([PSCustomObject]@{
         #     Id        = $fileId
@@ -814,32 +810,34 @@ function New-Plan {
         }
 
         $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
-        $fullDestination  = "/$($cleanDestination.Trim('/'))/$newName"
+        Write-Log "Chemin destination = ($cleanDestination)" "DEBUG"
+
+        $fullDestination = "/$($cleanDestination.Trim('/'))/$newName"
 
         # 4. Vérification si un changement est nécessaire (évite les actions inutiles)
         $currentPath = "$($srcDirClean.Trim('/'))/$($fileMeta.n)"
         if ($currentPath -eq $fullDestination.Trim('/')) {
-            Write-Log "[DEBUG] Déjà à la bonne place : $($fileMeta.n)" "DEBUG"
+            Write-Log "Déjà à la bonne place : $($fileMeta.n)" "DEBUG"
             continue
         }
 
         # 5. Ajout à la liste des actions
         $Global:State.PlannedActions.Add([PSCustomObject]@{
-            Id        = $fileId
-            SrcPath   = $fileMeta.p
-            SrcName   = $fileMeta.n
-            DstDir    = "/$($cleanDestination.Trim('/'))"
-            DstName   = $newName
-            FullDst   = $fullDestination
-        })
+                Id      = $fileId
+                SrcPath = $fileMeta.p
+                SrcName = $fileMeta.n
+                DstDir  = "/$($cleanDestination.Trim('/'))"
+                DstName = $newName
+                FullDst = $fullDestination
+            })
 
 
-        Write-Log "[DEBUG] Fin analyse fichier" "DEBUG"
-        Write-Log "[DEBUG] ----------------------------------------------" "DEBUG"
+        #Write-Log "Fin analyse fichier : ($newName)" "DEBUG"
+        Write-Log "----------------------------------------------" "DEBUG"
     }
 
     Write-Log "Plan généré : $($Global:State.PlannedActions.Count) fichiers." "SUCCESS"
-    Write-Log "[DEBUG] Fin de New-Plan" "DEBUG"
+    Write-Log "Fin de New-Plan" "DEBUG"
 }
 function traitement {
     $Log = New-Object System.Collections.Generic.List[string]
@@ -859,8 +857,8 @@ function traitement {
 
         if ($count % 10 -eq 0) {
             Write-Progress -Activity "Analyse $([Math]::Round(($count/$TotalFiles)*100,1))%" `
-                        -Status "Fichiers: $count/$TotalFiles | Restant: $remainingStr" `
-                        -PercentComplete (($count / $TotalFiles) * 100)
+                -Status "Fichiers: $count/$TotalFiles | Restant: $remainingStr" `
+                -PercentComplete (($count / $TotalFiles) * 100)
         }
 
         if (!$fileMeta.d) { continue }
@@ -882,19 +880,20 @@ function traitement {
             if ($tags) { $parts.Add($tags) }
             
             if ($ext -match ".mp4|.mov") {
-                if($fileMeta.dur){$parts.Add($fileMeta.dur)}; if($fileMeta.res){$parts.Add($fileMeta.res)}
+                if ($fileMeta.dur) { $parts.Add($fileMeta.dur) }; if ($fileMeta.res) { $parts.Add($fileMeta.res) }
                 $targetDir = "/Vidéos/Pellicule/$($dateRef.Year)/$($dateRef.ToString('MM'))"
-            } else {
+            }
+            else {
                 if ($name -and $tags -notlike "*$name*" -and $name -notmatch "^\d+$") { $parts.Add($name) }
-                if($fileMeta.cam){$parts.Add($fileMeta.cam)}
+                if ($fileMeta.cam) { $parts.Add($fileMeta.cam) }
                 $targetDir = "/Images/Pellicule/$($dateRef.Year)/$($dateRef.ToString('MM'))"
             }
             $newName = ($parts -join "_") + $ext
         }
         # NOMENCLATURE AUDIO
         elseif ($ext -match ".mp3|.m4a|.flac") {
-            $artiste = if($fileMeta.art){$fileMeta.art}else{"Inconnu"}
-            $album = if($fileMeta.alb){$fileMeta.alb}else{"Inconnu"}
+            $artiste = if ($fileMeta.art) { $fileMeta.art }else { "Inconnu" }
+            $album = if ($fileMeta.alb) { $fileMeta.alb }else { "Inconnu" }
             $newName = "$artiste - $album - $name$ext"
             $targetDir = "/Musique/$artiste/$album"
         }
@@ -934,7 +933,7 @@ function Invoke-Moves {
         try {
             $body = @{
                 parentReference = @{ path = "/drive/root:${($action.DstDir)}" }
-                name = $action.DstName
+                name            = $action.DstName
             } | ConvertTo-Json
 
             Invoke-RestMethod -Headers $Global:State.Headers `
@@ -942,7 +941,7 @@ function Invoke-Moves {
                 -Method PATCH -Body $body -ErrorAction Stop > $null
 
             "$(Get-Date -Format 'HH:mm'),$($action.Id),SUCCESS,$($action.SrcPath),$($action.FullDst)," |
-                Add-Content $ExecutionReport
+            Add-Content $ExecutionReport
 
             $action.Id | Add-Content $ProcessedLog
 
@@ -954,7 +953,7 @@ function Invoke-Moves {
             Write-Log "Erreur sur $($action.Id) : $errorDetails" "ERROR"
 
             "$(Get-Date -Format 'HH:mm'),$($action.Id),ERROR,$($action.SrcPath),$($action.FullDst),$errorDetails" |
-                Add-Content $ExecutionReport
+            Add-Content $ExecutionReport
         }
     }
 
@@ -985,7 +984,6 @@ function Start-OneDriveOrganizer {
         Write-Log "Aucun fichier à traiter." "WARN"
         return
     }
-
 
     # le temps qu'on stabilise le code
     exit
