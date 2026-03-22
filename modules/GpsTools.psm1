@@ -262,28 +262,53 @@ function Get-LocationName($gps) {
             }
         }
 
+        # Si aucune réponse exploitable
         if (!$res -or !$res.address) {
+            Write-Log "=== DEBUG GPS DUMP ===" "ERROR"
+            Write-Log "URL : https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&zoom=10&addressdetails=1" "ERROR"
+            try {
+                $raw = $res | ConvertTo-Json -Depth 10
+                Write-Log "Réponse JSON brute : $raw" "ERROR"
+            }
+            catch {
+                Write-Log "Réponse brute non JSON : $res" "ERROR"
+            }
+            Write-Log "Aucun champ address trouvé dans la réponse" "ERROR"
+            Write-Log "=== FIN DEBUG GPS DUMP ===" "ERROR"
             Write-Log "GPS introuvable : $gridKey" "WARN"
             return $null
         }
 
         $addr = $res.address
 
-        # Fallbacks intelligents
+        # Fallbacks intelligents (ville → municipalité → comté → état → pays)
         $city = $addr.city ??
                 $addr.town ??
                 $addr.village ??
                 $addr.hamlet ??
                 $addr.suburb ??
-                $addr.neighbourhood
+                $addr.neighbourhood ??
+                $addr.municipality ??
+                $addr.county ??
+                $addr.state ??
+                $addr.country
 
+        # Fallback ultime si vraiment rien
+        if (-not $city) {
+            $city = "UNKNOWN-$lat-$lon"
+            Write-Log "=== DEBUG GPS DUMP (NO CITY FOUND) ===" "ERROR"
+            try {
+                $raw = $res | ConvertTo-Json -Depth 10
+                Write-Log "Réponse JSON brute : $raw" "ERROR"
+            }
+            catch {
+                Write-Log "Réponse brute non JSON : $res" "ERROR"
+            }
+            Write-Log "=== FIN DEBUG GPS DUMP ===" "ERROR"
+        }
         $state   = $addr.state   ?? $addr.county  ?? "NA"
         $country = $addr.country ?? "NA"
 
-        if (!$city) {
-            Write-Log "Aucune ville trouvée pour $gridKey" "WARN"
-            return $null
-        }
 
         $fullLoc = "$city-$state-$country" -replace " ", "-"
         $clean = Convert-LocationName $fullLoc

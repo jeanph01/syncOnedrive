@@ -23,7 +23,7 @@ param (
 
 $Config = [PSCustomObject]@{
     RenameMarker = "--odr--"
-    MaxNameLen   = 100
+    MaxNameLen   = 80
     ClientId     = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
     ExtensionMap = $ExtensionMap
 }

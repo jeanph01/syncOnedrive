@@ -106,7 +106,7 @@ function Get-SmartCategory {
         foreach ($p in $stayPatterns) { if ($Path -match "(?i)$p") { return "Stay" } }
 
         # Coffre-fort
-        if ($Path -match "(?i)coffrefort/([^/]+)") { return "VersCoffreFort/$($Matches[1])" }
+        if ($Path -match "(?i)Pour coffre fort/([^/]+)") { return "Coffre-fort/$($Matches[1])" }
 
         # Standards
         $ext = $Extension.ToLower()
@@ -128,19 +128,16 @@ function Get-TargetRoot {
     try {
         # Règles déclaratives
         $Rules = @(
-            @{ Name = "CoffreFort-Michelle"; Patterns = @("VersCoffreFort/Michelle"); Action = "Move"; TargetRoot = "VersCoffreFort/Michelle"; Priority = 1 },
-            @{ Name = "CoffreFort-Relations"; Patterns = @("VersCoffreFort/relations"); Action = "Move"; TargetRoot = "VersCoffreFort/relations"; Priority = 1 },
-            @{ Name = "CoffreFort-Archives"; Patterns = @("VersCoffreFort/archives"); Action = "Move"; TargetRoot = "VersCoffreFort/archives"; Priority = 1 },
-            @{ Name = "Coffre-Fort-Michelle"; Patterns = @("VersCoffreFort/Michelle"); Action = "Move"; TargetRoot = "VersCoffreFort/Michelle"; Priority = 1 },
-            @{ Name = "Coffre-Fort-Relations"; Patterns = @("VersCoffreFort/relations"); Action = "Move"; TargetRoot = "VersCoffreFort/relations"; Priority = 1 },
-            @{ Name = "Coffre-Fort-Archives"; Patterns = @("VersCoffreFort/archives"); Action = "Move"; TargetRoot = "VersCoffreFort/archives"; Priority = 1 },
+            @{ Name="CoffreFort-Michelle"; Patterns=@("Pour coffre fort/Michelle"); Action="Move"; TargetRoot="Pour coffre fort/Michelle"; Priority=1 },
+            @{ Name="CoffreFort-Relations"; Patterns=@("Pour coffre fort/relations"); Action="Move"; TargetRoot="Pour coffre fort/relations"; Priority=1 },
+            @{ Name="CoffreFort-Archives"; Patterns=@("Pour coffre fort/archives"); Action="Move"; TargetRoot="Pour coffre fort/archives"; Priority=1 },
 
-            @{ Name = "Administratif"; Patterns = @("Finance", "Fiscalité", "Impôts", "Banque", "Assurance", "Documents", "Contrats", "Notaire", "Municipalité", "Syndicat"); Action = "Stay"; TargetRoot = $null; Priority = 2 },
-            @{ Name = "TravailEtudes"; Patterns = @("Projets", "Travail", "Études", "Recherche", "Cours", "Université"); Action = "Stay"; TargetRoot = $null; Priority = 3 },
-            @{ Name = "Technique"; Patterns = @("Scripts", "Dev", "GitHub", "Backups", "Exports"); Action = "Stay"; TargetRoot = $null; Priority = 4 },
+            @{ Name="Administratif"; Patterns=@("Finance","Fiscalité","Impôts","Banque","Assurance","Documents","Contrats","Notaire","Municipalité","Syndicat"); Action="Stay"; TargetRoot=$null; Priority=2 },
+            @{ Name="TravailEtudes"; Patterns=@("Projets","Travail","Études","Recherche","Cours","Université"); Action="Stay"; TargetRoot=$null; Priority=3 },
+            @{ Name="Technique"; Patterns=@("Scripts","Dev","GitHub","Backups","Exports"); Action="Stay"; TargetRoot=$null; Priority=4 },
 
-            @{ Name = "Applications"; Patterns = @("WhatsApp", "Messenger", "Facebook", "Instagram", "Screenshots", "Camera Roll", "DCIM", "Android", "iOS"); Action = "Move"; TargetRoot = "Images/Pellicule"; Priority = 5 },
-            @{ Name = "Videos"; Patterns = @("Videos"); Action = "Move"; TargetRoot = "Videos"; Priority = 6 }
+            @{ Name="Applications"; Patterns=@("WhatsApp","Messenger","Facebook","Instagram","Screenshots","Camera Roll","DCIM","Android","iOS"); Action="Move"; TargetRoot="Images/Pellicule"; Priority=5 },
+            @{ Name="Videos"; Patterns=@("Videos"); Action="Move"; TargetRoot="Videos"; Priority=6 }
         )
 
         $OrderedRules = $Rules | Sort-Object Priority
@@ -150,16 +147,16 @@ function Get-TargetRoot {
                 if ($SourcePath -match [Regex]::Escape($pattern)) {
 
                     if ($rule.Action -eq "Stay") {
-                        return @{ Action = "Stay"; TargetRoot = $null; Rule = $rule.Name }
+                        return @{ Action="Stay"; TargetRoot=$null; Rule=$rule.Name }
                     }
 
-                    return @{ Action = "Move"; TargetRoot = $rule.TargetRoot; Rule = $rule.Name }
+                    return @{ Action="Move"; TargetRoot=$rule.TargetRoot; Rule=$rule.Name }
                 }
             }
         }
 
         # Par défaut → Pellicule
-        return @{ Action = "Move"; TargetRoot = "Images/Pellicule"; Rule = "Default" }
+        return @{ Action="Move"; TargetRoot="Images/Pellicule"; Rule="Default" }
     }
     catch {
         Write-Log "Échec Get-TargetRoot: $_" "Erreur"
@@ -196,16 +193,16 @@ function New-SmartFileName {
 
     try {
         $timestamp = $DateRef.ToString("yyyyMMdd_HHmmss")
-        $year = $DateRef.ToString("yyyy")
+        $year      = $DateRef.ToString("yyyy")
         $yearMonth = $DateRef.ToString("yyyy_MM")
-        $dateRaw = $DateRef.ToString("yyyyMMdd")
+        $dateRaw   = $DateRef.ToString("yyyyMMdd")
 
         # Normalisation ASCII
         $cleanOriginal = Convert-ToAscii $OriginalName
-        $cleanTags = Convert-ToAscii $PathTags
-        $cleanGps = Convert-ToAscii $GpsLocation
-        $cleanCam = Convert-ToAscii $Camera
-        $cleanSource = Convert-ToAscii $SourceHint
+        $cleanTags     = Convert-ToAscii $PathTags
+        $cleanGps      = Convert-ToAscii $GpsLocation
+        $cleanCam      = Convert-ToAscii $Camera
+        $cleanSource   = Convert-ToAscii $SourceHint
 
         # Découpage
         function Split-Words($txt) {
@@ -213,22 +210,22 @@ function New-SmartFileName {
             return ($txt -split "[ _\-]" | Where-Object { $_ -and $_.Trim().Length -gt 0 })
         }
 
-        $gpsWords = Split-Words $cleanGps
-        $tagWords = Split-Words $cleanTags
+        $gpsWords  = Split-Words $cleanGps
+        $tagWords  = Split-Words $cleanTags
         $origWords = Split-Words $cleanOriginal
-        $camWords = Split-Words $cleanCam
-        $srcWords = Split-Words $cleanSource
+        $camWords  = Split-Words $cleanCam
+        $srcWords  = Split-Words $cleanSource
 
         # Stopwords
-        $stopWords = @("de", "du", "des", "la", "le", "les", "avec", "pour", "sur", "dans", "et", "en", "a", "au", "aux")
+        $stopWords = @("de","du","des","la","le","les","avec","pour","sur","dans","et","en","a","au","aux")
 
         function Remove-StopWords($list) {
             if (-not $list) { return @() }
             return $list | Where-Object { $stopWords -notcontains $_.ToLower() }
         }
 
-        $gpsWords = Remove-StopWords $gpsWords
-        $tagWords = Remove-StopWords $tagWords
+        $gpsWords  = Remove-StopWords $gpsWords
+        $tagWords  = Remove-StopWords $tagWords
         $origWords = Remove-StopWords $origWords
 
         # Suppression des mots déjà présents dans GPS
@@ -240,7 +237,7 @@ function New-SmartFileName {
             return $list | Where-Object { -not $gpsSet.ContainsKey($_.ToLower()) }
         }
 
-        $tagWords = Remove-GpsRedundancy $tagWords
+        $tagWords  = Remove-GpsRedundancy $tagWords
         $origWords = Remove-GpsRedundancy $origWords
 
         # ============================================================
@@ -249,13 +246,13 @@ function New-SmartFileName {
         function Remove-DateRedundancy($list) {
             if (-not $list) { return @() }
             return $list | Where-Object {
-                $_ -notmatch $year -and
+                $_ -notmatch $year      -and
                 $_ -notmatch $yearMonth -and
-                $_ -notmatch $dateRaw -and
+                $_ -notmatch $dateRaw   -and
                 $_ -notmatch $timestamp
             }
         }
-        $tagWords = Remove-DateRedundancy $tagWords
+        $tagWords  = Remove-DateRedundancy $tagWords
         $origWords = Remove-DateRedundancy $origWords
         # Assemblage global
         $allWords = New-Object System.Collections.Generic.List[string]
@@ -316,7 +313,7 @@ function Get-DestinationPath {
             # Correction : PAS de "Pellicule" ici
             $rawDestination = "/VersCoffreFort/archives/$Category/$($FileDate.Year)/$($FileDate.ToString('MM'))"
             $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
-            $fullDestination = "/$($cleanDestination.Trim('/'))/$NewName"
+            $fullDestination  = "/$($cleanDestination.Trim('/'))/$NewName"
             return [PSCustomObject]@{
                 RawDestination   = $rawDestination
                 CleanDestination = $cleanDestination
@@ -333,35 +330,27 @@ function Get-DestinationPath {
         }
 
         # ============================================================
-        # RÈGLE STAY (et seulement Stay)
+        # RÈGLE STAY (et seulement Stay) : limiter à 3 niveaux
         # ============================================================
         if ($Category -eq "Stay") {
-
-            # --- RÈGLE SPÉCIALE : FINANCES = aucun déplacement ---
-            if ($srcDirClean -match "^/Finances/") {
-                # On garde le chemin EXACT d'origine
-                $rawDestination = $srcDirClean
+            $parts = $srcDirClean.Trim('/').Split('/')
+            if ($parts.Count -gt 3) {
+                $basePath = ($parts[0..2] -join '/')
+                $rawDestination = "/$basePath"
             }
             else {
-                # RÈGLE STAY normale : limiter à 3 niveaux
-                $parts = $srcDirClean.Trim('/').Split('/')
-                if ($parts.Count -gt 3) {
-                    $basePath = ($parts[0..2] -join '/')
-                    $rawDestination = "/$basePath"
-                }
-                else {
-                    $rawDestination = $srcDirClean
-                }
+            $rawDestination = $srcDirClean
             }
         }
         elseif ($Category -match "Coffre-fort/(.+)") {
             $vaultRoot = $Matches[1]
-            $rawDestination = "/VersCoffreFort/$vaultRoot/$mediaType/$($FileDate.Year)/$($FileDate.ToString('MM'))"
+            $rawDestination = "/Pour coffre fort/$vaultRoot/$mediaType/$($FileDate.Year)/$($FileDate.ToString('MM'))"
         }
         else {
             # Catégories Images / Vidéos / etc.
             $rawDestination = "/$Category/Pellicule/$($FileDate.Year)/$($FileDate.ToString('MM'))"
         }
+
         # Nettoyage ASCII
         $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
 
