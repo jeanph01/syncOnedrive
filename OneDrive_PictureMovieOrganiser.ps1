@@ -15,7 +15,13 @@ param (
     [string]$ProcessedLog = ".\_cache\processed_ids.log", # IDs déjà traités
     [string]$ExecutionReport = ".\_cache\azure_sync_report.csv", # Rapport CSV des opérations
     [string]$GpsCacheFile = ".\_cache\gps_cache.json",   # Cache GPS
-    [bool]$VerboseMode = $false                            # Active les logs DEBUG
+    [bool]$VerboseMode = $false,                            # Active les logs DEBUG
+        # === NOUVEAUX PARAMÈTRES ===
+    [bool]$Analyze = $false,          # Analyse du plan.json
+    [bool]$DryRun = $false,           # Mode dry-run détaillé
+    [bool]$Validate = $false,         # Validation du cache OneDrive
+    [string]$DebugId = "",            # Debug d’un fichier précis
+    [bool]$ReportIgnored = $false     # Générer rapport fichiers ignorés
 )
 
 # --- Forcer l'affichage de Write-Progress (au cas où un autre script l'a désactivé)
@@ -286,8 +292,8 @@ function Test-OneDrivePath {
 # Charge le cache OneDrive et prépare FilesToProcess / ProcessedIds
 function Import-Set-Cache {
     try {
-        Write-Log "Nettoyage du vieux log $LogFile"
-        if (Test-Path $LogFile) { Remove-Item $LogFile -Force }
+        # Write-Log "Nettoyage du vieux log $LogFile"
+        # if (Test-Path $LogFile) { Remove-Item $LogFile -Force }
 
         Write-Log "Chargement du cache OneDrive $IndexFile ..."
         if (!(Test-Path $IndexFile)) {
@@ -562,6 +568,288 @@ function Invoke-Moves {
     }
 } # Invoke-Moves
 
+
+function Test-Plan {
+    try {
+        # Analyse de l'état en mémoire au lieu de recharger le fichier JSON
+        $plan = $Global:State.PlannedActions
+
+        if (-not $plan -or $plan.Count -eq 0) {
+            Write-Log "Aucun plan chargé pour analyse." "WARN"
+            return
+        }
+
+        Write-Log "=== ANALYSE DU PLAN ===" "INFO"
+        Write-Log "Total actions : $($plan.Count)" "INFO"
+
+        # 1. Vérifier les collisions de noms
+        $duplicates = $plan.FullDst | Group-Object | Where-Object { $_.Count -gt 1 }
+        if ($duplicates) {
+            Write-Log "Collisions détectées :" "ERROR"
+            foreach ($d in $duplicates) {
+                Write-Log " - $($d.Name) ($($d.Count) occurrences)" "ERROR"
+            }
+        }
+        else {
+            Write-Log "Aucune collision détectée." "SUCCESS"
+        }
+
+        # 2. Vérifier les chemins trop longs
+        $tooLong = $plan | Where-Object { $_.FullDst.Length -gt 250 }
+        if ($tooLong) { Write-Log "Chemins > 250 caractères : $($tooLong.Count)" "INFO" }
+
+        Write-Log "Analyse terminée." "SUCCESS"
+    }
+    catch {
+        Write-Log "Erreur Test-Plan : $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Debug-File {
+    param(
+        [string]$Id
+    )
+    try {
+        if (-not $Global:State.Cache) {
+            Write-Log "Cache non chargé." "ERROR"
+            return
+        }
+
+        if (-not $Global:State.Cache.Files.ContainsKey($Id)) {
+            Write-Log "ID introuvable dans le cache." "ERROR"
+            return
+        }
+
+        $f = $Global:State.Cache.Files[$Id]
+
+        Write-Log "=== DEBUG FILE $Id ===" "INFO"
+        Write-Log "Chemin : $($f.p)" "INFO"
+        Write-Log "Nom    : $($f.n)" "INFO"
+        Write-Log "Date   : $($f.d)" "INFO"
+        Write-Log "GPS    : $($f.gps)" "INFO"
+        Write-Log "Caméra : $($f.cam)" "INFO"
+        Write-Log "========================" "INFO"
+
+    }
+    catch {
+        Write-Log "Erreur Invoke-Moves : $($_.Exception.Message)" "ERROR"
+        throw
+    }
+
+} # Debug-File
+
+function Test-Cache {
+    try {
+        Write-Log "=== VALIDATION DU CACHE ===" "INFO"
+
+        $cache = $Global:State.Cache.Files
+        $total = $cache.Count
+
+        $missingPath = $cache.GetEnumerator() | Where-Object { -not $_.Value.p }
+        $missingName = $cache.GetEnumerator() | Where-Object { -not $_.Value.n }
+        $badPrefix = $cache.GetEnumerator() | Where-Object { $_.Value.p -notmatch "^/drive/root:" }
+        $badExt = $cache.GetEnumerator() | Where-Object {
+            $ext = [IO.Path]::GetExtension($_.Value.n).ToLower()
+            -not $Config.ExtensionMap.ContainsKey($ext)
+        }
+
+        Write-Log "Total entrées : $total" "INFO"
+        Write-Log "Chemin manquant : $($missingPath.Count)" "WARN"
+        Write-Log "Nom manquant : $($missingName.Count)" "WARN"
+        Write-Log "Chemin invalide : $($badPrefix.Count)" "WARN"
+        Write-Log "Extension inconnue : $($badExt.Count)" "WARN"
+
+        Write-Log "Validation terminée." "SUCCESS"
+    }
+    catch {
+        Write-Log "Erreur Invoke-Moves : $($_.Exception.Message)" "ERROR"
+        throw
+    }
+    
+} # Test-Cache
+
+function Start-DryRun {
+    try {
+        Write-Log "=== MODE DRY-RUN ===" "INFO"
+
+        Test-Plan
+
+        Write-Log "Aucun déplacement ne sera effectué." "WARN"
+        Write-Log "Vous pouvez maintenant exécuter : -Execute `$true" "INFO"
+
+    }
+    catch {
+        Write-Log "Erreur Invoke-Moves : $($_.Exception.Message)" "ERROR"
+        throw
+    }
+} # Start-DryRun
+
+function Repair-Cache {
+    try {
+        Write-Log "=== FIX CACHE : Nettoyage automatique du cache OneDrive ===" "WARN"
+
+        $cache = $Global:State.Cache.Files
+        $removed = 0
+        $fixedExt = 0
+
+        # On extrait les clés dans un tableau fixe pour éviter l'erreur d'énumération
+        $keys = @($cache.Keys)
+
+        foreach ($id in $keys) {
+            $f = $cache[$id]
+
+            # Supprimer les entrées sans chemin ou nom
+            if (-not $f.p -or -not $f.n) {
+                $cache.Remove($id)
+                $removed++
+                continue
+            }
+
+            # Supprimer les chemins invalides
+            if ($f.p -notmatch "^/drive/root:") {
+                $cache.Remove($id)
+                $removed++
+                continue
+            }
+
+            # Corriger les extensions polluées (ex: .jpg?width=...)
+            $ext = [IO.Path]::GetExtension($f.n).ToLower()
+            $cleanExt = $ext -replace "\?.*$","" -replace "\&.*$",""
+
+            if ($ext -ne $cleanExt) {
+                $f.n = $f.n.Replace($ext, $cleanExt)
+                $fixedExt++
+            }
+
+            # Supprimer les extensions inconnues
+            if (-not $Config.ExtensionMap.ContainsKey($cleanExt)) {
+                $cache.Remove($id)
+                $removed++
+                continue
+            }
+        }
+
+        Write-Log "Fix terminé : $removed entrées supprimées, $fixedExt extensions corrigées." "SUCCESS"
+        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
+    }
+    catch {
+        Write-Log "Erreur Repair-Cache : $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Repair-Collisions {
+    try {
+        Write-Log "=== FIX COLLISIONS : Résolution proactive ===" "WARN"
+        
+        # On travaille directement sur la liste en mémoire
+        $groups = $Global:State.PlannedActions | Group-Object FullDst | Where-Object { $_.Count -gt 1 }
+
+        if (-not $groups) {
+            Write-Log "Aucune collision détectée." "SUCCESS"
+            return
+        }
+
+        foreach ($g in $groups) {
+            # Le premier fichier garde son nom, les suivants sont indexés
+            for ($i = 1; $i -lt $g.Count; $i++) {
+                $item = $g.Group[$i]
+                $ext = [System.IO.Path]::GetExtension($item.DstName)
+                $nameOnly = [System.IO.Path]::GetFileNameWithoutExtension($item.DstName)
+                
+                # Mise à jour du nom et du chemin complet de destination
+                $item.DstName = "$nameOnly`_$i$ext"
+                $item.FullDst = "$($item.DstDir.TrimEnd('/'))/$($item.DstName)"
+            }
+        }
+
+        # On sauvegarde le plan modifié sur le disque immédiatement
+        $planFile = Join-Path (Split-Path $IndexFile -Parent) "plan.json"
+        $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content $planFile
+
+        Write-Log "Collisions résolues et plan synchronisé sur disque." "SUCCESS"
+    }
+    catch {
+        Write-Log "Erreur Repair-Collisions : $($_.Exception.Message)" "ERROR"
+    }
+}
+
+
+function Repair-Paths {
+    # Normalise les chemins OneDrive (double slash, espaces, caractères invalides).
+    try {
+        Write-Log "=== FIX PATHS : Normalisation des chemins ===" "WARN"
+
+        foreach ($entry in $Global:State.Cache.Files.GetEnumerator()) {
+            $f = $entry.Value
+
+            if ($f.p) {
+                $clean = $f.p -replace "//+", "/" -replace "\s+", "_"
+                if ($clean -ne $f.p) {
+                    $f.p = $clean
+                }
+            }
+        }
+
+        Write-Log "Normalisation des chemins terminée." "SUCCESS"
+    }
+    catch {
+        Write-Log "Erreur Repair-Paths : $($_.Exception.Message)" "ERROR"
+    }
+} # Repair-Paths
+
+function Repair-Names {
+    # Corrige les noms invalides (espaces, caractères interdits, noms trop longs).
+    try {
+        Write-Log "=== FIX NAMES : Normalisation des noms ===" "WARN"
+
+        foreach ($entry in $Global:State.Cache.Files.GetEnumerator()) {
+            $f = $entry.Value
+
+            if ($f.n) {
+                $clean = $f.n -replace "[^\w\.\-]", "_" -replace "_+", "_"
+
+                if ($clean.Length -gt $Config.MaxNameLen) {
+                    $clean = $clean.Substring(0, $Config.MaxNameLen)
+                }
+
+                $f.n = $clean
+            }
+        }
+
+        Write-Log "Normalisation des noms terminée." "SUCCESS"
+    }
+    catch {
+        Write-Log "Erreur Repair-Names : $($_.Exception.Message)" "ERROR"
+    }
+} # Repair-Names
+
+
+function Repair-GPS {
+    # Supprime les coordonnées GPS invalides ou corrompues.
+    try {
+        Write-Log "=== FIX GPS : Nettoyage des GPS invalides ===" "WARN"
+
+        foreach ($entry in $Global:State.Cache.Files.GetEnumerator()) {
+            $f = $entry.Value
+
+            if ($f.gps) {
+                $lat = $f.gps.lat
+                $lon = $f.gps.lon
+
+                if ($lat -lt -90 -or $lat -gt 90 -or $lon -lt -180 -or $lon -gt 180) {
+                    $f.gps = $null
+                }
+            }
+        }
+
+        Write-Log "Nettoyage GPS terminé." "SUCCESS"
+    }
+    catch {
+        Write-Log "Erreur Repair-GPS : $($_.Exception.Message)" "ERROR"
+    }
+} # Repair-GPS
+
+
 # =====================================================================
 # RAPPORT HTML (structure prête)
 # =====================================================================
@@ -626,54 +914,95 @@ th { background: #eee; }
 
 # Point d'entrée principal du script
 function Start-OneDriveOrganizer {
+    <#
+    .SYNOPSIS
+        Point d'entrée principal de l'organisateur OneDrive.
+        Gère le cycle de vie : Nettoyage -> Planification -> Correction -> Exécution.
+    #>
+    
+    # 1. NETTOYAGE DU LOG (Une seule fois au début strict)
+    if (Test-Path $LogFile) { 
+        try {
+            Remove-Item $LogFile -Force -ErrorAction SilentlyContinue
+            # On recrée un fichier vide pour que Write-Log puisse écrire immédiatement
+            New-Item -Path $LogFile -ItemType File -Force | Out-Null
+        } catch {
+            Write-Host "Impossible de réinitialiser le log : $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
 
-    Write-Log "Démarrage de l'organisateur..."
+    Write-Log "=== DÉMARRAGE DE LA SESSION : $(Get-Date -Format 'dd/MM/yyyy HH:mm:ss') ===" "INFO"
 
     try {
+        # 2. CHARGEMENT ET RÉPARATION DES DONNÉES EN MÉMOIRE
+        # Note : On n'appelle Import-Set-Cache qu'UNE SEULE FOIS.
         Import-Set-Cache
-        # Hash du cache
+        
+        # On répare le cache en mémoire (suppression entrées invalides, etc.)
+        Repair-Cache       
+        
+        # On normalise les métadonnées (Chemins, Noms, GPS)
+        Repair-Paths
+        Repair-Names
+        Repair-GPS
+
+        # 3. GESTION DU PLAN (Reprise ou Nouveau)
+        # On vérifie si un plan existe déjà pour ce fichier de cache précis (via Hash)
         $hash = Get-CacheHash
-        # Tentative de reprise
-        $plan = $null
-        if ($hash) {
-            $plan = Get-ExistingPlan -CurrentHash $hash
-        }
-        if ($plan) {
-            $Global:State.PlannedActions = $plan
-        }
-        else {
+        $plan = if ($hash) { Get-ExistingPlan -CurrentHash $hash } else { $null }
+
+        if ($null -eq $plan) {
+            Write-Log "Aucun plan valide trouvé. Lancement de l'analyse complète..." "INFO"
             New-Plan
-            if ($hash) {
-                $cacheFolder = Split-Path $IndexFile -Parent
-                $hashFile = Join-Path $cacheFolder "cache_hash.txt"
-                $hash | Set-Content $hashFile
+            
+            # Après New-Plan, on sauvegarde le hash actuel pour la prochaine fois
+            if ($hash) { 
+                $hashFile = Join-Path (Split-Path $IndexFile -Parent) "cache_hash.txt"
+                $hash | Set-Content $hashFile 
             }
+        } 
+        else {
+            Write-Log "Reprise du plan existant détectée (Hash SHA256 identique)." "SUCCESS"
+            $Global:State.PlannedActions = [System.Collections.Generic.List[PSCustomObject]]$plan
         }
 
-        if ($Global:State.PlannedActions.Count -eq 0) {
-            Write-Log "Aucun fichier à traiter." "WARN"
-            return
-        }
+        # 4. RÉSOLUTION DES CONFLITS ET VALIDATION
+        # On vérifie s'il y a des doublons de noms dans les destinations cibles
+        Repair-Collisions
+        
+        # Analyse finale du plan (doublons restants, chemins trop longs)
+        Test-Plan
 
-
+        # 5. VÉRIFICATION DU MODE D'EXÉCUTION
         if (-not $Execute) {
-            Write-Log "MODE APERÇU — utilisez -Execute `$true pour appliquer." "WARN"
-            $Global:State.PlannedActions[0] | Format-List
+            Write-Log "----------------------------------------------------------------" "WARN"
+            Write-Log "MODE APERÇU (DRY-RUN) : Aucune modification n'a été faite sur le Cloud." "WARN"
+            Write-Log "Vérifiez le fichier 'plan.json' dans le dossier _cache." "INFO"
+            Write-Log "Relancez le script avec le paramètre -Execute `$true pour appliquer." "INFO"
+            Write-Log "----------------------------------------------------------------" "WARN"
             return
         }
 
+        # 6. EXÉCUTION RÉELLE (GRAPH API)
+        Write-Log "PASSAGE EN MODE EXÉCUTION RÉELLE..." "WARN"
         Connect-AzureGraph
+        
+        # Création proactive des dossiers de destination pour éviter les erreurs 404
+        Write-Log "Vérification de l'arborescence des dossiers sur OneDrive..." "INFO"
+        $uniqueDirs = $Global:State.PlannedActions.DstDir | Select-Object -Unique
+        foreach ($dir in $uniqueDirs) { 
+            Test-OneDrivePath $dir 
+        }
 
-        # Pré-création des dossiers
-        $uniqueDirs = $Global:State.PlannedActions.DstDir | Select-Object -Unique | Sort-Object
-        foreach ($dir in $uniqueDirs) { Test-OneDrivePath $dir }
-
+        # Déplacement effectif des fichiers
         Invoke-Moves
+        
+        Write-Log "Processus d'organisation terminé avec succès." "SUCCESS"
     }
     catch {
-        Write-Log "Erreur Start-OneDriveOrganizer : $($_.Exception.Message)" "ERROR"
-        throw
+        Write-Log "ERREUR FATALE dans Start-OneDriveOrganizer : $($_.Exception.Message)" "ERROR"
+        Write-Log "Détails : $($_.ScriptStackTrace)" "DEBUG"
     }
-} # Start-OneDriveOrganizer
+}
 
 Start-OneDriveOrganizer
