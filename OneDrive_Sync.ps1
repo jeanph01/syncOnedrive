@@ -4,28 +4,34 @@
 
 param (
     [ValidateSet("Online", "Offline")]
-    [string]$Mode = "Online",
-    [switch]$ForceNewScan = $false,
-    [string]$LocalFolder = "D:\recup",
-    [string]$TokenFile = ".\graph_token.json",
-    [string]$ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
+    [string]$Mode = "Online",                     # Mode de scan OneDrive
+    [switch]$ForceNewScan = $false,               # Force un nouveau scan OneDrive
+    [switch]$ResetCache = $false,                 # Réinitialise les fichiers internes
+    [string]$LocalFolder = "D:\recup",            # Dossier local à analyser
+    [string]$TokenFile = ".\_cache\graph_token.json", # Token Graph
+    [string]$ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061", # ClientId Graph
+    [bool]$VerboseMode = $true                    # Active les logs DEBUG
 )
 
 $ProgressPreference = 'SilentlyContinue'
 Clear-Host
 
 # --- LOG FILE ---
-$global:LogFile = ".\onedrive_indexer_log.txt"
+$global:LogFile = ".\_cache\onedrive_indexer_log.txt"
 
 # ---------------- EN-TÊTE & CONFIG ----------------
 function enteteConfig {
 
+    # todo déplacer les extensions dans un fichier externe
     $script:TimeStart = Get-Date
 
-    $global:IndexFile = ".\onedrive_cache.json"
-    $global:ReportFile = ".\onedrive_doublons_rapport.txt"
+    $cache = ".\_cache"
+    if (!(Test-Path $cache)) { New-Item -ItemType Directory -Path $cache | Out-Null }
+    $global:IndexFile          = "$cache\onedrive_cache.json"
+    $global:ReportFile         = "$cache\onedrive_doublons_rapport.txt"
+    $global:LocalHashCacheFile = "$cache\local_hash_cache.json"
+    $global:LogFile            = "$cache\onedrive_indexer_log.txt"
     $global:DupFolder = Join-Path $LocalFolder "_Doublons"
-    $global:LocalHashCacheFile = ".\local_hash_cache.json"
 
     # Extensions autorisées
     $global:AllowedExt = @(
@@ -39,26 +45,45 @@ function enteteConfig {
     $global:AllowedExtSet = [System.Collections.Generic.HashSet[string]]::new()
     foreach ($ext in $global:AllowedExt) { $null = $global:AllowedExtSet.Add($ext) }
 
-    Write-Host "Configuration chargée"
-    Write-Host "Mode: $Mode | ForceNewScan: $ForceNewScan | Dossier: $LocalFolder"
+    Write-Log "Configuration chargée"
+    Write-Log "Mode: $Mode | ForceNewScan: $ForceNewScan | Dossier: $LocalFolder"
 
     if (Test-Path $global:LogFile) {
         Remove-Item $global:LogFile -Force
     }
+} # enteteConfig
+# =====================================================================
+# RESET CACHE
+# =====================================================================
+if ($ResetCache) {
+    Write-Log "Reset du cache interne..." "WARN"
+    $files = @(
+        $global:IndexFile,
+        $global:ReportFile,
+        $global:LocalHashCacheFile,
+        $global:LogFile
+    )
+    foreach ($f in $files) {
+        if (Test-Path $f) { Remove-Item $f -Force }
+    }
+    Write-Log "Reset terminé." "SUCCESS"
 }
 
-# --- CHARGER MODULE APRÈS CONFIG ---
-Import-Module ".\OneDriveTools\OneDriveTools.psm1" -ArgumentList $ClientId, $TokenFile, $global:LogFile -Force
-Import-Module ".\OneDriveTools\OneDriveOrganize.psm1" 
+# =====================================================================
+# MODULES EXTERNES
+# =====================================================================
+Import-Module ".\modules\OneDriveTools.psm1" -ArgumentList $ClientId, $TokenFile, $global:LogFile -Force
+Import-Module ".\modules\OneDriveOrganize.psm1" 
 
-
-# ---------------- 1. CHARGEMENT / SCAN ----------------
+# =====================================================================
+# 1. CHARGEMENT / SCAN
+# =====================================================================
 
 function Invoke-GraphWithRetry {
     param(
-        [Parameter(Mandatory)] [string]$Uri,
-        [Parameter(Mandatory)] $Headers,
-        [int]$MaxRetry = 5
+        [Parameter(Mandatory)] [string]$Uri,      # URL Graph
+        [Parameter(Mandatory)] $Headers,          # En-têtes Graph
+        [int]$MaxRetry = 5                        # Nombre max de tentatives
     )
 
     $retry = 0
@@ -71,26 +96,23 @@ function Invoke-GraphWithRetry {
         }
         catch {
             $retry++
-            $err = $_.Exception.Message
 
-            Write-Log "Graph ERROR (tentative $retry/$MaxRetry) : $err" "WARN"
+            Write-Log "Graph ERROR (tentative $retry/$MaxRetry) : $($_.Exception.Message)" "WARN"
 
-            # Backoff exponentiel
-            $delay = [math]::Min(10, [math]::Pow(2, $retry))
-            Start-Sleep -Seconds $delay
+            Start-Sleep -Seconds ([math]::Min(10, [math]::Pow(2, $retry)))
         }
     }
 
     # Si on arrive ici → échec fatal
     Write-Log "ERREUR FATALE: Impossible de récupérer la page Graph après $MaxRetry tentatives." "ERROR"
     return $null
-}
+} # Invoke-GraphWithRetry
 
 function ChargementScan {
 
-    Write-Log "[1/4] Chargement / Scan OneDrive (V15.0 - Scan delta optimisé)"
+    Write-Log "[1/4] Chargement / Scan OneDrive (V15.1)"
 
-    # Préparation du cache
+    try {
     $script:Cache = @{ Files = @{} }
 
     # Reset cache si demandé
@@ -138,7 +160,7 @@ function ChargementScan {
         Write-Log "Scan delta complet (nouvelle base)"
     }
     else {
-        $deltaUrl = $script:Cache.DeltaToken
+            $deltaUrl = $script:Cache.DDeltaToken
         Write-Log "Scan delta incrémental depuis le dernier deltaToken"
     }
 
@@ -184,9 +206,16 @@ function ChargementScan {
     $script:Cache | ConvertTo-Json -Depth 10 | Out-File $global:IndexFile -Encoding utf8 -NoNewline
     Write-Log "Cache OneDrive sauvegardé"
 }
+    catch {
+        Write-Log "Erreur ChargementScan : $($_.Exception.Message)" "ERROR"
+    }
+} # ChargementScan
 
-# ---------------- 2. RAPPORT DES DOUBLONS ----------------
+# =====================================================================
+# 2. RAPPORT DES DOUBLONS
+# =====================================================================
 function DoublonsOneDrive {
+    try {
     Write-Log "[2/4] Analyse des doublons OneDrive"
 
     $script:CloudDupCount = 0
@@ -210,10 +239,16 @@ function DoublonsOneDrive {
 
     Write-Log "Groupes doublons Cloud: $($script:CloudDupCount)"
 }
+    catch {
+        Write-Log "Erreur DoublonsOneDrive : $($_.Exception.Message)" "ERROR"
+    }
+} # DoublonsOneDrive
 
-# ---------------- 3. NETTOYAGE LOCAL OPTIMISÉ ----------------
+# =====================================================================
+# 3. NETTOYAGE LOCAL
+# =====================================================================
 function NettoyageLocal {
-
+    try {
     Write-Log "[3/4] Analyse locale"
 
     # Dossier des doublons
@@ -334,9 +369,16 @@ function NettoyageLocal {
 
     Write-Log "Nettoyage local terminé"
 }
+    catch {
+        Write-Log "Erreur NettoyageLocal : $($_.Exception.Message)" "ERROR"
+    }
+} # NettoyageLocal
 
-# ---------------- 4. DOSSIERS VIDES ----------------
+# =====================================================================
+# 4. DOSSIERS VIDES
+# =====================================================================
 function DossiersVides {
+    try {
     Write-Log "[4/4] Nettoyage dossiers vides"
 
     Get-ChildItem -Path $LocalFolder -Directory -Recurse |
@@ -349,9 +391,16 @@ function DossiersVides {
         }
     }
 }
+    catch {
+        Write-Log "Erreur DossiersVides : $($_.Exception.Message)" "ERROR"
+    }
+} # DossiersVides
 
-# ---------------- BILAN ----------------
+# =====================================================================
+# BILAN
+# =====================================================================
 function Bilan {
+    try {
     $Duration = (Get-Date) - $script:TimeStart
 
     Write-Log "=== BILAN FINAL ==="
@@ -362,10 +411,17 @@ function Bilan {
     Write-Log "Doublons locaux déplacés: $($script:cMove)"
     Write-Log "Fichiers supprimés (ext non autorisées): $($script:cDel)"
 }
+    catch {
+        Write-Log "Erreur Bilan : $($_.Exception.Message)" "ERROR"
+    }
+} # Bilan
 
+# =====================================================================
+# MAIN
+# =====================================================================
 function main {
-    
-    Write-Log "=== LANCEMENT DU SCRIPT V15.0 ==="
+    try {
+        Write-Log "=== LANCEMENT DU SCRIPT V15.1 ==="
 
     enteteConfig
     ChargementScan
@@ -374,5 +430,9 @@ function main {
     DossiersVides
     Bilan
 }
+    catch {
+        Write-Log "Erreur main : $($_.Exception.Message)" "ERROR"
+    }
+} # main
 
 main

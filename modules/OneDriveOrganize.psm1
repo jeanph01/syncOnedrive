@@ -101,16 +101,24 @@ function Get-SmartCategory {
     param ([string]$Path, [string]$Extension)
 
     try {
-        # Règles STAY
+        # Règles STAY (catégorie logique, pas le routing final)
         $stayPatterns = @("Finances", "Légal", "Documents", "Vie des enfants", "JPM", "Loisirs", "Livres", "Cuisine", "Syndicat", "Apps")
-        foreach ($p in $stayPatterns) { if ($Path -match "(?i)$p") { return "Stay" } }
+        foreach ($p in $stayPatterns) {
+            if ($Path -match "(?i)$p") {
+                return "Stay"
+            }
+        }
 
-        # Coffre-fort
-        if ($Path -match "(?i)coffrefort/([^/]+)") { return "VersCoffreFort/$($Matches[1])" }
+        # Coffre-fort (catégorie logique)
+        if ($Path -match "(?i)coffre.?fort") {
+            return "Coffre-fort"
+        }
 
         # Standards
         $ext = $Extension.ToLower()
-        if ($Config.ExtensionMap.ContainsKey($ext)) { return $Config.ExtensionMap[$ext] }
+        if ($Config.ExtensionMap.ContainsKey($ext)) {
+            return $Config.ExtensionMap[$ext]
+        }
 
         return "Stay"
     }
@@ -118,53 +126,6 @@ function Get-SmartCategory {
         Write-Log "Échec Get-SmartCategory: $_" "Erreur"
     }
 } # Get-SmartCategory
-
-
-# Détermine la racine de destination selon un moteur de règles
-function Get-TargetRoot {
-    [CmdletBinding()]
-    param([Parameter(Mandatory)][string]$SourcePath)
-
-    try {
-        # Règles déclaratives
-        $Rules = @(
-            @{ Name = "CoffreFort-Michelle"; Patterns = @("VersCoffreFort/Michelle"); Action = "Move"; TargetRoot = "VersCoffreFort/Michelle"; Priority = 1 },
-            @{ Name = "CoffreFort-Relations"; Patterns = @("VersCoffreFort/relations"); Action = "Move"; TargetRoot = "VersCoffreFort/relations"; Priority = 1 },
-            @{ Name = "CoffreFort-Archives"; Patterns = @("VersCoffreFort/archives"); Action = "Move"; TargetRoot = "VersCoffreFort/archives"; Priority = 1 },
-            @{ Name = "Coffre-Fort-Michelle"; Patterns = @("VersCoffreFort/Michelle"); Action = "Move"; TargetRoot = "VersCoffreFort/Michelle"; Priority = 1 },
-            @{ Name = "Coffre-Fort-Relations"; Patterns = @("VersCoffreFort/relations"); Action = "Move"; TargetRoot = "VersCoffreFort/relations"; Priority = 1 },
-            @{ Name = "Coffre-Fort-Archives"; Patterns = @("VersCoffreFort/archives"); Action = "Move"; TargetRoot = "VersCoffreFort/archives"; Priority = 1 },
-
-            @{ Name = "Administratif"; Patterns = @("Finance", "Fiscalité", "Impôts", "Banque", "Assurance", "Documents", "Contrats", "Notaire", "Municipalité", "Syndicat"); Action = "Stay"; TargetRoot = $null; Priority = 2 },
-            @{ Name = "TravailEtudes"; Patterns = @("Projets", "Travail", "Études", "Recherche", "Cours", "Université"); Action = "Stay"; TargetRoot = $null; Priority = 3 },
-            @{ Name = "Technique"; Patterns = @("Scripts", "Dev", "GitHub", "Backups", "Exports"); Action = "Stay"; TargetRoot = $null; Priority = 4 },
-
-            @{ Name = "Applications"; Patterns = @("WhatsApp", "Messenger", "Facebook", "Instagram", "Screenshots", "Camera Roll", "DCIM", "Android", "iOS"); Action = "Move"; TargetRoot = "Images/Pellicule"; Priority = 5 },
-            @{ Name = "Videos"; Patterns = @("Videos"); Action = "Move"; TargetRoot = "Videos"; Priority = 6 }
-        )
-
-        $OrderedRules = $Rules | Sort-Object Priority
-
-        foreach ($rule in $OrderedRules) {
-            foreach ($pattern in $rule.Patterns) {
-                if ($SourcePath -match [Regex]::Escape($pattern)) {
-
-                    if ($rule.Action -eq "Stay") {
-                        return @{ Action = "Stay"; TargetRoot = $null; Rule = $rule.Name }
-                    }
-
-                    return @{ Action = "Move"; TargetRoot = $rule.TargetRoot; Rule = $rule.Name }
-                }
-            }
-        }
-
-        # Par défaut → Pellicule
-        return @{ Action = "Move"; TargetRoot = "Images/Pellicule"; Rule = "Default" }
-    }
-    catch {
-        Write-Log "Échec Get-TargetRoot: $_" "Erreur"
-    }
-} # Get-TargetRoot
 
 
 # Extrait les tags utiles du chemin source
@@ -196,16 +157,16 @@ function New-SmartFileName {
 
     try {
         $timestamp = $DateRef.ToString("yyyyMMdd_HHmmss")
-        $year = $DateRef.ToString("yyyy")
+        $year      = $DateRef.ToString("yyyy")
         $yearMonth = $DateRef.ToString("yyyy_MM")
-        $dateRaw = $DateRef.ToString("yyyyMMdd")
+        $dateRaw   = $DateRef.ToString("yyyyMMdd")
 
         # Normalisation ASCII
         $cleanOriginal = Convert-ToAscii $OriginalName
-        $cleanTags = Convert-ToAscii $PathTags
-        $cleanGps = Convert-ToAscii $GpsLocation
-        $cleanCam = Convert-ToAscii $Camera
-        $cleanSource = Convert-ToAscii $SourceHint
+        $cleanTags     = Convert-ToAscii $PathTags
+        $cleanGps      = Convert-ToAscii $GpsLocation
+        $cleanCam      = Convert-ToAscii $Camera
+        $cleanSource   = Convert-ToAscii $SourceHint
 
         # Découpage
         function Split-Words($txt) {
@@ -213,22 +174,22 @@ function New-SmartFileName {
             return ($txt -split "[ _\-]" | Where-Object { $_ -and $_.Trim().Length -gt 0 })
         }
 
-        $gpsWords = Split-Words $cleanGps
-        $tagWords = Split-Words $cleanTags
+        $gpsWords  = Split-Words $cleanGps
+        $tagWords  = Split-Words $cleanTags
         $origWords = Split-Words $cleanOriginal
-        $camWords = Split-Words $cleanCam
-        $srcWords = Split-Words $cleanSource
+        $camWords  = Split-Words $cleanCam
+        $srcWords  = Split-Words $cleanSource
 
         # Stopwords
-        $stopWords = @("de", "du", "des", "la", "le", "les", "avec", "pour", "sur", "dans", "et", "en", "a", "au", "aux")
+        $stopWords = @("de","du","des","la","le","les","avec","pour","sur","dans","et","en","a","au","aux")
 
         function Remove-StopWords($list) {
             if (-not $list) { return @() }
             return $list | Where-Object { $stopWords -notcontains $_.ToLower() }
         }
 
-        $gpsWords = Remove-StopWords $gpsWords
-        $tagWords = Remove-StopWords $tagWords
+        $gpsWords  = Remove-StopWords $gpsWords
+        $tagWords  = Remove-StopWords $tagWords
         $origWords = Remove-StopWords $origWords
 
         # Suppression des mots déjà présents dans GPS
@@ -240,23 +201,22 @@ function New-SmartFileName {
             return $list | Where-Object { -not $gpsSet.ContainsKey($_.ToLower()) }
         }
 
-        $tagWords = Remove-GpsRedundancy $tagWords
+        $tagWords  = Remove-GpsRedundancy $tagWords
         $origWords = Remove-GpsRedundancy $origWords
 
-        # ============================================================
-        # NOUVELLE RÈGLE : suppression des redondances de date
-        # ============================================================
+        # Suppression des redondances de date
         function Remove-DateRedundancy($list) {
             if (-not $list) { return @() }
             return $list | Where-Object {
-                $_ -notmatch $year -and
+                $_ -notmatch $year      -and
                 $_ -notmatch $yearMonth -and
-                $_ -notmatch $dateRaw -and
+                $_ -notmatch $dateRaw   -and
                 $_ -notmatch $timestamp
             }
         }
-        $tagWords = Remove-DateRedundancy $tagWords
+        $tagWords  = Remove-DateRedundancy $tagWords
         $origWords = Remove-DateRedundancy $origWords
+
         # Assemblage global
         $allWords = New-Object System.Collections.Generic.List[string]
         $allWords.Add($timestamp)
@@ -293,8 +253,217 @@ function New-SmartFileName {
 } # New-SmartFileName
 
 
-# Détermine le chemin de destination final
+function Resolve-FileRouting {
+    <#
+    .SYNOPSIS
+        Résout la stratégie de routing (Stay / Move) et la racine cible selon le chemin source et le type de média.
+
+    .DESCRIPTION
+        Cette fonction applique un moteur de règles déterministe, dans un ordre de priorité strict :
+
+        RÈGLE 1 — FINANCES (Stay STRICT)
+            Condition :
+                - Le chemin source commence par /drive/root:/Finances
+            Intention :
+                - Stay strict : aucun déplacement, on garde le chemin exact, on renomme seulement.
+            Exemple :
+                /drive/root:/Finances/Maison et Logement/95 ... → /Finances/Maison_et_Logement/95_.../<NewName>
+
+        RÈGLE 2 — COFFRE-FORT (Stay + mediaType) — SANS EXCEPTION
+            Condition :
+                - Le chemin source contient (insensible à la casse) :
+                    "coffre-fort", "coffre fort", "pour coffre fort", "coffre-fort", "verscoffrefort"
+            Intention :
+                - Stay dans la racine Coffre-fort
+                - Conserver le 2e niveau (Michelle, relations, archives, etc.)
+                - Organiser par type média (images / videos)
+                - Classer par année / mois
+            Destination :
+                /<racine_coffre>/<sous_dossier>/<images|videos>/<YYYY>/<MM>/<NewName>
+            Exemple :
+                /drive/root:/Coffre-Fort/relations/... → /Coffre-Fort/relations/videos/YYYY/MM/<NewName>
+                /drive/root:/VersCoffreFort/relations/... → /VersCoffreFort/relations/images/YYYY/MM/<NewName>
+                /drive/root:/VersCoffreFort/archives/... → /VersCoffreFort/archives/videos/YYYY/MM/<NewName>
+
+        RÈGLE 3 — APPS (WhatsApp, Messenger, DCIM, etc.)
+            Condition :
+                - Le chemin contient : WhatsApp, Messenger, Facebook, Instagram, Camera Roll, DCIM, Android, iOS
+            Intention :
+                - Utiliser la même logique que la règle par défaut (Move Pellicule / Videos)
+            Destination :
+                /Images/Pellicule/YYYY/MM/<NewName> ou /Videos/YYYY/MM/<NewName>
+
+        RÈGLE 4 — ADMINISTRATIF NON FINANCES (Stay simplifié)
+            Condition :
+                - Le chemin contient : Documents, Légal, Syndicat, Vie des enfants, Cuisine, Livres, JPM, etc.
+            Intention :
+                - Stay simplifié : on garde la racine, mais on limite à 3 niveaux maximum.
+            Exemple :
+                /Documents/Travail/ProjetA/Phase1/Notes → /Documents/Travail/ProjetA/<NewName>
+
+        RÈGLE 5 — DEFAULT (Move Pellicule / Videos)
+            Condition :
+                - Aucune des règles précédentes ne s’applique.
+            Intention :
+                - Move selon type média.
+            Destination :
+                /Images/Pellicule/YYYY/MM/<NewName> ou /Videos/YYYY/MM/<NewName>
+
+    .OUTPUTS
+        Hashtable avec :
+            Mode  = "StayStrict" | "CoffreFort" | "AppsOrDefaultMove" | "StaySimplified"
+            Root  = racine logique (pour CoffreFort) ou $null pour les autres
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][hashtable]$FileMeta,
+        [Parameter(Mandatory)][string]$Extension
+    )
+
+    try {
+        $srcDirClean = $FileMeta.p -replace "^/drive/root:", ""
+        $ext = $Extension.ToLower()
+
+        # RÈGLE 1 — FINANCES (Stay STRICT)
+        if ($srcDirClean -match "^/Finances(/|$)") {
+            return @{
+                Mode = "StayStrict"
+                Root = $srcDirClean
+            }
+        }
+
+        # RÈGLE 2 — COFFRE-FORT (Stay + mediaType) — SANS EXCEPTION
+        if ($srcDirClean -match "(?i)coffre.?fort" -or $srcDirClean -match "(?i)verscoffrefort") {
+            $parts = $srcDirClean.Trim('/').Split('/')
+            $idx = 0
+            for ($i = 0; $i -lt $parts.Count; $i++) {
+                if ($parts[$i] -match "(?i)coffre.?fort" -or $parts[$i] -match "(?i)verscoffrefort") {
+                    $idx = $i
+                    break
+                }
+            }
+
+            $rootParts = @()
+            $rootParts += $parts[$idx]
+            if ($parts.Count -gt ($idx + 1)) {
+                $rootParts += $parts[$idx + 1]
+            }
+            $baseRoot = "/" + ($rootParts -join "/")
+
+            return @{
+                Mode = "CoffreFort"
+                Root = $baseRoot
+            }
+        }
+
+        # RÈGLE 3 — APPS (WhatsApp, Messenger, DCIM, etc.) → même logique que Default
+        $appsPatterns = @("WhatsApp","Messenger","Facebook","Instagram","Screenshots","Camera Roll","DCIM","Android","iOS")
+        foreach ($p in $appsPatterns) {
+            if ($srcDirClean -match [Regex]::Escape($p)) {
+                return @{
+                    Mode = "AppsOrDefaultMove"
+                    Root = $null
+                }
+            }
+        }
+
+        # RÈGLE 4 — ADMINISTRATIF NON FINANCES (Stay simplifié)
+        $adminPatterns = @("Documents","Légal","Syndicat","Vie des enfants","Cuisine","Livres","JPM")
+        foreach ($p in $adminPatterns) {
+            if ($srcDirClean -match "(?i)$p") {
+                return @{
+                    Mode = "StaySimplified"
+                    Root = $srcDirClean
+                }
+            }
+        }
+
+        # RÈGLE 5 — DEFAULT (Move Pellicule / Videos)
+        return @{
+            Mode = "AppsOrDefaultMove"
+            Root = $null
+        }
+    }
+    catch {
+        Write-Log "Échec Resolve-FileRouting: $_" "Erreur"
+    }
+} # Resolve-FileRouting
+
+
 function Get-DestinationPath {
+    <#
+    .SYNOPSIS
+        Détermine le chemin de destination final d’un fichier (dossier cible + nouveau nom).
+
+    .DESCRIPTION
+        Cette fonction applique les règles de routing suivantes, via Resolve-FileRouting :
+
+        PRIORITÉ 1 — FINANCES (Stay STRICT)
+            - Condition :
+                Le chemin source commence par /drive/root:/Finances
+            - Comportement :
+                Aucun déplacement, on garde le chemin exact (nettoyé ASCII), on renomme seulement.
+            - Exemple :
+                /drive/root:/Finances/Maison ... → /Finances/Maison_.../<NewName>
+
+        PRIORITÉ 2 — COFFRE-FORT (Stay + mediaType) — SANS EXCEPTION
+            - Condition :
+                Le chemin source contient "coffre-fort", "coffre fort", "pour coffre fort", "coffre-fort", "verscoffrefort"
+            - Comportement :
+                On reste dans la racine Coffre-fort, on conserve le 2e niveau (Michelle, relations, archives, etc.),
+                on crée un sous-dossier images/ ou videos/ selon le type média, puis on classe par année / mois.
+            - Destination :
+                /<racine_coffre>/<sous_dossier>/<images|videos>/<YYYY>/<MM>/<NewName>
+
+        PRIORITÉ 3 — APPS (WhatsApp, Messenger, DCIM, etc.)
+            - Condition :
+                Le chemin contient : WhatsApp, Messenger, Facebook, Instagram, Camera Roll, DCIM, Android, iOS
+            - Comportement :
+                Utilise la même logique que la règle par défaut (Move Pellicule / Videos).
+
+        PRIORITÉ 4 — ADMINISTRATIF NON FINANCES (Stay simplifié)
+            - Condition :
+                Le chemin contient : Documents, Légal, Syndicat, Vie des enfants, Cuisine, Livres, JPM, etc.
+            - Comportement :
+                Stay simplifié : on garde la racine, mais on limite à 3 niveaux maximum.
+            - Exemple :
+                /Documents/Travail/ProjetA/Phase1/Notes → /Documents/Travail/ProjetA/<NewName>
+
+        PRIORITÉ 5 — DEFAULT (Move Pellicule / Videos)
+            - Condition :
+                Aucune des règles précédentes ne s’applique.
+            - Comportement :
+                Move selon type média :
+                    - Images → /Images/Pellicule/YYYY/MM/<NewName>
+                    - Videos → /Videos/YYYY/MM/<NewName>
+                    - Autres → /Images/Pellicule/YYYY/MM/<NewName> (par défaut)
+
+    .PARAMETER Category
+        Catégorie logique (Images, Videos, Stay, Coffre-fort, etc.). Utilisée pour certains cas historiques,
+        mais la logique principale repose sur Resolve-FileRouting et le type média.
+
+    .PARAMETER FileMeta
+        Hashtable retournée par Read-AzureFileInfo, contenant notamment :
+            - p : chemin parent (/drive/root:/...).
+
+    .PARAMETER Extension
+        Extension du fichier, incluant le point (.jpg, .mp4, etc.).
+
+    .PARAMETER ExtensionMap
+        Hashtable de mapping extension → type média (Images, Videos, Autres, etc.).
+
+    .PARAMETER NewName
+        Nouveau nom de fichier généré par New-SmartFileName.
+
+    .PARAMETER FileDate
+        Date de référence (EXIF ou fallback) utilisée pour YYYY/MM.
+
+    .OUTPUTS
+        PSCustomObject avec :
+            - RawDestination   : chemin logique brut (avant normalisation ASCII)
+            - CleanDestination : chemin normalisé ASCII
+            - FullDestination  : chemin complet incluant le nouveau nom
+    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string]$Category,
@@ -308,21 +477,6 @@ function Get-DestinationPath {
     try {
         # Nettoyage du chemin source
         $srcDirClean = $FileMeta.p -replace "^/drive/root:", ""
-        # ============================================================
-        # Si le fichier provient de VersCoffreFort/archives,
-        # on conserve cette racine dans la destination.
-        # ============================================================
-        if ($FileMeta.p -match "^/drive/root:/VersCoffreFort/archives") {
-            # Correction : PAS de "Pellicule" ici
-            $rawDestination = "/VersCoffreFort/archives/$Category/$($FileDate.Year)/$($FileDate.ToString('MM'))"
-            $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
-            $fullDestination = "/$($cleanDestination.Trim('/'))/$NewName"
-            return [PSCustomObject]@{
-                RawDestination   = $rawDestination
-                CleanDestination = $cleanDestination
-                FullDestination  = $fullDestination
-            }
-        }
 
         # Type média
         $mediaType = if ($ExtensionMap.ContainsKey($Extension)) {
@@ -332,36 +486,67 @@ function Get-DestinationPath {
             "Autres"
         }
 
-        # ============================================================
-        # RÈGLE STAY (et seulement Stay)
-        # ============================================================
-        if ($Category -eq "Stay") {
+        # Résolution de la stratégie de routing
+        $routing = Resolve-FileRouting -FileMeta $FileMeta -Extension $Extension
+        $mode = $routing.Mode
+        $root = $routing.Root
 
-            # --- RÈGLE SPÉCIALE : FINANCES = aucun déplacement ---
-            if ($srcDirClean -match "^/Finances/") {
-                # On garde le chemin EXACT d'origine
+        $year  = $FileDate.Year
+        $month = $FileDate.ToString('MM')
+
+        $rawDestination = $null
+
+        switch ($mode) {
+
+            "StayStrict" {
+                # FINANCES : aucun déplacement, on garde le chemin exact
                 $rawDestination = $srcDirClean
             }
-            else {
-                # RÈGLE STAY normale : limiter à 3 niveaux
+
+            "CoffreFort" {
+                # COFFRE-FORT : racine + 2e niveau + images/videos + YYYY/MM
+                $baseRoot = $root
+                $mediaFolder = switch ($mediaType) {
+                    "Videos" { "videos" }
+                    "Images" { "images" }
+                    default  { "autres" }
+                }
+                $rawDestination = "$baseRoot/$mediaFolder/$year/$month"
+            }
+
+            "StaySimplified" {
+                # ADMIN NON FINANCES : Stay simplifié (3 niveaux max)
                 $parts = $srcDirClean.Trim('/').Split('/')
                 if ($parts.Count -gt 3) {
                     $basePath = ($parts[0..2] -join '/')
-                    $rawDestination = "/$basePath"
                 }
                 else {
-                    $rawDestination = $srcDirClean
+                    $basePath = $srcDirClean.Trim('/')
+                }
+                $rawDestination = "/$basePath"
+            }
+
+            "AppsOrDefaultMove" {
+                # APPS + DEFAULT : Move Pellicule / Videos
+                if ($mediaType -eq "Videos") {
+                    $rawDestination = "/Videos/$year/$month"
+                }
+                else {
+                    $rawDestination = "/Images/Pellicule/$year/$month"
+                }
+            }
+
+            default {
+                # Fallback ultime : même logique que Default
+                if ($mediaType -eq "Videos") {
+                    $rawDestination = "/Videos/$year/$month"
+                }
+                else {
+                    $rawDestination = "/Images/Pellicule/$year/$month"
                 }
             }
         }
-        elseif ($Category -match "Coffre-fort/(.+)") {
-            $vaultRoot = $Matches[1]
-            $rawDestination = "/VersCoffreFort/$vaultRoot/$mediaType/$($FileDate.Year)/$($FileDate.ToString('MM'))"
-        }
-        else {
-            # Catégories Images / Vidéos / etc.
-            $rawDestination = "/$Category/Pellicule/$($FileDate.Year)/$($FileDate.ToString('MM'))"
-        }
+
         # Nettoyage ASCII
         $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
 

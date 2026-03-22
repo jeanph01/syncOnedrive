@@ -1,0 +1,18 @@
+[15:49:53] [INFO] [1/4] Chargement / Scan OneDrive (V15.1)
+[15:49:53] [INFO] Get-GraphToken: Vérification du token existant
+[15:49:53] [INFO] Token valide chargé depuis le cache
+[15:49:58] [INFO] Cache existant chargé (114086 fichiers)
+[15:49:58] [INFO] Scan delta incrémental depuis le dernier deltaToken
+[15:49:59] [INFO] Cache OneDrive sauvegardé
+[15:49:59] [INFO] [2/4] Analyse des doublons OneDrive
+[15:50:25] [INFO] Groupes doublons Cloud: 0
+[15:50:25] [INFO] [3/4] Analyse locale
+[15:50:49] [INFO] Nettoyage local terminé
+[15:50:49] [INFO] [4/4] Nettoyage dossiers vides
+[15:50:49] [INFO] === BILAN FINAL ===
+[15:50:49] [INFO] Temps écoulé: 0m 55s
+[15:50:49] [INFO] Fichiers locaux: 44
+[15:50:49] [INFO] Ignorés (taille diff): 43
+[15:50:49] [INFO] Groupes doublons Cloud: 0
+[15:50:49] [INFO] Doublons locaux déplacés: 0
+[15:50:49] [INFO] Fichiers supprimés (ext non autorisées): 0

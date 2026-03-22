@@ -1,0 +1,22 @@
+[15:51:10] [INFO] OneDriveTools.psm1 chargé
+[15:51:10] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[15:51:10] [DEBUG] TokenFile=.\_cache\graph_token.json
+[15:51:10] [DEBUG] LogFile=.\_cache\onedrive_cleaner_log.txt
+[15:51:10] [INFO] === ONEDRIVE CLOUD CLEANER ===
+[15:51:14] [INFO] Cache chargé: 114086 fichiers
+[15:51:14] [INFO] [1/3] Connexion à Microsoft Graph...
+[15:51:14] [INFO] Get-GraphToken: Vérification du token existant
+[15:51:14] [INFO] Token valide chargé depuis le cache
+[15:51:14] [INFO] [2/3] Analyse des groupes de doublons...
+[15:52:49] [INFO] OneDriveTools.psm1 chargé
+[15:52:49] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[15:52:49] [DEBUG] TokenFile=.\_cache\graph_token.json
+[15:52:49] [DEBUG] LogFile=.\_cache\onedrive_cleaner_log.txt
+[15:52:49] [INFO] === ONEDRIVE CLOUD CLEANER ===
+[15:52:52] [INFO] Cache chargé: 114086 fichiers
+[15:52:52] [INFO] [1/3] Connexion à Microsoft Graph...
+[15:52:53] [INFO] Get-GraphToken: Vérification du token existant
+[15:52:53] [INFO] Token valide chargé depuis le cache
+[15:52:53] [INFO] [2/3] Analyse des groupes de doublons...
+[15:53:20] [INFO] [3/3] Suppression des doublons...
+[15:53:20] [INFO] [TERMINÉ] 0 doublons supprimés de OneDrive.

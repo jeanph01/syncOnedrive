@@ -8,13 +8,14 @@
 # =====================================================================
 
 param (
-    [bool]$Execute = $false,
-    [string]$IndexFile = ".\onedrive_cache.json",
-    [string]$LogFile = ".\organisation_log.txt",
-    [string]$ProcessedLog = ".\processed_ids.log",
-    [string]$ExecutionReport = ".\azure_sync_report.csv",
-    [string]$GpsCacheFile = ".\gps_cache.json",
-    [bool]$VerboseMode = $true
+    [bool]$Execute       = $false,                          # Exécute réellement les déplacements
+    [bool]$ResetCache = $false,                          # Réinitialise les fichiers internes sauf GPS et cache OneDrive
+    [string]$IndexFile   = ".\_cache\onedrive_cache.json",  # Cache OneDrive (fichier source)
+    [string]$LogFile     = ".\_cache\organisation_log.txt", # Log des opérations
+    [string]$ProcessedLog   = ".\_cache\processed_ids.log", # IDs déjà traités
+    [string]$ExecutionReport = ".\_cache\azure_sync_report.csv", # Rapport CSV des opérations
+    [string]$GpsCacheFile    = ".\_cache\gps_cache.json",   # Cache GPS
+    [bool]$VerboseMode  = $true                            # Active les logs DEBUG
 )
 
 # =====================================================================
@@ -22,10 +23,10 @@ param (
 # =====================================================================
 
 $Config = [PSCustomObject]@{
-    RenameMarker = "--odr--"
-    MaxNameLen   = 80
-    ClientId     = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
-    ExtensionMap = $ExtensionMap
+    RenameMarker = "--odr--"      # Marqueur de renommage
+    MaxNameLen   = 80             # Longueur max des noms de fichiers
+    ClientId     = "176fc7bc-42c9-4a25-82b5-0ad584d3c061" # ClientId Graph
+    ExtensionMap = $ExtensionMap  # Table de mapping des extensions
 }
 
 # =====================================================================
@@ -35,6 +36,18 @@ $Config = [PSCustomObject]@{
 Import-Module "$PSScriptRoot\modules\OneDriveTools.psm1" -ArgumentList $Config.ClientId, $TokenFile, $LogFile -Force
 Import-Module "$PSScriptRoot\modules\OneDriveOrganize.psm1" -Force
 Import-Module "$PSScriptRoot\modules\GpsTools.psm1" -ArgumentList $GpsCacheFile -Force
+# =====================================================================
+# CRÉATION DU DOSSIER _cache SI NÉCESSAIRE
+# =====================================================================
+try {
+    $cacheFolder = Split-Path $IndexFile -Parent
+    if ($cacheFolder -and -not (Test-Path $cacheFolder)) {
+        New-Item -ItemType Directory -Path $cacheFolder -Force | Out-Null
+    }
+}
+catch {
+    Write-Log "Erreur lors de la création du dossier cache : $($_.Exception.Message)" "ERROR"
+}
 
 # =====================================================================
 # ÉTAT GLOBAL
@@ -49,24 +62,122 @@ $Global:State = @{
     FilesToProcess = @{}
 }
 
+
+# =====================================================================
+# RESET CACHE (strict minimum)
+# =====================================================================
+
+if ($ResetCache) {
+    try {
+        Write-Log "Reset du cache interne..." "WARN"
+
+        $planFile = Join-Path (Split-Path $IndexFile -Parent) "plan.json"
+        $hashFile = Join-Path (Split-Path $IndexFile -Parent) "cache_hash.txt"
+    $filesToDelete = @(
+        $ProcessedLog,
+        $ExecutionReport,
+        $LogFile,
+            $planFile,
+            $hashFile
+    )
+
+    foreach ($f in $filesToDelete) {
+            if ($f -and (Test-Path $f)) {
+                Remove-Item $f -Force
+    }
+        }
+
+        Write-Log "Reset terminé (GPS + onedrive_cache.json conservés)." "SUCCESS"
+    }
+    catch {
+        Write-Log "Erreur lors du reset du cache : $($_.Exception.Message)" "ERROR"
+    }
+}
+
+# =====================================================================
+# HASH DU CACHE
+# =====================================================================
+
+# Calcule le hash du fichier de cache OneDrive
+function Get-CacheHash {
+    try {
+        if (-not (Test-Path $IndexFile)) {
+            Write-Log "Impossible de calculer le hash, fichier absent : $IndexFile" "WARN"
+            return $null
+        }
+        return (Get-FileHash $IndexFile -Algorithm SHA256).Hash
+    }
+    catch {
+        Write-Log "Erreur calcul hash : $($_.Exception.Message)" "ERROR"
+        return $null
+    }
+} # Get-CacheHash
+
+# =====================================================================
+# REPRISE AUTOMATIQUE
+# =====================================================================
+
+# Charge un plan existant si le hash du cache est identique
+function Get-ExistingPlan {
+    param(
+        [string]$CurrentHash  # Hash actuel du cache OneDrive
+    )
+
+    try {
+        $cacheFolder = Split-Path $IndexFile -Parent
+        $planFile = Join-Path $cacheFolder "plan.json"
+        $hashFile = Join-Path $cacheFolder "cache_hash.txt"
+
+        if (-not (Test-Path $planFile) -or -not (Test-Path $hashFile)) {
+        return $null
+    }
+
+        $oldHash = Get-Content $hashFile -ErrorAction Stop
+
+    if ($oldHash -eq $CurrentHash) {
+        Write-Log "Plan existant valide — reprise sans analyse." "SUCCESS"
+        return (Get-Content $planFile -Raw | ConvertFrom-Json)
+    }
+
+    Write-Log "Plan existant invalide (hash différent)." "WARN"
+    return $null
+    }
+    catch {
+        Write-Log "Erreur lors du chargement du plan existant : $($_.Exception.Message)" "ERROR"
+        return $null
+    }
+} # Get-ExistingPlan
+
+
 # =====================================================================
 # UTILITAIRES
 # =====================================================================
 
+# Retourne les détails d'une erreur HTTP
 function Get-ErrorDetails {
-    param($Exception)
+    param(
+        $Exception  # Exception à analyser
+    )
     try {
         if ($Exception.Response) {
             $reader = New-Object System.IO.StreamReader($Exception.Response.GetResponseStream())
             return $reader.ReadToEnd()
         }
-    } catch {}
+    }
+    catch {
+        Write-Log "Erreur lors de la lecture des détails d'erreur : $($_.Exception.Message)" "ERROR"
+    }
     return $Exception.Message
-}
+} # Get-ErrorDetails
 
+# Convertit une chaîne en ASCII safe pour noms de fichiers/chemins
 function Convert-ToAscii {
-    param([string]$Text, [bool]$IsPath = $false)
+    param(
+        [string]$Text,          # Texte à normaliser
+        [bool]$IsPath = $false  # Indique si c'est un chemin
+    )
 
+    try {
     if ([string]::IsNullOrWhiteSpace($Text)) { return "" }
 
     # Normalisation Unicode → ASCII
@@ -79,12 +190,19 @@ function Convert-ToAscii {
     $pattern = if ($IsPath) { "[^a-zA-Z0-9\.\-/]" } else { "[^a-zA-Z0-9\.\-]" }
     return ($clean -replace $pattern, "_" -replace "_+", "_").Trim("_")
 }
+    catch {
+        Write-Log "Erreur Convert-ToAscii : $($_.Exception.Message)" "ERROR"
+        return ""
+    }
+} # Convert-ToAscii
 
 # =====================================================================
 # AUTHENTIFICATION
 # =====================================================================
 
+# Obtient un token Graph et prépare les en-têtes
 function Connect-AzureGraph {
+    try {
     Write-Log "Obtention du token Graph via module..."
     $auth = Get-GraphToken
 
@@ -100,14 +218,23 @@ function Connect-AzureGraph {
 
     Write-Log "Token Graph chargé." "SUCCESS"
 }
+    catch {
+        Write-Log "Erreur Connect-AzureGraph : $($_.Exception.Message)" "ERROR"
+        throw
+    }
+} # Connect-AzureGraph
 
 # =====================================================================
 # PRÉ-CRÉATION DES DOSSIERS
 # =====================================================================
 
+# Vérifie/crée récursivement un chemin OneDrive
 function Test-OneDrivePath {
-    param([string]$RelativePath)
+    param(
+        [string]$RelativePath  # Chemin relatif OneDrive
+    )
 
+    try {
     $RelativePath = $RelativePath.Trim('/')
     $pathParts = $RelativePath -split '/'
     $currentPath = ""
@@ -141,12 +268,18 @@ function Test-OneDrivePath {
         }
     }
 }
+    catch {
+        Write-Log "Erreur Test-OneDrivePath ($RelativePath) : $($_.Exception.Message)" "ERROR"
+    }
+} # Test-OneDrivePath
 
 # =====================================================================
 # CHARGEMENT DU CACHE
 # =====================================================================
 
+# Charge le cache OneDrive et prépare FilesToProcess / ProcessedIds
 function Import-Set-Cache {
+    try {
     Write-Log "Nettoyage du vieux log $LogFile"
     if (Test-Path $LogFile) { Remove-Item $LogFile -Force }
 
@@ -183,9 +316,11 @@ function Import-Set-Cache {
     $total = $Global:State.Cache.Files.Count
     foreach ($id in $Global:State.Cache.Files.Keys) {
         $index++
+            if ($index % 500 -eq 0) {
         Write-Progress -Activity "Analyse des fichiers" `
             -Status "$index / $total" `
             -PercentComplete (($index / $total) * 100)
+            }
         $fileMeta = $Global:State.Cache.Files[$id]
 
         # a) Si déjà dans ProcessedIds → ignorer
@@ -207,15 +342,22 @@ function Import-Set-Cache {
     Write-Progress -Activity "Analyse terminée" -Completed
     Write-Log "Indexation terminée. Fichiers à traiter : $($Global:State.FilesToProcess.Count)"
     "Timestamp,ID,Status,OldPath,NewPath,Error" | Set-Content $ExecutionReport
+    }
+    catch {
+        Write-Log "Erreur Import-Set-Cache : $($_.Exception.Message)" "ERROR"
+        throw
+    }
 } # Import-Set-Cache
 
 # =====================================================================
 # PIPELINE FUSIONNÉ : ANALYSE + BARRE DE PROGRESSION + PLAN
 # =====================================================================
 
+# Analyse les fichiers et construit le plan de déplacement
 function New-Plan {
     Write-Log "Analyse des fichiers (pipeline fusionné)..."
 
+    try {
     $FileIds = $Global:State.FilesToProcess.Keys
     $TotalFiles = $FileIds.Count
     $StartTime = Get-Date
@@ -227,8 +369,7 @@ function New-Plan {
         $fileMeta = $Global:State.Cache.Files[$fileId]
         $extension = [System.IO.Path]::GetExtension($fileMeta.n).ToLower()
 
-        # Progression
-        Write-Log "----------------------------------------------" "DEBUG"
+            if ($count % 300 -eq 0) {
 
         $elapsed = (Get-Date) - $StartTime
         $avgTime = $elapsed.TotalSeconds / [math]::Max($count,1)
@@ -237,7 +378,9 @@ function New-Plan {
         Write-Progress -Activity "Analyse OneDrive" `
             -Status "$count / $TotalFiles | Restant: $remainingStr" `
             -PercentComplete (($count / $TotalFiles) * 100)
+            }
 
+            Write-Log "----------------------------------------------" "DEBUG"
         Write-Log "Analyse du fichier" "DEBUG"
         Write-Log "ID             : $fileId" "DEBUG"
         Write-Log "Nom original   : $($fileMeta.n)" "DEBUG"
@@ -324,24 +467,43 @@ function New-Plan {
     }
 
     Write-Log "Plan généré : $($Global:State.PlannedActions.Count) fichiers." "SUCCESS"
+        # Sauvegarde du plan JSON
+        try {
+            $cacheFolder = Split-Path $IndexFile -Parent
+            $planFile = Join-Path $cacheFolder "plan.json"
+            $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content $planFile
+            Write-Log "Plan sauvegardé dans $planFile" "SUCCESS"
 }
+        catch {
+            Write-Log "Erreur lors de la sauvegarde du plan : $($_.Exception.Message)" "ERROR"
+        }
+    }
+    catch {
+        Write-Log "Erreur New-Plan : $($_.Exception.Message)" "ERROR"
+        throw
+    }
+} # New-Plan
 
 # =====================================================================
 # DÉPLACEMENT
 # =====================================================================
 
+# Applique les déplacements planifiés via Graph
 function Invoke-Moves {
     Write-Log "Début du déplacement..." "WARN"
 
+    try {
     $total = $Global:State.PlannedActions.Count
     $index = 0
 
     foreach ($action in $Global:State.PlannedActions) {
 
         $index++
+            if ($index % 200 -eq 0) {
         Write-Progress -Activity "Déplacement OneDrive" `
             -Status "Fichier $index / $total" `
             -PercentComplete (($index / $total) * 100)
+            }
 
         try {
             $body = @{
@@ -373,14 +535,23 @@ function Invoke-Moves {
     $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
     Write-Log "Déplacement terminé." "SUCCESS"
 }
+    catch {
+        Write-Log "Erreur Invoke-Moves : $($_.Exception.Message)" "ERROR"
+        throw
+    }
+} # Invoke-Moves
 
 # =====================================================================
 # RAPPORT HTML (structure prête)
 # =====================================================================
 
+# Génère un rapport HTML simple à partir du plan
 function Export-ReportHtml {
-    param([string]$OutputFile = ".\onedrive_report.html")
+    param(
+        [string]$OutputFile = ".\onedrive_report.html"  # Fichier HTML de sortie
+    )
 
+    try {
     Write-Log "Génération du rapport HTML..." "INFO"
 
     $html = @"
@@ -423,17 +594,40 @@ th { background: #eee; }
     $html | Set-Content $OutputFile
     Write-Log "Rapport HTML généré : $OutputFile" "SUCCESS"
 }
+    catch {
+        Write-Log "Erreur Export-ReportHtml : $($_.Exception.Message)" "ERROR"
+    }
+} # Export-ReportHtml
 
 # =====================================================================
 # MAIN
 # =====================================================================
 
+# Point d'entrée principal du script
 function Start-OneDriveOrganizer {
-   # Clear-Host
+
     Write-Log "Démarrage de l'organisateur..."
 
+    try {
     Import-Set-Cache
+    # Hash du cache
+    $hash = Get-CacheHash
+    # Tentative de reprise
+        $plan = $null
+        if ($hash) {
+    $plan = Get-ExistingPlan -CurrentHash $hash
+        }
+    if ($plan) {
+        $Global:State.PlannedActions = $plan
+    }
+    else {
     New-Plan
+            if ($hash) {
+                $cacheFolder = Split-Path $IndexFile -Parent
+                $hashFile = Join-Path $cacheFolder "cache_hash.txt"
+                $hash | Set-Content $hashFile
+    }
+        }
 
     if ($Global:State.PlannedActions.Count -eq 0) {
         Write-Log "Aucun fichier à traiter." "WARN"
@@ -456,6 +650,11 @@ function Start-OneDriveOrganizer {
     foreach ($dir in $uniqueDirs) { Test-OneDrivePath $dir }
 
     Invoke-Moves
+    }
+    catch {
+        Write-Log "Erreur Start-OneDriveOrganizer : $($_.Exception.Message)" "ERROR"
+        throw
+    }
 } # Start-OneDriveOrganizer
 
 Start-OneDriveOrganizer

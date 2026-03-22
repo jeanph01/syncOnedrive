@@ -3,16 +3,16 @@
 # ============================================================
 
 param(
-    [string]$IndexFile = ".\onedrive_cache.json",
+    [string]$IndexFile = ".\_cache\onedrive_cache.json",
     [string]$ClientId  = "176fc7bc-42c9-4a25-82b5-0ad584d3c061",
-    [string]$TokenFile = ".\graph_token.json",
-    [string]$LogFile   = ".\onedrive_cleaner_log.txt"
+    [string]$TokenFile = ".\_cache\graph_token.json",
+    [string]$LogFile   = ".\_cache\onedrive_cleaner_log.txt"
 )
 
 Clear-Host
 
 # --- Charger le module utilitaire ---
-Import-Module ".\OneDriveTools\OneDriveTools.psm1" -ArgumentList $ClientId, $TokenFile, $LogFile -Force
+Import-Module ".\modules\OneDriveTools.psm1" -ArgumentList $ClientId, $TokenFile, $LogFile -Force
 
 Write-Log "=== ONEDRIVE CLOUD CLEANER ==="
 
@@ -37,8 +37,15 @@ $HashGroups = @{}
 
 foreach ($id in $Cache.Files.Keys) {
     $item = $Cache.Files[$id]
-    $item.id = $id
 
+    # --- SKIP si entrée invalide ---
+    if ($null -eq $item) { continue }
+    if (-not $item.ContainsKey("h")) { continue }
+    if ([string]::IsNullOrWhiteSpace($item.h)) { continue }
+
+    # --- Ajout ID dans l'objet ---
+    $item.id = $id
+    
     if (-not $HashGroups.ContainsKey($item.h)) {
         $HashGroups[$item.h] = New-Object System.Collections.Generic.List[Object]
     }
