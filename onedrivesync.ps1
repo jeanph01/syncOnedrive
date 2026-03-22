@@ -7,8 +7,8 @@ param (
     [string]$Mode = "Online",
     [switch]$ForceNewScan = $false,
     [string]$LocalFolder = "D:\recup",
-    [string]$TokenFile   = ".\graph_token.json",
-    [string]$ClientId    = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
+    [string]$TokenFile = ".\graph_token.json",
+    [string]$ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
 )
 
 $ProgressPreference = 'SilentlyContinue'
@@ -22,18 +22,18 @@ function enteteConfig {
 
     $script:TimeStart = Get-Date
 
-    $global:IndexFile          = ".\onedrive_cache.json"
-    $global:ReportFile         = ".\onedrive_doublons_rapport.txt"
-    $global:DupFolder          = Join-Path $LocalFolder "_Doublons"
+    $global:IndexFile = ".\onedrive_cache.json"
+    $global:ReportFile = ".\onedrive_doublons_rapport.txt"
+    $global:DupFolder = Join-Path $LocalFolder "_Doublons"
     $global:LocalHashCacheFile = ".\local_hash_cache.json"
 
     # Extensions autorisées
     $global:AllowedExt = @(
-        ".avi",".mov",".mp4",".mpg",".mpeg",".mkv",".wmv",".flv",".webm",".m4v",".3gp",
-        ".bmp",".gif",".jpg",".jpeg",".png",".svg",".tiff",".tif",".webp",".heic",".heif",".psd",".ai",".xcf",".ico",".thm",
-        ".doc",".docx",".xls",".xlsx",".ppt",".pptx",".pdf",".rtf",".txt",".odt",".wpd",".epub",".pages",
-        ".msg",".eml",".mp3",".wav",".m4a",".flac",".amr",".opus",
-        ".html",".htm",".zip",".7z",".rar",".csv",".json",".xml"
+        ".avi", ".mov", ".mp4", ".mpg", ".mpeg", ".mkv", ".wmv", ".flv", ".webm", ".m4v", ".3gp",
+        ".bmp", ".gif", ".jpg", ".jpeg", ".png", ".svg", ".tiff", ".tif", ".webp", ".heic", ".heif", ".psd", ".ai", ".xcf", ".ico", ".thm",
+        ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".rtf", ".txt", ".odt", ".wpd", ".epub", ".pages",
+        ".msg", ".eml", ".mp3", ".wav", ".m4a", ".flac", ".amr", ".opus",
+        ".html", ".htm", ".zip", ".7z", ".rar", ".csv", ".json", ".xml"
     )
 
     $global:AllowedExtSet = [System.Collections.Generic.HashSet[string]]::new()
@@ -47,13 +47,10 @@ function enteteConfig {
     }
 }
 
-# --- CHARGER CONFIG ---
-enteteConfig
-
 # --- CHARGER MODULE APRÈS CONFIG ---
 Import-Module ".\OneDriveTools\OneDriveTools.psm1" -ArgumentList $ClientId, $TokenFile, $global:LogFile -Force
+Import-Module ".\OneDriveTools\OneDriveOrganize.psm1" 
 
-Write-Log "=== LANCEMENT DU SCRIPT V15.0 ==="
 
 # ---------------- 1. CHARGEMENT / SCAN ----------------
 
@@ -114,7 +111,7 @@ function ChargementScan {
     }
 
     # Auth via module
-    $Auth  = Get-GraphToken
+    $Auth = Get-GraphToken
     $Token = $Auth.access_token
     $Headers = @{ Authorization = "Bearer $Token" }
 
@@ -124,7 +121,8 @@ function ChargementScan {
             $script:Cache = Get-Content $global:IndexFile -Raw | ConvertFrom-Json -AsHashtable
             if (-not $script:Cache.Files) { $script:Cache.Files = @{} }
             Write-Log "Cache existant chargé ($($script:Cache.Files.Count) fichiers)"
-        } catch {
+        }
+        catch {
             $script:Cache = @{ Files = @{} }
             Write-Log "Cache existant illisible, recréation"
         }
@@ -158,76 +156,10 @@ function ChargementScan {
 
         foreach ($item in $items) {
 
-            # On ne garde que les fichiers avec hash
-            if (-not ($item.file -and $item.file.hashes.sha1Hash)) { continue }
-
-            # GPS
-            $gps = $null
-            if ($item.photo -and $item.photo.gps) {
-                $gps = "$($item.photo.gps.latitude),$($item.photo.gps.longitude)"
+            $entry = Read-AzureFileInfo $item
+            if ($null -eq $entry) {
+                continue
             }
-            elseif ($item.location -and $item.location.latitude) {
-                $gps = "$($item.location.latitude),$($item.location.longitude)"
-            }
-
-            # Caméra
-            $camera = $null
-            if ($item.photo) {
-                $camera = "$($item.photo.cameraMake) $($item.photo.cameraModel)".Trim()
-            }
-
-            # Image
-            $imgInfo = $null
-            if ($item.image) {
-                $imgInfo = @{
-                    width  = $item.image.width
-                    height = $item.image.height
-                }
-            }
-
-            # Vidéo
-            $videoInfo = $null
-            if ($item.video) {
-                $videoInfo = @{
-                    duration = $item.video.duration
-                    width    = $item.video.width
-                    height   = $item.video.height
-                }
-            }
-
-            # Audio
-            $audioInfo = $null
-            if ($item.audio) {
-                $audioInfo = @{
-                    title  = $item.audio.title
-                    album  = $item.audio.album
-                    artist = $item.audio.artist
-                }
-            }
-
-            # Date EXIF ou fallback
-            $refDate = $null
-            if ($item.photo -and $item.photo.takenDateTime) {
-                $refDate = [DateTime]$item.photo.takenDateTime
-            }
-            if (-not $refDate) {
-                $refDate = [DateTime]$item.fileSystemInfo.lastModifiedDateTime
-            }
-
-            # Entrée complète (restaurée)
-            $entry = @{
-                n   = $item.name
-                s   = $item.size
-                h   = $item.file.hashes.sha1Hash.ToLower()
-                d   = $refDate
-                p   = $item.parentReference.path
-                gps = $gps
-                cam = $camera
-                img = $imgInfo
-                vid = $videoInfo
-                aud = $audioInfo
-            }
-
             $script:Cache.Files[$item.id] = $entry
         }
 
@@ -261,9 +193,14 @@ function DoublonsOneDrive {
     $HashGroups = @{}
 
     foreach ($item in $script:Cache.Files.Values) {
+
+        if ($null -eq $item) { continue }
+        if (-not $item.h)    { continue }
+
         if (-not $HashGroups.ContainsKey($item.h)) {
             $HashGroups[$item.h] = New-Object System.Collections.Generic.List[Object]
         }
+
         $HashGroups[$item.h].Add($item)
     }
 
@@ -279,42 +216,64 @@ function NettoyageLocal {
 
     Write-Log "[3/4] Analyse locale"
 
+    # Dossier des doublons
     if (!(Test-Path $global:DupFolder)) {
         New-Item -ItemType Directory -Path $global:DupFolder -Force | Out-Null
     }
 
+    # Construction du dictionnaire CloudSizes : taille → liste de hash
     $CloudSizes = @{}
+
     foreach ($f in $script:Cache.Files.Values) {
+
+        # --- FILTRES DE SÉCURITÉ ---
+        if ($null -eq $f) { continue }
+        if ($null -eq $f.s) { continue }   # taille manquante
+        if ($null -eq $f.h) { continue }   # hash manquant
+
+        # --- AJOUT DANS CloudSizes ---
         if (-not $CloudSizes.ContainsKey($f.s)) {
             $CloudSizes[$f.s] = New-Object System.Collections.Generic.List[string]
         }
+
         $CloudSizes[$f.s].Add($f.h)
     }
 
+    # Chargement du cache local des hash
     $script:LocalHashCache = @{}
     if (Test-Path $global:LocalHashCacheFile) {
         try {
             $script:LocalHashCache = Get-Content $global:LocalHashCacheFile -Raw | ConvertFrom-Json -AsHashtable
-        } catch { $script:LocalHashCache = @{} }
+        }
+        catch { $script:LocalHashCache = @{} }
     }
 
-    $LocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse | Where-Object { $_.FullName -notlike "*_Doublons*" }
+    # Fichiers locaux
+    $LocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse |
+                  Where-Object { $_.FullName -notlike "*_Doublons*" }
 
-    $script:cDel = 0; $script:cMove = 0; $script:cSkipped = 0; $script:total = $LocalFiles.Count
+    $script:cDel = 0
+    $script:cMove = 0
+    $script:cSkipped = 0
+    $script:total = $LocalFiles.Count
+
     $i = 0
 
     foreach ($file in $LocalFiles) {
         $i++
+
         if ($i % 300 -eq 0) {
             Write-Log "Progression: $i / $($script:total)"
         }
 
+        # Extension non autorisée → suppression
         if (-not $global:AllowedExtSet.Contains($file.Extension.ToLower())) {
             Remove-Item -LiteralPath $file.FullName -Force
             $script:cDel++
             continue
         }
 
+        # Taille non présente dans le cloud → ignoré
         if (-not $CloudSizes.ContainsKey($file.Length)) {
             $script:cSkipped++
             continue
@@ -322,17 +281,21 @@ function NettoyageLocal {
 
         $possibleHashes = $CloudSizes[$file.Length]
 
+        # Cas simple : un seul hash possible
         if ($possibleHashes.Count -eq 1) {
             $expected = $possibleHashes[0]
 
             if ($script:LocalHashCache.ContainsKey($file.FullName)) {
                 if ($script:LocalHashCache[$file.FullName] -eq $expected) {
+
+                    # Déplacement dans _Doublons
                     $dest = Join-Path $global:DupFolder $file.Name
                     $idx = 1
                     while (Test-Path -LiteralPath $dest) {
                         $dest = Join-Path $global:DupFolder "$($file.BaseName)_$idx$($file.Extension)"
                         $idx++
                     }
+
                     [System.IO.File]::Move($file.FullName, $dest)
                     $script:cMove++
                     continue
@@ -340,6 +303,7 @@ function NettoyageLocal {
             }
         }
 
+        # Calcul du hash local si nécessaire
         $sha1 = $null
         if ($script:LocalHashCache.ContainsKey($file.FullName)) {
             $sha1 = $script:LocalHashCache[$file.FullName]
@@ -349,19 +313,25 @@ function NettoyageLocal {
             $script:LocalHashCache[$file.FullName] = $sha1
         }
 
+        # Si le hash correspond → doublon
         if ($possibleHashes -contains $sha1) {
+
             $dest = Join-Path $global:DupFolder $file.Name
             $idx = 1
             while (Test-Path -LiteralPath $dest) {
                 $dest = Join-Path $global:DupFolder "$($file.BaseName)_$idx$($file.Extension)"
                 $idx++
             }
+
             [System.IO.File]::Move($file.FullName, $dest)
             $script:cMove++
         }
     }
 
-    $script:LocalHashCache | ConvertTo-Json -Depth 5 | Out-File $global:LocalHashCacheFile -Encoding utf8 -NoNewline
+    # Sauvegarde du cache local
+    $script:LocalHashCache | ConvertTo-Json -Depth 5 |
+        Out-File $global:LocalHashCacheFile -Encoding utf8 -NoNewline
+
     Write-Log "Nettoyage local terminé"
 }
 
@@ -370,14 +340,14 @@ function DossiersVides {
     Write-Log "[4/4] Nettoyage dossiers vides"
 
     Get-ChildItem -Path $LocalFolder -Directory -Recurse |
-        Sort-Object { $_.FullName.Length } -Descending |
-        ForEach-Object {
-            if ((Get-ChildItem -LiteralPath $_.FullName -ErrorAction SilentlyContinue).Count -eq 0) {
-                if ($_.FullName -notlike "*_Doublons*") {
-                    Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
-                }
+    Sort-Object { $_.FullName.Length } -Descending |
+    ForEach-Object {
+        if ((Get-ChildItem -LiteralPath $_.FullName -ErrorAction SilentlyContinue).Count -eq 0) {
+            if ($_.FullName -notlike "*_Doublons*") {
+                Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
             }
         }
+    }
 }
 
 # ---------------- BILAN ----------------
@@ -394,6 +364,10 @@ function Bilan {
 }
 
 function main {
+    
+    Write-Log "=== LANCEMENT DU SCRIPT V15.0 ==="
+
+    enteteConfig
     ChargementScan
     DoublonsOneDrive
     NettoyageLocal
