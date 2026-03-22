@@ -1,0 +1,6 @@
+﻿{
+  "autocompleteModel": {
+    "provider": "ollama",
+    "model": "deepseek-coder:1.3b"
+  }
+}

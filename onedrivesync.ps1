@@ -1,157 +1,404 @@
 # ============================================================
-# VERSION: 12.6 (Real-Time Feedback & Size-Optimized)
+# VERSION: 15.0 (Runspace Edition + Scan delta optimisé)
 # ============================================================
+
 param (
     [ValidateSet("Online", "Offline")]
     [string]$Mode = "Online",
-    [switch]$ForceNewScan = $true
+    [switch]$ForceNewScan = $false,
+    [string]$LocalFolder = "D:\recup",
+    [string]$TokenFile   = ".\graph_token.json",
+    [string]$ClientId    = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
 )
 
-$ProgressPreference = 'SilentlyContinue' # Désactivé car Write-Host est plus fluide pour des milliers de fichiers
+$ProgressPreference = 'SilentlyContinue'
 Clear-Host
 
-# ---------------- EN-TÊTE D'AFFICHAGE ----------------
-$TimeStart = Get-Date
-$Header = @"
-************************************************************
-  ONEDRIVE INDEXER & CLEANUP - V12.6
-************************************************************
-  Date de lancement : $($TimeStart.ToString("dd/MM/yyyy HH:mm:ss"))
-  Mode sélectionné  : $Mode
-  Forcer Scan      : $($ForceNewScan ? "OUI" : "NON")
-  Dossier cible    : D:\recup
-************************************************************
-"@
-Write-Host $Header -ForegroundColor Cyan
+# --- LOG FILE ---
+$global:LogFile = ".\onedrive_indexer_log.txt"
 
-# ---------------- CONFIGURATION ----------------
-$LocalFolder    = "D:\recup"
-$IndexFile      = ".\onedrive_cache.json"
-$ReportFile     = ".\onedrive_doublons_rapport.txt"
-$DupFolder      = Join-Path $LocalFolder "_Doublons"
-$ClientId       = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
+# ---------------- EN-TÊTE & CONFIG ----------------
+function enteteConfig {
 
-$AllowedExt = @(
-    ".avi",".mov",".mp4",".mpg",".mpeg",".mkv",".wmv",".flv",".webm",".m4v",".3gp",
-    ".bmp",".gif",".jpg",".jpeg",".png",".svg",".tiff",".tif",".webp",".heic",".heif",".psd",".ai",".xcf",".ico",".thm",
-    ".doc",".docx",".xls",".xlsx",".ppt",".pptx",".pdf",".rtf",".txt",".odt",".wpd",".epub",".pages",
-    ".msg",".eml",".mp3",".wav",".m4a",".flac",".amr",".opus",
-    ".html",".htm",".zip",".7z",".rar",".csv",".json",".xml"
-)
+    $script:TimeStart = Get-Date
+
+    $global:IndexFile          = ".\onedrive_cache.json"
+    $global:ReportFile         = ".\onedrive_doublons_rapport.txt"
+    $global:DupFolder          = Join-Path $LocalFolder "_Doublons"
+    $global:LocalHashCacheFile = ".\local_hash_cache.json"
+
+    # Extensions autorisées
+    $global:AllowedExt = @(
+        ".avi",".mov",".mp4",".mpg",".mpeg",".mkv",".wmv",".flv",".webm",".m4v",".3gp",
+        ".bmp",".gif",".jpg",".jpeg",".png",".svg",".tiff",".tif",".webp",".heic",".heif",".psd",".ai",".xcf",".ico",".thm",
+        ".doc",".docx",".xls",".xlsx",".ppt",".pptx",".pdf",".rtf",".txt",".odt",".wpd",".epub",".pages",
+        ".msg",".eml",".mp3",".wav",".m4a",".flac",".amr",".opus",
+        ".html",".htm",".zip",".7z",".rar",".csv",".json",".xml"
+    )
+
+    $global:AllowedExtSet = [System.Collections.Generic.HashSet[string]]::new()
+    foreach ($ext in $global:AllowedExt) { $null = $global:AllowedExtSet.Add($ext) }
+
+    Write-Host "Configuration chargée"
+    Write-Host "Mode: $Mode | ForceNewScan: $ForceNewScan | Dossier: $LocalFolder"
+
+    if (Test-Path $global:LogFile) {
+        Remove-Item $global:LogFile -Force
+    }
+}
+
+# --- CHARGER CONFIG ---
+enteteConfig
+
+# --- CHARGER MODULE APRÈS CONFIG ---
+Import-Module ".\OneDriveTools\OneDriveTools.psm1" -ArgumentList $ClientId, $TokenFile, $global:LogFile -Force
+
+Write-Log "=== LANCEMENT DU SCRIPT V15.0 ==="
 
 # ---------------- 1. CHARGEMENT / SCAN ----------------
-$script:Cache = @{ Files = @{} }
-if ($ForceNewScan -and (Test-Path $IndexFile)) { 
-    Write-Host "[!] Suppression de l'ancien cache..." -ForegroundColor Yellow
-    Remove-Item $IndexFile -Force 
+
+function Invoke-GraphWithRetry {
+    param(
+        [Parameter(Mandatory)] [string]$Uri,
+        [Parameter(Mandatory)] $Headers,
+        [int]$MaxRetry = 5
+    )
+
+    $retry = 0
+
+    while ($retry -lt $MaxRetry) {
+
+        try {
+            # Tentative principale
+            return Invoke-RestMethod -Headers $Headers -Uri $Uri -Method GET -ErrorAction Stop
+        }
+        catch {
+            $retry++
+            $err = $_.Exception.Message
+
+            Write-Log "Graph ERROR (tentative $retry/$MaxRetry) : $err" "WARN"
+
+            # Backoff exponentiel
+            $delay = [math]::Min(10, [math]::Pow(2, $retry))
+            Start-Sleep -Seconds $delay
+        }
+    }
+
+    # Si on arrive ici → échec fatal
+    Write-Log "ERREUR FATALE: Impossible de récupérer la page Graph après $MaxRetry tentatives." "ERROR"
+    return $null
 }
 
-if ($Mode -eq "Online") {
-    Write-Host "[1/4] Connexion Microsoft Graph..." -ForegroundColor Cyan
-    $DeviceCode = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/devicecode" -Body @{ client_id = $ClientId; scope = "Files.Read.All" }
-    Write-Host "`n$($DeviceCode.message)`n" -ForegroundColor Yellow
-    $Auth = $null; while (!$Auth) { Start-Sleep 5; try { $Auth = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/token" -Body @{ grant_type = "urn:ietf:params:oauth:grant-type:device_code"; client_id = $ClientId; device_code = $DeviceCode.device_code } } catch {} }
-    $Headers = @{ Authorization = "Bearer $($Auth.access_token)" }
+function ChargementScan {
 
-    $Uri = "https://graph.microsoft.com/v1.0/me/drive/root/delta?`$select=name,id,size,file,hashes,fileSystemInfo,parentReference,photo,location,video,audio,image"
-    while ($Uri) {
+    Write-Log "[1/4] Chargement / Scan OneDrive (V15.0 - Scan delta optimisé)"
+
+    # Préparation du cache
+    $script:Cache = @{ Files = @{} }
+
+    # Reset cache si demandé
+    if ($ForceNewScan -and (Test-Path $global:IndexFile)) {
+        Write-Log "Suppression ancien cache"
+        Remove-Item $global:IndexFile -Force
+    }
+
+    # Mode offline
+    if ($Mode -ne "Online") {
+        Write-Log "Mode Offline → chargement du cache existant"
+        if (Test-Path $global:IndexFile) {
+            $script:Cache = Get-Content $global:IndexFile -Raw | ConvertFrom-Json -AsHashtable
+            if (-not $script:Cache.Files) { $script:Cache.Files = @{} }
+            Write-Log "Cache chargé ($($script:Cache.Files.Count) fichiers)"
+        }
+        return
+    }
+
+    # Auth via module
+    $Auth  = Get-GraphToken
+    $Token = $Auth.access_token
+    $Headers = @{ Authorization = "Bearer $Token" }
+
+    # Charger cache existant si présent
+    if ((-not $ForceNewScan) -and (Test-Path $global:IndexFile)) {
         try {
-            $Res = Invoke-RestMethod -Headers $Headers -Uri $Uri -Method GET
-            foreach ($item in $Res.value) {
-                if ($item.file -and $item.file.hashes.sha1Hash) { 
-                    $entry = @{ n = $item.name; s = $item.size; h = $item.file.hashes.sha1Hash.ToLower(); d = $item.fileSystemInfo.lastModifiedDateTime; p = $item.parentReference.path }
-                    $script:Cache.Files[$item.id] = $entry
+            $script:Cache = Get-Content $global:IndexFile -Raw | ConvertFrom-Json -AsHashtable
+            if (-not $script:Cache.Files) { $script:Cache.Files = @{} }
+            Write-Log "Cache existant chargé ($($script:Cache.Files.Count) fichiers)"
+        } catch {
+            $script:Cache = @{ Files = @{} }
+            Write-Log "Cache existant illisible, recréation"
+        }
+    }
+
+    # Champs demandés
+    $select = "name,id,size,file,hashes,fileSystemInfo,parentReference,photo,location,video,audio,image"
+    $baseUrl = "https://graph.microsoft.com/v1.0/me/drive/root/delta?`$select=$select"
+
+    # Delta complet ou incrémental
+    if ($ForceNewScan -or -not $script:Cache.DeltaToken) {
+        $deltaUrl = $baseUrl
+        Write-Log "Scan delta complet (nouvelle base)"
+    }
+    else {
+        $deltaUrl = $script:Cache.DeltaToken
+        Write-Log "Scan delta incrémental depuis le dernier deltaToken"
+    }
+
+    # Boucle delta
+    while ($deltaUrl) {
+
+        $res = Invoke-GraphWithRetry -Uri $deltaUrl -Headers $Headers
+        if (-not $res) {
+            Write-Log "Abandon du scan delta (page irrécupérable)." "ERROR"
+            break
+        }
+
+        $items = $res.value
+        $count = if ($items) { $items.Count } else { 0 }
+
+        foreach ($item in $items) {
+
+            # On ne garde que les fichiers avec hash
+            if (-not ($item.file -and $item.file.hashes.sha1Hash)) { continue }
+
+            # GPS
+            $gps = $null
+            if ($item.photo -and $item.photo.gps) {
+                $gps = "$($item.photo.gps.latitude),$($item.photo.gps.longitude)"
+            }
+            elseif ($item.location -and $item.location.latitude) {
+                $gps = "$($item.location.latitude),$($item.location.longitude)"
+            }
+
+            # Caméra
+            $camera = $null
+            if ($item.photo) {
+                $camera = "$($item.photo.cameraMake) $($item.photo.cameraModel)".Trim()
+            }
+
+            # Image
+            $imgInfo = $null
+            if ($item.image) {
+                $imgInfo = @{
+                    width  = $item.image.width
+                    height = $item.image.height
                 }
             }
-            $Uri = $Res.'@odata.nextLink'
-            Write-Host " -> Indexé : $($script:Cache.Files.Count) fichiers..." -ForegroundColor Gray
-        } catch { Start-Sleep -Seconds 5 }
+
+            # Vidéo
+            $videoInfo = $null
+            if ($item.video) {
+                $videoInfo = @{
+                    duration = $item.video.duration
+                    width    = $item.video.width
+                    height   = $item.video.height
+                }
+            }
+
+            # Audio
+            $audioInfo = $null
+            if ($item.audio) {
+                $audioInfo = @{
+                    title  = $item.audio.title
+                    album  = $item.audio.album
+                    artist = $item.audio.artist
+                }
+            }
+
+            # Date EXIF ou fallback
+            $refDate = $null
+            if ($item.photo -and $item.photo.takenDateTime) {
+                $refDate = [DateTime]$item.photo.takenDateTime
+            }
+            if (-not $refDate) {
+                $refDate = [DateTime]$item.fileSystemInfo.lastModifiedDateTime
+            }
+
+            # Entrée complète (restaurée)
+            $entry = @{
+                n   = $item.name
+                s   = $item.size
+                h   = $item.file.hashes.sha1Hash.ToLower()
+                d   = $refDate
+                p   = $item.parentReference.path
+                gps = $gps
+                cam = $camera
+                img = $imgInfo
+                vid = $videoInfo
+                aud = $audioInfo
+            }
+
+            $script:Cache.Files[$item.id] = $entry
+        }
+
+        Write-Log "Graph: $count items → total $($script:Cache.Files.Count)"
+
+        # Pagination delta
+        if ($res.'@odata.nextLink') {
+            $deltaUrl = $res.'@odata.nextLink'
+        }
+        elseif ($res.'@odata.deltaLink') {
+            $script:Cache.DeltaToken = $res.'@odata.deltaLink'
+            Write-Log "deltaLink final reçu → fin du scan"
+            break
+        }
+        else {
+            Write-Log "Fin du scan"
+            break
+        }
     }
-    $script:Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
-} else {
-    if (Test-Path $IndexFile) {
-        $script:Cache = Get-Content $IndexFile | ConvertFrom-Json -AsHashtable
-        Write-Host "[1/4] Cache chargé ($($script:Cache.Files.Count) fichiers)." -ForegroundColor Gray
-    } else {
-        Write-Host "[!] ERREUR : Fichier cache absent. Lancez en mode -Online." -ForegroundColor Red; return
-    }
+
+    # Sauvegarde finale
+    $script:Cache | ConvertTo-Json -Depth 10 | Out-File $global:IndexFile -Encoding utf8 -NoNewline
+    Write-Log "Cache OneDrive sauvegardé"
 }
 
-# ---------------- 2. RAPPORT DES DOUBLONS SUR ONEDRIVE ----------------
-Write-Host "[2/4] Analyse des doublons sur OneDrive..." -ForegroundColor Yellow
-$HashGroups = @{}
-foreach ($item in $script:Cache.Files.Values) {
-    if (!$HashGroups.ContainsKey($item.h)) { $HashGroups[$item.h] = New-Object System.Collections.Generic.List[Object] }
-    $HashGroups[$item.h].Add($item)
-}
+# ---------------- 2. RAPPORT DES DOUBLONS ----------------
+function DoublonsOneDrive {
+    Write-Log "[2/4] Analyse des doublons OneDrive"
 
-$CloudDupCount = 0
-foreach ($h in $HashGroups.Keys) { if ($HashGroups[$h].Count -gt 1) { $CloudDupCount++ } }
-Write-Host " -> Terminé : $CloudDupCount groupes de doublons trouvés sur le Cloud." -ForegroundColor Green
+    $script:CloudDupCount = 0
+    $HashGroups = @{}
+
+    foreach ($item in $script:Cache.Files.Values) {
+        if (-not $HashGroups.ContainsKey($item.h)) {
+            $HashGroups[$item.h] = New-Object System.Collections.Generic.List[Object]
+        }
+        $HashGroups[$item.h].Add($item)
+    }
+
+    foreach ($h in $HashGroups.Keys) {
+        if ($HashGroups[$h].Count -gt 1) { $script:CloudDupCount++ }
+    }
+
+    Write-Log "Groupes doublons Cloud: $($script:CloudDupCount)"
+}
 
 # ---------------- 3. NETTOYAGE LOCAL OPTIMISÉ ----------------
-Write-Host "[3/4] Analyse locale et comparaison..." -ForegroundColor Cyan
-if (!(Test-Path $DupFolder)) { New-Item -ItemType Directory -Path $DupFolder -Force | Out-Null }
+function NettoyageLocal {
 
-$CloudSizes = @{}
-$Lookup = @{}
-foreach ($f in $script:Cache.Files.Values) { 
-    $CloudSizes[$f.s] = $true 
-    $Lookup[$f.h] = $true
-}
+    Write-Log "[3/4] Analyse locale"
 
-$LocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse | Where-Object { $_.FullName -notlike "*_Doublons*" }
-$cDel = 0; $cMove = 0; $cSkipped = 0; $total = $LocalFiles.Count; $i = 0
-
-foreach ($file in $LocalFiles) {
-    $i++
-    $pct = [Math]::Round(($i / $total) * 100, 1)
-    
-    # 1. Filtre Extension
-    if ($AllowedExt -notcontains $file.Extension.ToLower()) { 
-        Remove-Item -LiteralPath $file.FullName -Force
-        $cDel++
-        continue 
+    if (!(Test-Path $global:DupFolder)) {
+        New-Item -ItemType Directory -Path $global:DupFolder -Force | Out-Null
     }
 
-    # 2. OPTIMISATION : Filtre par taille
-    if (-not $CloudSizes.ContainsKey($file.Length)) {
-        if ($i % 100 -eq 0) { Write-Host "[$pct%] Analyse : $i/$total (Passage rapide...)" -ForegroundColor DarkGray }
-        $cSkipped++
-        continue
+    $CloudSizes = @{}
+    foreach ($f in $script:Cache.Files.Values) {
+        if (-not $CloudSizes.ContainsKey($f.s)) {
+            $CloudSizes[$f.s] = New-Object System.Collections.Generic.List[string]
+        }
+        $CloudSizes[$f.s].Add($f.h)
     }
 
-    # 3. CALCUL HASH (Uniquement si taille identique détectée)
-    # On affiche AVANT pour voir quel fichier "bloque"
-    Write-Host "[$pct%] HASHING : $($file.Name) ($([Math]::Round($file.Length/1MB,1)) MB)... " -ForegroundColor Yellow -NoNewline
-    $sha1 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA1).Hash.ToLower()
-
-    if ($Lookup.ContainsKey($sha1)) {
-        $dest = Join-Path $DupFolder $file.Name
-        $idx = 1
-        while (Test-Path -LiteralPath $dest) { $dest = Join-Path $DupFolder "$($file.BaseName)_$idx$($file.Extension)"; $idx++ }
-        Move-Item -LiteralPath $file.FullName -Destination $dest -Force
-        $cMove++
-        Write-Host "DOUBLON !" -ForegroundColor Green
-    } else {
-        Write-Host "Unique." -ForegroundColor Gray
+    $script:LocalHashCache = @{}
+    if (Test-Path $global:LocalHashCacheFile) {
+        try {
+            $script:LocalHashCache = Get-Content $global:LocalHashCacheFile -Raw | ConvertFrom-Json -AsHashtable
+        } catch { $script:LocalHashCache = @{} }
     }
+
+    $LocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse | Where-Object { $_.FullName -notlike "*_Doublons*" }
+
+    $script:cDel = 0; $script:cMove = 0; $script:cSkipped = 0; $script:total = $LocalFiles.Count
+    $i = 0
+
+    foreach ($file in $LocalFiles) {
+        $i++
+        if ($i % 300 -eq 0) {
+            Write-Log "Progression: $i / $($script:total)"
+        }
+
+        if (-not $global:AllowedExtSet.Contains($file.Extension.ToLower())) {
+            Remove-Item -LiteralPath $file.FullName -Force
+            $script:cDel++
+            continue
+        }
+
+        if (-not $CloudSizes.ContainsKey($file.Length)) {
+            $script:cSkipped++
+            continue
+        }
+
+        $possibleHashes = $CloudSizes[$file.Length]
+
+        if ($possibleHashes.Count -eq 1) {
+            $expected = $possibleHashes[0]
+
+            if ($script:LocalHashCache.ContainsKey($file.FullName)) {
+                if ($script:LocalHashCache[$file.FullName] -eq $expected) {
+                    $dest = Join-Path $global:DupFolder $file.Name
+                    $idx = 1
+                    while (Test-Path -LiteralPath $dest) {
+                        $dest = Join-Path $global:DupFolder "$($file.BaseName)_$idx$($file.Extension)"
+                        $idx++
+                    }
+                    [System.IO.File]::Move($file.FullName, $dest)
+                    $script:cMove++
+                    continue
+                }
+            }
+        }
+
+        $sha1 = $null
+        if ($script:LocalHashCache.ContainsKey($file.FullName)) {
+            $sha1 = $script:LocalHashCache[$file.FullName]
+        }
+        else {
+            $sha1 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA1).Hash.ToLower()
+            $script:LocalHashCache[$file.FullName] = $sha1
+        }
+
+        if ($possibleHashes -contains $sha1) {
+            $dest = Join-Path $global:DupFolder $file.Name
+            $idx = 1
+            while (Test-Path -LiteralPath $dest) {
+                $dest = Join-Path $global:DupFolder "$($file.BaseName)_$idx$($file.Extension)"
+                $idx++
+            }
+            [System.IO.File]::Move($file.FullName, $dest)
+            $script:cMove++
+        }
+    }
+
+    $script:LocalHashCache | ConvertTo-Json -Depth 5 | Out-File $global:LocalHashCacheFile -Encoding utf8 -NoNewline
+    Write-Log "Nettoyage local terminé"
 }
 
 # ---------------- 4. DOSSIERS VIDES ----------------
-Write-Host "[4/4] Nettoyage dossiers locaux..." -ForegroundColor Gray
-Get-ChildItem -Path $LocalFolder -Directory -Recurse | Sort-Object { $_.FullName.Length } -Descending | ForEach-Object {
-    if ((Get-ChildItem -LiteralPath $_.FullName -ErrorAction SilentlyContinue).Count -eq 0) {
-        if ($_.FullName -notlike "*_Doublons*") { Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue }
-    }
+function DossiersVides {
+    Write-Log "[4/4] Nettoyage dossiers vides"
+
+    Get-ChildItem -Path $LocalFolder -Directory -Recurse |
+        Sort-Object { $_.FullName.Length } -Descending |
+        ForEach-Object {
+            if ((Get-ChildItem -LiteralPath $_.FullName -ErrorAction SilentlyContinue).Count -eq 0) {
+                if ($_.FullName -notlike "*_Doublons*") {
+                    Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
+                }
+            }
+        }
 }
 
 # ---------------- BILAN ----------------
-$Duration = (Get-Date) - $TimeStart
-Write-Host "`n[BILAN FINAL]" -ForegroundColor White -BackgroundColor DarkCyan
-Write-Host "- Temps écoulé         : $($Duration.Minutes)m $($Duration.Seconds)s"
-Write-Host "- Fichiers locaux total : $total"
-Write-Host "- Ignorés (Taille diff) : $cSkipped"
-Write-Host "- Doublons Cloud       : $CloudDupCount"
-Write-Host "- Doublons Locaux écartés: $cMove"
-Write-Host "- Fichiers supprimés    : $cDel (Ext. non autorisées)"
+function Bilan {
+    $Duration = (Get-Date) - $script:TimeStart
+
+    Write-Log "=== BILAN FINAL ==="
+    Write-Log "Temps écoulé: $($Duration.Minutes)m $($Duration.Seconds)s"
+    Write-Log "Fichiers locaux: $($script:total)"
+    Write-Log "Ignorés (taille diff): $($script:cSkipped)"
+    Write-Log "Groupes doublons Cloud: $($script:CloudDupCount)"
+    Write-Log "Doublons locaux déplacés: $($script:cMove)"
+    Write-Log "Fichiers supprimés (ext non autorisées): $($script:cDel)"
+}
+
+function main {
+    ChargementScan
+    DoublonsOneDrive
+    NettoyageLocal
+    DossiersVides
+    Bilan
+}
+
+main

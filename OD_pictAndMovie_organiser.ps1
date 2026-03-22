@@ -1,385 +1,1006 @@
-<#
-.SYNOPSIS
-    V14.8 - Organisateur Ultra-Rapide (Arrondi 1km / 2 decimales).
+<# 
+    =====================================================================
+    V14.0 - Organisateur avec Feedback détaillé, Chronométrage et Cache GPS Persistant.
     
 .DESCRIPTION
     NOMENCLATURE ET ARCHITECTURE CIBLE :
-    1. PHOTOS (.jpg, .png, .heic) -> /Images/Pellicule/Annee/Mois/
-       Format : yyyyMMdd_HHmmss_[Ville-Province-Pays]_[Tags]_[Nom]_[Appareil].ext
-    2. VIDÉOS (.mp4, .mov) -> /Videos/Pellicule/Annee/Mois/
-       Format : yyyyMMdd_HHmmss_[Ville-Province-Pays]_[Tags]_[Duree]_[Resol].ext
+    
+    1. PHOTOS (.jpg, .png, .heic) -> /Images/Pellicule/Année/Mois/
+       Format : yyyyMMdd_HHmmss_[Ville]_[Dossiers_Tags]_[Nom_Original]_[Appareil].ext
+       
+    2. VIDÉOS (.mp4, .mov) -> /Vidéos/Pellicule/Année/Mois/
+       Format : yyyyMMdd_HHmmss_[Ville]_[Dossiers_Tags]_[Durée]_[Résolution].ext
+       
     3. AUDIO (.mp3, .m4a, .flac) -> /Musique/Artiste/Album/
        Format : [Artiste] - [Album] - [Titre].ext
 
-    OPTIMISATION GPS : 
-    Arrondi à 2 decimales (~1.1 km). Ideal pour grouper massivement les requêtes API.
-    V15.5 - Limite Stricte 100 Caractères & Nettoyage Redondance.
-    V16.2 - Organisateur OneDrive (Connexion Azure conditionnelle).
-    V16.4 - Deplacement avec Mise à jour du Cache JSON.
-    V16.6 - Organisateur OneDrive avec Normalisation ASCII Stricte.
-    V16.7 - Organisateur OneDrive ASCII (Correction des Chemins).
-    V16.8 - Organisateur Complet : Generation Auto + Nettoyage ASCII + Execution.
-    V16.9 - Organisateur OneDrive avec exception pour "Pour coffre fort".
-    V17.0 - Organisateur avec Marqueur de renommage et Log Pérenne (ID-Based).
-    V17.1 - Organisateur OneDrive avec Nettoyage automatique du Log et Marqueur de sécurité.
-    V17.2 - Organisateur OneDrive avec Chemins et Noms ASCII Stricts.
-    V17.4 - Organisateur OneDrive Final : Unicité Garantie & ASCII Intégral.
-    V17.5 - Organisateur OneDrive : Correction Syntaxique & Exécution Complète.
-    V17.6 - Organisateur OneDrive : Préservation du Nom Original + Contexte.
-    V17.9 - Organisateur OneDrive : Reporting Azure détaillé & Mise à jour du Cache.
-    V17.9 - Organisateur OneDrive : Reporting Azure détaillé & Mise à jour du Cache.
-    V18.0 - Organisateur OneDrive Final & Complet.
-    Priorité : Date > Nom Original > Contexte (Variable d'ajustement).
-    V18.1 - Organisateur OneDrive Final
-    Hiérarchie : Date > Nom (épuré de l'Hexa) > Contexte (tronqué si > 100 char) > _v_
-    V18.4 - Organisateur Microsoft OneDrive (Standard & Coffre-Fort)
-    Auteur : Gemini AI Collaborator
-    Date : Février 2026
+    FONCTIONNEMENT :
+    - WhatIf par défaut : Analyse et génère un log sans déplacer de fichiers.
+    - Cache GPS Persistant : Sauvegarde automatique à chaque découverte de lieu.
+    - Tags de Chemin : Préserve le contexte hiérarchique original.
 
-.DESCRIPTION
-    Ce script automatise le renommage et le déplacement de fichiers sur OneDrive.
-    Il est conçu pour transformer un vrac désordonné en une archive chronologique épurée.
-
-.DECISIONS_DE_CONCEPTION (DOCUMENTATION)
-    1. PRIORITÉ DE NOMMAGE (Limite 100 caractères) :
-       - [1] TIMESTAMP (15 char) : yyyyMMdd_HHmmss. Assure le tri chronologique.
-       - [2] NOM ORIGINAL ÉPURÉ : Information métier préservée après retrait du "bruit".
-       - [3] CONTEXTE DOSSIER : Les 3 derniers parents. Sert de variable d'ajustement (tronqué si > 100 char).
-       - [4] MARQUEUR SUCCESS (_v_) : Témoin final de traitement.
-
-    2. ÉPURATION DU BRUIT (REGEX) :
-       - Suppression des GUID/UUID (ex: 41fe-468d-...).
-       - Suppression des chaînes Base64 et Hexadécimales > 16 caractères continus.
-       - Objectif : Libérer de l'espace pour le contexte sémantique (noms de dossiers).
-
-    3. SÉCURITÉ ET INTÉGRITÉ :
-       - MODE INTERACTIF : Confirmation [O/N/T/Q] au début de l'exécution.
-       - ANTI-COLLISION : Ajout automatique de suffixes (_1, _2) si deux fichiers arrivent au même nom/seconde.
-       - PROCESSED LOG : Journalisation des ID réussis pour permettre la reprise après interruption.
-       - ASCII NORMALIZATION : Retrait des accents et caractères spéciaux pour compatibilité universelle.
-
-    4. ARCHITECTURE DES DOSSIERS :
-       - Racine Pellicule : /Images/Pellicule/AAAA/MM/
-       - Exception Coffre-Fort : /Pour coffre fort/Images (ou Videos)/AAAA/MM/
-    V18.8 - Organisateur OneDrive Intégral avec Archivage des Logs.
-    Nouveauté : Paramètre -KeepLogs pour conserver l'historique des exécutions.
-    V18.9 - Organisateur OneDrive Intégral (Édition Stable)
-    - Correction Compatibilité PS7+ (Response.Content)
-    - Encodage URL Strict pour dossiers avec espaces
-    - Archivage des logs via -KeepLogs
-    - Nettoyage Base64/Hexa et Tags Vidéo
-    V19.1 - Organisateur OneDrive Intégral (Édition Debug & Stable)
-    - Correction PS7+ (Exception.Response.Content)
-    - Encodage URL sécurisé segmenté
-    - Archivage des logs via -KeepLogs
-    - Nettoyage Base64/Hexa et Tags Vidéo
-    V19.3 - Organisateur OneDrive (Mode Reprise Rapide)
-    - Skip calcul si organisation_log.txt existe et KeepLogs = true
-    - Correction syntaxique Microsoft Graph (root:/path:)
-    V19.4 - Organisateur OneDrive "Smart-Resume" & Microsoft Graph Ultra-Stable.
-    Optimisé pour : PowerShell 7.4+, API Microsoft Graph v1.0.
-
-    Transforme un vrac OneDrive en archive chronologique épurée (Images/Videos/Audio).
-    HIÉRARCHIE DE NOMMAGE (Limite 100 char) :
-    [Date_Heure]_[Nom_Épuré]_[Contexte_Dossier]_[Tags]__v_.ext
-#>
+    FONCTIONNEMENT DU CACHE :
+    Si une entrée GPS existe mais ne contient pas la hiérarchie complète (ex: juste "Palma"),
+    le script force un rafraîchissement via l'API pour obtenir Province et Pays.
+.PARAMETER Execute
+    $false (DÉFAUT) : Mode simulation. Génère le fichier de log.
+    $true : Applique les changements sur OneDrive.
+===================================================================== 
 #>
 
 param (
-    [bool]$Execute = $true,
-    [bool]$KeepLogs = $false,
-    [string]$IndexFile = ".\onedrive_cache.json",
-    [string]$LogFile = ".\organisation_log.txt",
-    [string]$ProcessedLog = ".\processed_ids.log",
-    [string]$ExecutionReport = ".\azure_sync_report.csv"
+    [bool]$Execute = $false,
+    [string]$IndexFile = ".\onedrive_cache.json",   # fichier d'entree
+    [string]$LogFile = ".\organisation_log.txt",    # log des infos envoyées a la console
+    [string]$ProcessedLog = ".\processed_ids.log",  # liste des id traités (pour accelerer les traitement subsequents)
+    [string]$ExecutionReport = ".\azure_sync_report.csv",
+    [string]$GpsCacheFile = ".\gps_cache.json",     # cache des noms de localisations selon leur coordonnées GPS
+    [bool]$VerboseMode = $true                      # equivalent de debug
 )
 
-# ===============================
-# DEBUG & TELEMETRY SYSTEM
-# ===============================
+# =====================================================================
+# MODULE EXTERNE
+# =====================================================================
 
-[string]$DebugLog = ".\debug_trace.log"
-$Global:DebugEnabled = $true
-$ErrorActionPreference = "Stop"
+Import-Module ".\OneDriveTools.psm1" -Force -ArgumentList "176fc7bc-42c9-4a25-82b5-0ad584d3c061", ".\graph_token.json", $LogFile
 
-function Write-DebugLog {
-    param(
-        [string]$Step,
-        [string]$Message,
-        [string]$Level = "INFO"
-    )
+# =====================================================================
+# 1. CONFIGURATION GLOBALE
+# =====================================================================
 
-    if (-not $Global:DebugEnabled) { return }
+# Mapping des extensions vers leur catégorie
+$ExtensionMap = @{}
+@(".jpg", ".jpeg", ".png", ".heic", ".bmp", ".gif", ".pcx", ".webp") | ForEach-Object { $ExtensionMap[$_] = "Images" }
+@(".mp4", ".mov", ".avi", ".mpg", ".mpeg", ".wmv", ".flv", ".m4v", ".webm") | ForEach-Object { $ExtensionMap[$_] = "Videos" }
+@(".mp3", ".m4a", ".flac", ".wma", ".wav") | ForEach-Object { $ExtensionMap[$_] = "Musique" }
 
-    $line = "{0} | {1,-8} | {2,-20} | {3}" -f `
-        (Get-Date -Format "yyyy-MM-dd HH:mm:ss"),
-        $Level,
-        $Step,
-        $Message
-
-    Add-Content $DebugLog $line
+# Configuration centrale
+$Config = [PSCustomObject]@{
+    RenameMarker = "--odr--"  # indique un fichier deja traité -- OneDriveRenamed --
+    MaxNameLen   = 100
+    # pour les connexions Azure
+    ClientId     = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
+    ExtensionMap = $ExtensionMap
 }
 
-Clear-Host
-Write-Host "--- ONEDRIVE ORGANIZER V19.1 ---" -ForegroundColor Cyan
-
-# --- 1. GESTION DES LOGS ---
-$TimestampLog = Get-Date -Format "yyyyMMdd_HHmmss"
-$CanResume = $KeepLogs -and (Test-Path $LogFile)
-Write-DebugLog "AUTH" "Token reçu longueur=$($Auth.access_token.Length)"
-$NewLog = New-Object System.Collections.Generic.List[string]
-
-if ($CanResume) {
-    $LogSize = (Get-Item $LogFile).Length / 1KB
-    Write-Host "[Info] Mode Reprise : Chargement du plan existant ($([math]::Round($LogSize,2)) KB)..." -ForegroundColor Yellow
-    $NewLog = Get-Content $LogFile
-if ($KeepLogs) {
-    Write-Host "[Info] Archivage des logs activé." -ForegroundColor Gray
-    if (Test-Path $LogFile) { Rename-Item $LogFile "organisation_log_$TimestampLog.txt" }
-    if (Test-Path $ExecutionReport) { Rename-Item $ExecutionReport "azure_sync_report_$TimestampLog.csv" }
-} else {
-    if (Test-Path $LogFile) { Remove-Item $LogFile -Force }
+# État global du script
+$Global:State = @{
+    Headers        = $null
+    Cache          = $null
+    ProcessedIds   = @{}
+    PlannedActions = New-Object System.Collections.Generic.List[PSCustomObject]
+    FilesToProcess = @{}
 }
-"Timestamp,ID,Status,OldPath,NewPath,Error" | Set-Content $ExecutionReport
 
-$Marker = "_v_"
-$FolderInventory = @{} 
+# =====================================================================
+# 2. LOGGING
+# =====================================================================
 
-# --- 2. FONCTIONS DE RÉCUPÉRATION D'ERREURS ---
+function Write-Log {
+    [CmdletBinding()]
+    param([string]$Message, [string]$Level = "INFO")
+
+    # TODO - voir si Get-Date ralenti ou c'est plutot le Add-Content
+    $timestamp = Get-Date -Format "HH:mm:ss"
+
+    $color = switch ($Level) {
+        "ERROR" { "Red" }
+        "WARN" { "Yellow" }
+        "SUCCESS" { "Green" }
+        "DEBUG" { "DarkGray" }
+        default { "Gray" }
+    }
+
+    if ($Level -ne "DEBUG" -or $VerboseMode) {
+        Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
+    }
+
+    "[$timestamp] [$Level] $Message" | Add-Content $LogFile -ErrorAction SilentlyContinue
+}
+
+# =====================================================================
+# 3. UTILITAIRES
+# =====================================================================
 
 function Get-ErrorDetails {
-    param($Ex)
-
-    $status  = ""
-    $details = ""
+    [CmdletBinding()]
+    param($Exception)
 
     try {
-
-        if ($Ex.Exception.Response) {
-            $status = $Ex.Exception.Response.StatusCode.Value__
-        }
-
-        if ($Ex.Exception.Response.Content) {
-            $details = $Ex.Exception.Response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-        }
-        elseif ($Ex.Exception.Response) {
-            $reader = New-Object System.IO.StreamReader(
-                $Ex.Exception.Response.GetResponseStream()
-            )
-        # Si PowerShell 7 (utilise HttpResponseMessage)
-        if ($Ex.Response.Content) {
-            $details = $Ex.Response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-        } 
-        # Si PowerShell 5.1 (utilise WebResponse)
-        elseif ($Ex.Response) {
-            $reader = New-Object System.IO.StreamReader($Ex.Response.GetResponseStream())
-            $details = $reader.ReadToEnd()
+        if ($Exception.Response) {
+            $reader = New-Object System.IO.StreamReader($Exception.Response.GetResponseStream())
+            return $reader.ReadToEnd()
         }
     }
-    catch {
-        $details = "Impossible de lire la réponse Graph"
-    }
+    catch {}
 
-    Write-DebugLog "GRAPH_ERROR" "Status=$status | $details" "ERROR"
-
-    if ([string]::IsNullOrWhiteSpace($details)) {
-        return $Ex.Exception.Message
-    }
-
-    return $details
-    } catch {
-        $details = "Flux d'erreur illisible."
-    }
-    
-    if ([string]::IsNullOrWhiteSpace($details)) { $details = $Ex.Message }
-    return $details
+    return $Exception.Message
 }
 
-# --- 3. FONCTIONS DE NETTOYAGE ET DOSSIERS ---
+function Convert-ToAscii {
+    [CmdletBinding()]
+    param([string]$Text, [bool]$IsPath = $false)
 
-function Get-CleanAscii {
-    param([string]$text, [bool]$isPath = $false)
-    if ([string]::IsNullOrWhiteSpace($text)) { return "" }
-    $normalized = $text.Normalize([System.Text.NormalizationForm]::FormD)
-    $sb = New-Object System.Collections.Generic.List[char]
-    foreach ($c in $normalized.ToCharArray()) {
-        if ([System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($c) -ne [System.Globalization.UnicodeCategory]::NonSpacingMark) {
-            $sb.Add($c)
-        }
-    }
-    $clean = (-join $sb) -replace "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}", ""
+    if ([string]::IsNullOrWhiteSpace($Text)) { return "" }
+
+    # Normalisation Unicode → ASCII
+    $clean = $Text.Normalize([System.Text.NormalizationForm]::FormD) -replace '\p{M}', ''
+
+    # Suppression GUIDs et longues séquences hex/base64
+    $clean = $clean -replace "[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}", ""
     $clean = $clean -replace "[a-zA-Z0-9]{16,}", ""
-    $pattern = if ($isPath) { "[^a-zA-Z0-9\.\-/]" } else { "[^a-zA-Z0-9\.\-]" }
+
+    # Filtrage caractères invalides
+    $pattern = if ($IsPath) { "[^a-zA-Z0-9\.\-/]" } else { "[^a-zA-Z0-9\.\-]" }
+
     return ($clean -replace $pattern, "_" -replace "_+", "_").Trim("_")
 }
 
-function Get-SmartMergedName {
-    param($ts, $context, $oldName, $marker, $ext, $vTags)
-    $cleanOld = Get-CleanAscii $oldName $false
-    $cleanCtx = Get-CleanAscii $context $false
-    $filteredWords = ($cleanOld -split "_" | Where-Object { $ts -notmatch $_ -and $_.Length -gt 1 }) -join "_"
-    $fixedLen = $ts.Length + $filteredWords.Length + $marker.Length + $vTags.Length + $ext.Length + 4
-    $avail = 100 - $fixedLen
-    $finalCtx = ""
-    if ($avail -gt 5 -and $cleanCtx) {
-        $finalCtx = if ($cleanCtx.Length -gt $avail) { $cleanCtx.Substring($cleanCtx.Length - $avail).Trim("_") } else { $cleanCtx }
-    }
-    $parts = New-Object System.Collections.Generic.List[string]
-    $parts.Add($ts); if ($filteredWords) { $parts.Add($filteredWords) }; if ($finalCtx) { $parts.Add($finalCtx) }; if ($vTags) { $parts.Add($vTags) }
-    return "$(($parts -join "_").Trim('_'))$marker$ext"
-}
-
-function Ensure-OneDrivePath {
-    param($Headers, $Path)
-    $Path = $Path.Trim('/')
-    $parts = $Path -split '/'
-    $currentPath = ""
+# =====================================================================
+# 4. LOGIQUE MÉTIER
+# =====================================================================
+function Get-LocationName($gps) {
+    if (!$gps -or $gps -eq "," -or $gps -match "^0,0$") { return $null }
     
-    foreach ($part in $parts) {
-        $parentPath = $currentPath
-        $currentPath += if ($currentPath -eq "") { $part } else { "/$part" }
+    $cachedValue = $script:GpsCache[$gps]
+    
+    # CRITÈRES DE RAFRAÎCHISSEMENT
+    $isIncomplete = $cachedValue -and ($cachedValue -split "-").Count -lt 3
+    $hasSpecialChars = $cachedValue -and ($cachedValue -match "[^\x00-\x7F]") # Détecte tout ce qui n'est pas ASCII standard
+
+    if ($cachedValue -and !$isIncomplete -and !$hasSpecialChars) { 
+        return $cachedValue 
+    }
+    
+    $reason = if ($hasSpecialChars) { "Caractères Spéciaux" } elseif ($isIncomplete) { "Incomplet" } else { "Nouveau" }
+    Write-Host " [API GPS] $reason ($gps)..." -ForegroundColor DarkYellow -NoNewline
+    
+    try {
+        $lat, $lon = $gps -split ","
+        $Uri = "https://nominatim.openstreetmap.org/reverse?format=json&lat=$($lat.Trim())&lon=$($lon.Trim())&zoom=10&addressdetails=1"
+        $res = Invoke-RestMethod -Uri $Uri -UserAgent "OneDriveOrganizer_JPM" -ErrorAction SilentlyContinue
         
-        # Encodage sécurisé de chaque segment
-        $segments = ($currentPath -split '/' | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
-        
-        # AJOUT DU ":" FINAL pour fermer le segment "path"
-        $uriGet = "https://graph.microsoft.com/v1.0/me/drive/root:/$($segments):"
+        $addr = $res.address
+        $city = if ($addr.city) { $addr.city } elseif ($addr.town) { $addr.town } else { $addr.village }
+        $state = if ($addr.state) { $addr.state } else { $addr.county }
+        $country = $addr.country
 
-        try {
-            write-Host "  Vérification : /$currentPath" -ForegroundColor Gray
-            write-Host "    Segments encodés : $segments" -ForegroundColor DarkGray
-            write-Host "    URI GET : $uriGet" -ForegroundColor DarkGray
-            write-Host "    Headers : $($Headers | Out-String)" -ForegroundColor DarkGray            
-
-            Invoke-RestMethod -Headers $Headers -Uri $uriGet -Method Get -ErrorAction Stop > $null
-        } catch {
-            Write-Host "    [Dossier] Création : /$currentPath" -ForegroundColor Cyan
+        if ($city -and $country) { 
+            # 1. Concaténation
+            $fullLoc = "$city-$state-$country" -replace " ", "-"
             
-            $parentSegments = ($parentPath -split '/' | Where-Object {$_} | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
+            # 2. Nettoyage strict (ASCII uniquement + tirets)
+            # On normalise pour transformer les accents (é -> e) si possible, sinon on supprime le non-latin
+            $normalized = $fullLoc.Normalize([System.Text.NormalizationForm]::FormD)
+            $cleanBuilder = New-Object System.Text.StringBuilder
+            foreach ($char in $normalized.ToCharArray()) {
+                if ([System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($char) -ne [System.Globalization.UnicodeCategory]::NonSpacingMark) {
+                    [void]$cleanBuilder.Append($char)
+                }
+            }
+            $fullLoc = $cleanBuilder.ToString()
+            $fullLoc = [Regex]::Replace($fullLoc, "[^a-zA-Z0-9\-]", "")
+            $fullLoc = ($fullLoc -replace "-+", "-").Trim("-")
             
-            # Pour la création (POST), la syntaxe est root:/chemin:/children
-            $uriPost = if ($parentPath -eq "") { 
-                "https://graph.microsoft.com/v1.0/me/drive/root/children" 
-            } else { 
-                "https://graph.microsoft.com/v1.0/me/drive/root:/$($parentSegments):/children" 
-            }
-
-            $body = @{ 
-                name = $part; 
-                folder = @{}; 
-                "@microsoft.graph.conflictBehavior" = "ignore" 
-            } | ConvertTo-Json -Compress
-
-            try {
-                write-host "headers = $Headers"
-                write-host "URI POST = $uriPost"
-                write-host "Body = $body"
-
-                $resp = Invoke-RestMethod -Headers $Headers -Uri $uriPost -Method POST -Body $body -ErrorAction Stop > $null
-            } catch {
-                $err = Get-ErrorDetails $_
-                Write-Host "      [!] Détail : $err, resp = $resp" -ForegroundColor Yellow
-            }
+            $script:GpsCache[$gps] = $fullLoc
+            $script:GpsCache | ConvertTo-Json | Set-Content $GpsCacheFile
+            Write-Host " OK: $fullLoc" -ForegroundColor Green
+            Start-Sleep -Milliseconds 1100 
+            return $fullLoc
         }
     }
+    catch { Write-Host " Échec." -ForegroundColor Red }
+    return $null
+} # Get-LocationName
+
+function Get-SmartCategory {
+    param ([string]$Path, [string]$Extension)
+
+    # 1. RÈGLES "STAY" : Dossiers où l'on renomme sans déplacer
+    $stayPatterns = @("Finances", "Légal", "Documents", "Vie des enfants", "JPM", "Loisirs", "Livres", "Cuisine", "Syndicat", "Apps")
+    foreach ($p in $stayPatterns) { if ($Path -match "(?i)$p") { return "Stay" } }
+
+    # 2. RÈGLES "COFFRE-FORT" : Maintien de la racine (ex: michelle, archives)
+    if ($Path -match "(?i)Pour coffre fort/([^/]+)") { return "Coffre-fort/$($Matches[1])" }
+    
+    # 3. STANDARDS
+    $ext = $Extension.ToLower()
+    if ($Config.ExtensionMap.ContainsKey($ext)) { return $Config.ExtensionMap[$ext] }
+
+    return "Stay" # Par défaut, on ne déplace pas si inconnu
 }
 
 function Get-TargetRoot {
-    param([string]$SourcePath) 
-    # Détection des racines spécifiques selon vos dossiers de départ 
-    if ($SourcePath -like "*Pour coffre fort/Michelle*") { return "Pour coffre fort/Michelle" } 
-    if ($SourcePath -like "*Pour coffre fort/relations*") { return "Pour coffre fort/relations" } 
-    if ($SourcePath -like "*Pour coffre fort/archives*") { return "Pour coffre fort/archives" } 
-    if ($SourcePath -like "*Videos*") { return "Videos" } 
-    return "Images/Pellicule" # Par défaut pour les photos 
-}
+    <#
+        .SYNOPSIS
+            Détermine la racine OneDrive de destination selon un moteur de règles.
 
-# --- 4. ANALYSE ET CALCULS ---
-if (!(Test-Path $IndexFile)) { Write-Error "Cache introuvable."; exit }
-$Cache = Get-Content $IndexFile | ConvertFrom-Json -AsHashtable
-$DoneIds = @{}; if (Test-Path $ProcessedLog) { Get-Content $ProcessedLog | ForEach-Object { $DoneIds[$_] = $true } }
+        .DESCRIPTION
+            Cette version utilise un système déclaratif de règles permettant :
+                - De détecter les dossiers sensibles (Finance, Impôts…)
+                - De préserver les dossiers de travail (Projets, Études…)
+                - De gérer les sous-dossiers du coffre-fort
+                - De reconnaître les dossiers d’applications (WhatsApp, Messenger…)
+                - De distinguer les vidéos des images
+                - De décider si un fichier doit être déplacé ou renommé sur place
 
-Write-Host "[1/4] Analyse des fichiers..." -ForegroundColor Gray
-$NewLog = New-Object System.Collections.Generic.List[string]
+            Chaque règle définit :
+                - Patterns à détecter
+                - Action (Move / Stay)
+                - Racine cible (si Move)
+                - Priorité (plus petit = plus prioritaire)
 
-foreach ($id in $Cache.Files.Keys) {
-    if ($DoneIds.ContainsKey($id)) { continue }
-    $f = $Cache.Files[$id]
-    if ($f.n -match $Marker) { continue }
-    $ext = [System.IO.Path]::GetExtension($f.n).ToLower()
-    if ($ext -notmatch ".jpg|.jpeg|.png|.heic|.mp4|.mov") { continue }
+            Le système est entièrement extensible sans modifier la fonction.
+    #>
 
-    $ts = ([DateTime]$f.d).ToString("yyyyMMdd_HHmmss")
-    $vTags = if ($f.dur -or $f.res) { (($f.dur, $f.res | Where-Object {$_}) -join "_") } else { "" }
-    $pathParts = $f.p -split "/" | Where-Object { $_ -and $_ -notmatch "drive|root|Images|Videos|Pellicule" }
-    $context = if ($pathParts.Length -gt 0) { ($pathParts[[Math]::Max(0, $pathParts.Length-3)..($pathParts.Length-1)]) -join "_" } else { "" }
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$SourcePath
+    )
 
-    $newName = Get-SmartMergedName $ts $context ([System.IO.Path]::GetFileNameWithoutExtension($f.n)) $Marker $ext $vTags
-    $subType = if ($ext -match "mp4|mov") { "Videos" } else { "Images" }
-    $rawDest = if ($f.p -match "Pour coffre fort") { "Pour coffre fort/$subType/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))" }
-               else { "$subType/Pellicule/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))" }
-    
+    # ------------------------------------------------------------------
+    # TABLE DES RÈGLES (déclarative, modifiable facilement)
+    # ------------------------------------------------------------------
+    $Rules = @(
+        # 1. Coffre-fort (priorité maximale)
+        @{
+            Name       = "CoffreFort-Michelle"
+            Patterns   = @("Pour coffre fort/Michelle")
+            Action     = "Move"
+            TargetRoot = "Pour coffre fort/Michelle"
+            Priority   = 1
+        },
+        @{
+            Name       = "CoffreFort-Relations"
+            Patterns   = @("Pour coffre fort/relations")
+            Action     = "Move"
+            TargetRoot = "Pour coffre fort/relations"
+            Priority   = 1
+        },
+        @{
+            Name       = "CoffreFort-Archives"
+            Patterns   = @("Pour coffre fort/archives")
+            Action     = "Move"
+            TargetRoot = "Pour coffre fort/archives"
+            Priority   = 1
+        },
 
-    # Appel correct de la fonction
-    $targetRoot = Get-TargetRoot -SourcePath $f.p
+        # 2. Dossiers administratifs (renommer sur place)
+        @{
+            Name       = "Administratif"
+            Patterns   = @("Finance", "Fiscalité", "Impôts", "Banque", "Assurance", "Documents", "Contrats", "Notaire", "Municipalité", "Syndicat")
+            Action     = "Stay"
+            TargetRoot = $null
+            Priority   = 2
+        },
 
-    # Utilisation de la racine déterminée pour construire le chemin final
-    $rawDest = if ($targetRoot -like "Pour coffre fort*") { 
-        "$targetRoot/$subType/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))" 
-    } else { 
-        "$targetRoot/$(([DateTime]$f.d).Year)/$(([DateTime]$f.d).ToString('MM'))" 
-    }
+        # 3. Dossiers de travail / projets (renommer sur place)
+        @{
+            Name       = "TravailEtudes"
+            Patterns   = @("Projets", "Travail", "Études", "Recherche", "Cours", "Université")
+            Action     = "Stay"
+            TargetRoot = $null
+            Priority   = 3
+        },
 
-    $cleanDest = Get-CleanAscii $rawDest $true
-    $targetKey = "/$cleanDest/$newName"
-    $suffix = 1
-    while ($FolderInventory.ContainsKey($targetKey)) {
-        $newName = $newName -replace "$Marker", "_$suffix$Marker"
-        $targetKey = "/$cleanDest/$newName"; $suffix++
-    }
-    $FolderInventory[$targetKey] = $true
-    $NewLog.Add("ID:$id | SRC:$($f.p)/$($f.n) | DST:$targetKey")
-}
-$NewLog | Set-Content $LogFile
-Write-Host "[2/4] Plan d'action : $($NewLog.Count) fichiers." -ForegroundColor Green
+        # 4. Dossiers techniques (renommer sur place)
+        @{
+            Name       = "Technique"
+            Patterns   = @("Scripts", "Dev", "GitHub", "Backups", "Exports")
+            Action     = "Stay"
+            TargetRoot = $null
+            Priority   = 4
+        },
 
-# --- 5. EXÉCUTION ---
-if ($Execute -and $NewLog.Count -gt 0) {
-    $ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061"
-    $DeviceCodeRequest = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/devicecode" -Body @{ client_id = $ClientId; scope = "Files.ReadWrite.All" }
-    Write-Host "`n[Connexion] Login : https://microsoft.com/devicelogin Code : $($DeviceCodeRequest.user_code)" -ForegroundColor Yellow
-    $Auth = $null; while (!$Auth) { Start-Sleep 5; try { $Auth = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/token" -Body @{ grant_type = "urn:ietf:params:oauth:grant-type:device_code"; client_id = $ClientId; device_code = $DeviceCodeRequest.device_code } } catch { } }
-    $Headers = @{ Authorization = "Bearer $($Auth.access_token)"; "Content-Type" = "application/json" }
+        # 5. Dossiers d’applications (déplacer vers Pellicule)
+        @{
+            Name       = "Applications"
+            Patterns   = @("WhatsApp", "Messenger", "Facebook", "Instagram", "Screenshots", "Camera Roll", "DCIM", "Android", "iOS")
+            Action     = "Move"
+            TargetRoot = "Images/Pellicule"
+            Priority   = 5
+        },
 
-    Write-Host "`n[2.5/4] Pré-création de l'arborescence..." -ForegroundColor Magenta
-    $uniqueFolders = $NewLog | ForEach-Object { if ($_ -match "DST:(.*)/.*$") { $Matches[1] } } | Select-Object -Unique | Sort-Object
-    foreach ($fld in $uniqueFolders) { Ensure-OneDrivePath -Headers $Headers -Path $fld }
+        # 6. Vidéos (déplacer vers Videos)
+        @{
+            Name       = "Videos"
+            Patterns   = @("Videos")
+            Action     = "Move"
+            TargetRoot = "Videos"
+            Priority   = 6
+        }
+    )
 
-    Write-Host "`n[3/4] Déplacement..." -ForegroundColor Magenta
-    $interactive = $true; $successList = @()
-    foreach ($line in $NewLog) {
-        if ($line -match "ID:(.*) \| SRC:(.*) \| DST:(.*)") {
-            $fId = $Matches[1]; $src = $Matches[2]; $dst = $Matches[3]
-            $dstDir = [System.IO.Path]::GetDirectoryName($dst).Replace("\", "/"); $dstName = [System.IO.Path]::GetFileName($dst)
+    # ------------------------------------------------------------------
+    # MOTEUR DE RÈGLES
+    # ------------------------------------------------------------------
 
-            Write-Host "`nFichier : $dstName" -ForegroundColor Gray
-            if ($interactive) {
-                $c = Read-Host "Confirmer ? [O] Oui / [N] Non / [T] Tout / [Q] Quitter"
-                if ($c -eq "T") { $interactive = $false } elseif ($c -eq "Q") { break } elseif ($c -ne "O") { continue }
-            }
-            try {
-                $body = @{ parentReference = @{ path = "/drive/root:$dstDir" }; name = $dstName } | ConvertTo-Json
-                Invoke-RestMethod -Headers $Headers -Uri "https://graph.microsoft.com/v1.0/me/drive/items/$fId" -Method PATCH -Body $body -ErrorAction Stop
-                "$(Get-Date -Format 'HH:mm'),$fId,SUCCESS,$src,$dst," | Add-Content $ExecutionReport
-                $fId | Add-Content $ProcessedLog
-                $successList += [PSCustomObject]@{ Id = $fId; NewPath = $dstDir; NewName = $dstName }
-            } catch {
-                $err = Get-ErrorDetails $_
-                Write-Host "  [ERREUR] $err" -ForegroundColor Red
-                "$(Get-Date -Format 'HH:mm'),$fId,ERROR,$src,$dst,$err" | Add-Content $ExecutionReport
+    # Tri des règles par priorité
+    $OrderedRules = $Rules | Sort-Object Priority
+
+    foreach ($rule in $OrderedRules) {
+        foreach ($pattern in $rule.Patterns) {
+            if ($SourcePath -match [Regex]::Escape($pattern)) {
+
+                # Si l’action est "Stay", on renomme sur place
+                if ($rule.Action -eq "Stay") {
+                    return @{
+                        Action     = "Stay"
+                        TargetRoot = $null
+                        Rule       = $rule.Name
+                    }
+                }
+
+                # Sinon on déplace vers la racine définie
+                return @{
+                    Action     = "Move"
+                    TargetRoot = $rule.TargetRoot
+                    Rule       = $rule.Name
+                }
             }
         }
     }
-    foreach ($item in $successList) { $Cache.Files[$item.Id].p = "/drive/root:$($item.NewPath)"; $Cache.Files[$item.Id].n = $item.NewName }
-    $Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
-} else { Write-Host "`n[Aperçu] Première action : $($NewLog[0])" -ForegroundColor Yellow }
+
+    # ------------------------------------------------------------------
+    # CAS PAR DÉFAUT : IMAGES / PELLICULE
+    # ------------------------------------------------------------------
+    return @{
+        Action     = "Move"
+        TargetRoot = "Images/Pellicule"
+        Rule       = "Default"
+    }
+} # Get-TargetRoot
+
+function Get-PathTags($fullPath) {
+    $parts = $fullPath -replace "^/drive/root:/?", "" -split "/" | 
+    Where-Object { $_ -and $_ -notmatch "Documents|Images|Vidéos|Musique|Pellicule|JPM" }
+    return ($parts -join "_")
+}
+
+<#
+    =====================================================================
+    New-SmartFileName — Style 3 Complet (V15)
+    =====================================================================
+
+    OBJECTIF :
+        Générer un nom de fichier propre, court, structuré et déterministe
+        basé sur :
+            - la date (timestamp)
+            - la localisation GPS (si disponible)
+            - les tags de chemin (hiérarchie utile)
+            - le nom original
+            - l’appareil photo (caméra)
+            - la source (WhatsApp, Messenger, etc.)
+            - un marqueur de traitement (--odr--)
+            - une limite stricte de longueur
+
+    ---------------------------------------------------------------------
+    RÈGLES DÉTAILLÉES
+    ---------------------------------------------------------------------
+
+    1. NORMALISATION ASCII
+        - Tous les blocs (nom original, tags, GPS, caméra, source)
+          passent par Convert-ToAscii :
+              • accents supprimés (é → e)
+              • caractères spéciaux remplacés par "_"
+              • séquences multiples "_" compressées
+              • résultat 100 % ASCII
+
+    2. DÉCOUPAGE EN MOTS
+        - Chaque bloc est découpé en mots selon les séparateurs :
+              "_", "-", espace
+        - Les mots vides sont ignorés
+        - Tout est mis en minuscules pour les comparaisons internes
+
+    3. SUPPRESSION DES MOTS VIDES (STOPWORDS)
+        - Les mots suivants sont supprimés car non informatifs :
+              de, du, des, la, le, les,
+              avec, pour, sur, dans, et, en,
+              a, au, aux
+        - Cela évite des noms trop longs et peu lisibles
+
+    4. SUPPRESSION DES MOTS DÉJÀ PRÉSENTS DANS LE GPS
+        - Si GPS = "Paris_France", alors :
+              paris, france
+          sont supprimés des tags et du nom original
+        - Le GPS est prioritaire dans Style 3
+
+    5. SUPPRESSION DES DOUBLONS GLOBAUX
+        - Tous les mots sont assemblés dans l’ordre Style 3 :
+              timestamp → GPS → tags → nom original → caméra → source
+        - On garde le premier mot rencontré
+        - Toute répétition ultérieure est supprimée
+        - Exemple :
+              vacances famille famille parc famille
+          devient :
+              vacances famille parc
+
+    6. RECONSTRUCTION STYLE 3
+        - Ordre final :
+              1. timestamp (obligatoire)
+              2. GPS (si disponible)
+              3. tags de chemin
+              4. nom original filtré
+              5. appareil photo
+              6. source (WhatsApp, etc.)
+        - Les mots sont joints par "_"
+        - Aucun "_" en début ou fin
+
+    7. LIMITE DE LONGUEUR
+        - Longueur maximale = Config.MaxNameLen
+        - On réserve l’espace pour :
+              • le marqueur (--odr--)
+              • l’extension (.jpg, .mp4, etc.)
+        - Si trop long :
+              • on coupe proprement
+              • sans casser un mot
+              • sans laisser "_" final
+
+    8. MARQUEUR DE TRAITEMENT
+        - Le nom final se termine toujours par :
+              --odr--
+          avant l’extension
+        - Permet d’identifier les fichiers déjà traités
+
+    ---------------------------------------------------------------------
+    EXEMPLE RÉEL
+    ---------------------------------------------------------------------
+
+        Nom original : IMG_20230814_142233.jpg
+        PathTags     : Vacances_famille_parc national
+        GPS          : Paris-France
+
+        Résultat :
+            20230814_142233_Paris_France_Vacances_famille_parc_national--odr--.jpg
+
+
+    ---------------------------------------------------------------------
+#>
+function New-SmartFileName {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [DateTime]$DateRef,
+        [Parameter(Mandatory)] [string]  $OriginalName,
+        [Parameter(Mandatory)] [string]  $Extension,
+        [string]$GpsLocation,
+        [string]$PathTags,
+        [string]$Camera,
+        [string]$SourceHint
+    )
+
+    $timestamp = $DateRef.ToString("yyyyMMdd_HHmmss")
+
+    # --- Normalisation ASCII ---
+    $cleanOriginal = Convert-ToAscii $OriginalName
+    $cleanTags = Convert-ToAscii $PathTags
+    $cleanGps = Convert-ToAscii $GpsLocation
+    $cleanCam = Convert-ToAscii $Camera
+    $cleanSource = Convert-ToAscii $SourceHint
+
+    # --- Découpage en mots ---
+    function Split-Words($txt) {
+        if (-not $txt) { return @() }
+        return ($txt -split "[ _\-]" | Where-Object { $_ -and $_.Trim().Length -gt 0 })
+    }
+
+    $gpsWords = Split-Words $cleanGps
+    $tagWords = Split-Words $cleanTags
+    $origWords = Split-Words $cleanOriginal
+    $camWords = Split-Words $cleanCam
+    $srcWords = Split-Words $cleanSource
+
+    # --- Liste des mots vides ---
+    $stopWords = @("de", "du", "des", "la", "le", "les", "avec", "pour", "sur", "dans", "et", "en", "a", "au", "aux")
+
+    # --- Filtre stopwords (version robuste) ---
+    function Remove-StopWords($list) {
+        if (-not $list) { return @() }
+        return $list | Where-Object { $stopWords -notcontains $_.ToLower() }
+    }
+
+    $gpsWords = Remove-StopWords $gpsWords
+    $tagWords = Remove-StopWords $tagWords
+    $origWords = Remove-StopWords $origWords
+
+    # --- Suppression des mots déjà présents dans GPS ---
+    $gpsSet = @{}
+    foreach ($w in $gpsWords) { $gpsSet[$w.ToLower()] = $true }
+
+    function Remove-GpsRedundancy($list) {
+        if (-not $list) { return @() }
+        return $list | Where-Object { -not $gpsSet.ContainsKey($_.ToLower()) }
+    }
+
+    $tagWords = Remove-GpsRedundancy $tagWords
+    $origWords = Remove-GpsRedundancy $origWords
+
+    # --- Assemblage global ---
+    $allWords = New-Object System.Collections.Generic.List[string]
+    $allWords.Add($timestamp)
+    $gpsWords    | ForEach-Object { $allWords.Add($_) }
+    $tagWords    | ForEach-Object { $allWords.Add($_) }
+    $origWords   | ForEach-Object { $allWords.Add($_) }
+    $camWords    | ForEach-Object { $allWords.Add($_) }
+    $srcWords    | ForEach-Object { $allWords.Add($_) }
+
+    # --- Anti-doublon global ---
+    $seen = @{}
+    $filtered = foreach ($w in $allWords) {
+        $key = $w.ToLower()
+        if (-not $seen.ContainsKey($key)) {
+            $seen[$key] = $true
+            $w
+        }
+    }
+
+    # Reconstruction
+    $baseName = ($filtered -join "_").Trim("_")
+
+    # Limite de longueur
+    $maxLenWithoutExt = $Config.MaxNameLen - $Config.RenameMarker.Length - $Extension.Length
+    if ($baseName.Length -gt $maxLenWithoutExt) {
+        $baseName = $baseName.Substring(0, $maxLenWithoutExt).Trim("_")
+    }
+
+    return ($baseName + $Config.RenameMarker + $Extension)
+} # New-SmartFileName
+
+# =====================================================================
+# 5. AUTHENTIFICATION
+# =====================================================================
+
+function Connect-AzureGraph {
+    Write-Log "Obtention du token Graph via module..."
+    $auth = Get-GraphToken
+
+    if (-not $auth.access_token) {
+        Write-Log "Échec token Graph" "ERROR"
+        throw "Impossible d'obtenir un token Graph."
+    }
+
+    $Global:State.Headers = @{
+        Authorization  = "Bearer $($auth.access_token)"
+        "Content-Type" = "application/json"
+    }
+
+    Write-Log "Token Graph chargé." "SUCCESS"
+}
+
+# =====================================================================
+# 6. PRÉ-CRÉATION DES DOSSIERS
+# =====================================================================
+
+function Test-OneDrivePath {
+    [CmdletBinding()]
+    param([string]$RelativePath)
+
+    $RelativePath = $RelativePath.Trim('/')
+    $pathParts = $RelativePath -split '/'
+    $currentPath = ""
+
+    foreach ($part in $pathParts) {
+
+        $parentPath = $currentPath
+        $currentPath += if ($currentPath -eq "") { $part } else { "/$part" }
+
+        $encodedSegments = ($currentPath -split '/' | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
+
+        # Vérification de l’existence du dossier
+        try {
+            Invoke-RestMethod -Headers $Global:State.Headers `
+                -Uri "https://graph.microsoft.com/v1.0/me/drive/root:/${encodedSegments}:" `
+                -Method Get -ErrorAction Stop > $null
+        }
+        catch {
+            Write-Log "Création du dossier : /$currentPath" "DEBUG"
+
+            $encodedParent = ($parentPath -split '/' | Where-Object { $_ } | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
+
+            $uriPost = if ($parentPath -eq "") {
+                "https://graph.microsoft.com/v1.0/me/drive/root/children"
+            }
+            else {
+                "https://graph.microsoft.com/v1.0/me/drive/root:/${encodedParent}:/children"
+            }
+
+            $body = @{ name = $part; folder = @{}; "@microsoft.graph.conflictBehavior" = "ignore" } | ConvertTo-Json
+
+            Invoke-RestMethod -Headers $Global:State.Headers `
+                -Uri $uriPost -Method POST -Body $body -ErrorAction Stop > $null
+        }
+    }
+}
+
+# =====================================================================
+# 7. CHARGEMENT DU CACHE
+# =====================================================================
+
+function Import-Set-Cache {
+    [CmdletBinding()]
+    param()
+
+    Write-Log "Nettoyage du vieux log d'exécution $LogFile si present "
+    if (Test-Path $LogFile) {
+        Remove-Item $LogFile -Force
+    }
+
+    Write-Log "Chargement du cache OneDrive $IndexFile ... "
+    if (!(Test-Path $IndexFile)) {
+        Write-Log "Cache introuvable : $IndexFile" "ERROR"
+        exit 1
+    }
+    $Global:State.Cache = Get-Content $IndexFile -Raw | ConvertFrom-Json -AsHashtable
+
+    if (-not $Global:State.Cache.Files) {
+        Write-Log "Aucun fichier dans le cache (section Files vide)." "ERROR"
+        exit 1
+    }
+
+    # 3. Chargement des IDs déjà traités
+    Write-Log "Chargement de la liste des ids/fichiers déjà traités ($ProcessedLog) ... "
+    $Global:State.ProcessedIds = @{}
+    $Global:State.FilesToProcess = @{}
+
+    if (Test-Path $ProcessedLog) {
+        Get-Content $ProcessedLog | ForEach-Object {
+            $id = $_.Trim()
+            if ($id) {
+                $Global:State.ProcessedIds[$id] = $true
+            }
+        }
+        Write-Log "Fichiers déjà traités chargés : $($Global:State.ProcessedIds.Count)"
+    }
+    else {
+        Write-Log "Aucun fichier traité précédemment (fichier $ProcessedLog absent)."
+    }
+
+    Write-Log "Découverte des fichiers déjà traités ayant le marqueur '$($Config.RenameMarker)' ..."
+    $index = 0
+    $total = $Global:State.Cache.Files.Count
+    foreach ($id in $Global:State.Cache.Files.Keys) {
+
+        $index++
+        Write-Progress -Activity "Analyse des fichiers" `
+            -Status "$index / $total" `
+            -PercentComplete (($index / $total) * 100)
+
+        $fileMeta = $Global:State.Cache.Files[$id]
+
+        # a) Si déjà dans ProcessedIds → ignorer
+        if ($Global:State.ProcessedIds.ContainsKey($id)) {
+            Write-Log "Ignoré (déjà traité) : $id" "DEBUG"
+            continue
+        }
+
+        # b) Si le nom contient le marqueur → l'ajouter à ProcessedIds
+        if ($fileMeta.n -like "*$($Config.RenameMarker)*") {
+            Write-Log "Ajouté à ProcessedIds (déjà renommé) : $($fileMeta.p)/$($fileMeta.n)" "DEBUG"
+            $Global:State.ProcessedIds[$id] = $true
+            continue
+        }
+
+        # c) Sinon → fichier à traiter
+        $Global:State.FilesToProcess[$id] = $fileMeta
+    }
+
+    Write-Progress -Activity "Analyse terminée" -Completed
+    Write-Log "Indexation terminée. Fichiers à traiter : $($Global:State.FilesToProcess.Count)"
+
+    "Timestamp,ID,Status,OldPath,NewPath,Error" | Set-Content $ExecutionReport
+} # Import-Set-Cache
+
+# =====================================================================
+# 8. PLANIFICATION
+# =====================================================================
+
+
+function New-Plan {
+    [CmdletBinding()]
+    param()
+
+    Write-Log "Analyse des fichiers..."
+    Write-Log "Début de New-Plan" "DEBUG"
+
+    
+    foreach ($fileId in $Global:State.FilesToProcess.Keys) {
+
+        $fileMeta = $Global:State.Cache.Files[$fileId]
+        $extension = [System.IO.Path]::GetExtension($fileMeta.n).ToLower()
+
+        #Write-Log "----------------------------------------------" "DEBUG"
+        Write-Log "Analyse du fichier" "DEBUG"
+        Write-Log "ID             : $fileId" "DEBUG"
+        Write-Log "Nom original   : $($fileMeta.n)" "DEBUG"
+        Write-Log "Chemin source  : $($fileMeta.p)" "DEBUG"
+        Write-Log "Extension      : $extension" "DEBUG"
+        Write-Log "Date fichier   : $($fileMeta.d)" "DEBUG"
+
+        # 1. Classification intelligente
+        $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension
+        Write-Log "Classification intelligente = ($category)" "DEBUG"
+
+        # On prépare les données de base
+        if (-not $Config.ExtensionMap.ContainsKey($extension)) {
+            Write-Log "Ignoré : extension non supportée ($extension)" "DEBUG"
+            continue
+        }
+
+        $fileDate = [DateTime]$fileMeta.d
+
+        # GPS → ville/province/pays (si dispo dans le cache OneDrive)
+        $gpsLocation = $null
+        if ($fileMeta.gps) {
+            $gpsLocation = Get-LocationName $fileMeta.gps
+            Write-Log "Localisation GPS : $gpsLocation" "DEBUG"
+        }
+
+        # Tags de chemin (hiérarchie utile)
+        $pathTags = Get-PathTags $fileMeta.p
+        Write-Log "Tags de chemin : $pathTags" "DEBUG"
+
+        # Appareil / source (si dispo dans le cache)
+        $camera = $null
+        if ($fileMeta.cam) { $camera = $fileMeta.cam }
+
+        # Hint de source (WhatsApp, etc.) basé sur le chemin
+        $sourceHint = ""
+        if ($fileMeta.p -match "WhatsApp") { $sourceHint = "WhatsApp" }
+        elseif ($fileMeta.p -match "Messenger") { $sourceHint = "Messenger" }
+        elseif ($fileMeta.p -match "Instagram") { $sourceHint = "Instagram" }
+
+        $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($fileMeta.n)
+
+        $newName = New-SmartFileName `
+            -DateRef      $fileDate `
+            -OriginalName $originalNameNoExt `
+            -Extension    $extension `
+            -GpsLocation  $gpsLocation `
+            -PathTags     $pathTags `
+            -Camera       $camera `
+            -SourceHint   $sourceHint
+
+        Write-Log "Nouveau nom généré : $newName" "DEBUG"
+
+        # # Règle de destination
+        # $rule = Get-TargetRoot $fileMeta.p
+
+        # Write-Log "Règle appliquée   : $($rule.Rule)" "DEBUG"
+        # Write-Log "Action           : $($rule.Action)" "DEBUG"
+        # Write-Log "Racine cible     : $($rule.TargetRoot)" "DEBUG"
+
+        # $root = $rule.TargetRoot
+
+        # $rawDestination = if ($root -like "Pour coffre fort*") {
+        #     "$root/$($Config.ExtensionMap[$extension])/$($fileDate.Year)/$($fileDate.ToString('MM'))"
+        # } else {
+        #     "$root/$($fileDate.Year)/$($fileDate.ToString('MM'))"
+        # }
+
+        # $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
+        # $fullDestination  = "/$cleanDestination/$newName"
+
+        # Write-Log "Destination finale : $fullDestination" "DEBUG"
+
+        # $Global:State.PlannedActions.Add([PSCustomObject]@{
+        #     Id        = $fileId
+        #     SrcPath   = $fileMeta.p
+        #     SrcName   = $fileMeta.n
+        #     DstDir    = $cleanDestination
+        #     DstName   = $newName
+        #     FullDst   = $fullDestination
+        # })
+
+        # 3. Calcul de la destination (Le cœur de l'adaptation)
+        $srcDirClean = $fileMeta.p -replace "^/drive/root:", ""
+        $mediaType = if ($Config.ExtensionMap.ContainsKey($extension)) { $Config.ExtensionMap[$extension] } else { "Autres" }
+
+        if ($category -eq "Stay") {
+            # Règle STAY : On garde le dossier actuel, on change juste le nom
+            $rawDestination = $srcDirClean
+        } 
+        elseif ($category -match "Coffre-fort/(.+)") {
+            # Règle COFFRE-FORT : /Pour coffre fort/Racine/Type/Année/Mois
+            $vaultRoot = $Matches[1]
+            $rawDestination = "/Pour coffre fort/$vaultRoot/$mediaType/$($fileDate.Year)/$($fileDate.ToString('MM'))"
+        } 
+        else {
+            # Règle STANDARD : /Images/Pellicule/Année/Mois
+            $rawDestination = "/$category/Pellicule/$($fileDate.Year)/$($fileDate.ToString('MM'))"
+        }
+
+        $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
+        Write-Log "Chemin destination = ($cleanDestination)" "DEBUG"
+
+        $fullDestination = "/$($cleanDestination.Trim('/'))/$newName"
+
+        # 4. Vérification si un changement est nécessaire (évite les actions inutiles)
+        $currentPath = "$($srcDirClean.Trim('/'))/$($fileMeta.n)"
+        if ($currentPath -eq $fullDestination.Trim('/')) {
+            Write-Log "Déjà à la bonne place : $($fileMeta.n)" "DEBUG"
+            continue
+        }
+
+        # 5. Ajout à la liste des actions
+        $Global:State.PlannedActions.Add([PSCustomObject]@{
+                Id      = $fileId
+                SrcPath = $fileMeta.p
+                SrcName = $fileMeta.n
+                DstDir  = "/$($cleanDestination.Trim('/'))"
+                DstName = $newName
+                FullDst = $fullDestination
+            })
+
+
+        #Write-Log "Fin analyse fichier : ($newName)" "DEBUG"
+        Write-Log "----------------------------------------------" "DEBUG"
+    }
+
+    Write-Log "Plan généré : $($Global:State.PlannedActions.Count) fichiers." "SUCCESS"
+    Write-Log "Fin de New-Plan" "DEBUG"
+}
+function traitement {
+    $Log = New-Object System.Collections.Generic.List[string]
+    $Log.Add("=== RAPPORT V14.5 - $(Get-Date) ===")
+
+    Write-Host "`n--- DÉMARRAGE DE L'ANALYSE ($TotalFiles fichiers) ---" -ForegroundColor Cyan
+
+    $count = 0
+    foreach ($id in $FileIds) {
+        $count++
+        $fileMeta = $Cache.Files[$id]
+        
+        # Progression
+        $elapsed = (Get-Date) - $StartTime
+        $avgTime = $elapsed.TotalSeconds / $count
+        $remainingStr = "{0:hh\:mm\:ss}" -f [TimeSpan]::FromSeconds($avgTime * ($TotalFiles - $count))
+
+        if ($count % 10 -eq 0) {
+            Write-Progress -Activity "Analyse $([Math]::Round(($count/$TotalFiles)*100,1))%" `
+                -Status "Fichiers: $count/$TotalFiles | Restant: $remainingStr" `
+                -PercentComplete (($count / $TotalFiles) * 100)
+        }
+
+        if (!$fileMeta.d) { continue }
+        $ext = [System.IO.Path]::GetExtension($fileMeta.n).ToLower()
+        $dateRef = [DateTime]$fileMeta.d
+        
+        $villeStr = Get-LocationName $fileMeta.gps
+        $tags = Get-PathTags $fileMeta.p
+        $name = ([System.IO.Path]::GetFileNameWithoutExtension($fileMeta.n) -replace "\(Copie.*\)|- Copie|\(1\)", "").Trim()
+        
+        $newName = ""
+        $targetDir = ""
+
+        # NOMENCLATURE PHOTOS / VIDÉOS
+        if ($ext -match ".jpg|.jpeg|.png|.heic|.mp4|.mov") {
+            $parts = New-Object System.Collections.Generic.List[string]
+            $parts.Add($dateRef.ToString("yyyyMMdd_HHmmss"))
+            if ($villeStr) { $parts.Add($villeStr) }
+            if ($tags) { $parts.Add($tags) }
+            
+            if ($ext -match ".mp4|.mov") {
+                if ($fileMeta.dur) { $parts.Add($fileMeta.dur) }; if ($fileMeta.res) { $parts.Add($fileMeta.res) }
+                $targetDir = "/Vidéos/Pellicule/$($dateRef.Year)/$($dateRef.ToString('MM'))"
+            }
+            else {
+                if ($name -and $tags -notlike "*$name*" -and $name -notmatch "^\d+$") { $parts.Add($name) }
+                if ($fileMeta.cam) { $parts.Add($fileMeta.cam) }
+                $targetDir = "/Images/Pellicule/$($dateRef.Year)/$($dateRef.ToString('MM'))"
+            }
+            $newName = ($parts -join "_") + $ext
+        }
+        # NOMENCLATURE AUDIO
+        elseif ($ext -match ".mp3|.m4a|.flac") {
+            $artiste = if ($fileMeta.art) { $fileMeta.art }else { "Inconnu" }
+            $album = if ($fileMeta.alb) { $fileMeta.alb }else { "Inconnu" }
+            $newName = "$artiste - $album - $name$ext"
+            $targetDir = "/Musique/$artiste/$album"
+        }
+
+        if ($newName) {
+            $newName = ($newName -replace '[\\\/:*?"<>|]', '-') -replace '_+', '_'
+            $Log.Add("SRC : $($fileMeta.p)/$($fileMeta.n)")
+            $Log.Add("DST : $targetDir/$newName")
+        }
+    }
+
+    $Log | Set-Content $LogFile
+    Write-Host "`nTERMINÉ. Log généré : $LogFile" -ForegroundColor Green
+
+}
+
+# =====================================================================
+# 9. EXÉCUTION
+# =====================================================================
+
+function Invoke-Moves {
+    [CmdletBinding()]
+    param()
+
+    Write-Log "Début du déplacement..." "WARN"
+
+    $total = $Global:State.PlannedActions.Count
+    $index = 0
+
+    foreach ($action in $Global:State.PlannedActions) {
+
+        $index++
+        Write-Progress -Activity "Déplacement OneDrive" `
+            -Status "Fichier $index / $total" `
+            -PercentComplete (($index / $total) * 100)
+
+        try {
+            $body = @{
+                parentReference = @{ path = "/drive/root:${($action.DstDir)}" }
+                name            = $action.DstName
+            } | ConvertTo-Json
+
+            Invoke-RestMethod -Headers $Global:State.Headers `
+                -Uri "https://graph.microsoft.com/v1.0/me/drive/items/$($action.Id)" `
+                -Method PATCH -Body $body -ErrorAction Stop > $null
+
+            "$(Get-Date -Format 'HH:mm'),$($action.Id),SUCCESS,$($action.SrcPath),$($action.FullDst)," |
+            Add-Content $ExecutionReport
+
+            $action.Id | Add-Content $ProcessedLog
+
+            $Global:State.Cache.Files[$action.Id].p = "/drive/root:${($action.DstDir)}"
+            $Global:State.Cache.Files[$action.Id].n = $action.DstName
+        }
+        catch {
+            $errorDetails = Get-ErrorDetails $_
+            Write-Log "Erreur sur $($action.Id) : $errorDetails" "ERROR"
+
+            "$(Get-Date -Format 'HH:mm'),$($action.Id),ERROR,$($action.SrcPath),$($action.FullDst),$errorDetails" |
+            Add-Content $ExecutionReport
+        }
+    }
+
+    $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
+    Write-Log "Déplacement terminé." "SUCCESS"
+}
+
+
+
+# =====================================================================
+# 10. MAIN
+# =====================================================================
+
+function Start-OneDriveOrganizer {
+    [CmdletBinding()]
+    param()
+
+    Clear-Host
+    Write-Log "Démarrage de l'organisateur..."
+
+    Import-Set-Cache
+
+    #traitement
+
+    New-Plan
+
+    if ($Global:State.PlannedActions.Count -eq 0) {
+        Write-Log "Aucun fichier à traiter." "WARN"
+        return
+    }
+
+    # le temps qu'on stabilise le code
+    exit
+
+    if (-not $Execute) {
+        Write-Log "MODE APERÇU  Utilisez -Execute `$true pour appliquer les changements." "WARN"
+        $Global:State.PlannedActions[0] | Format-List
+        return
+    }
+
+    Connect-AzureGraph
+
+    # Pré-création des dossiers
+    $uniqueDirs = $Global:State.PlannedActions.DstDir | Select-Object -Unique | Sort-Object
+    foreach ($dir in $uniqueDirs) { Test-OneDrivePath $dir }
+
+    Invoke-Moves
+} # Start-OneDriveOrganizer
+
+Start-OneDriveOrganizer
