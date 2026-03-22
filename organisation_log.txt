@@ -1,152 +1,604 @@
-[22:05:27] [INFO] Chargement du cache OneDrive .\onedrive_cache.json ... 
-[22:05:34] [INFO] Chargement de la liste des ids/fichiers déjà traités (.\processed_ids.log) ... 
-[22:05:34] [INFO] Aucun fichier traité précédemment (fichier .\processed_ids.log absent).
-[22:05:34] [INFO] Découverte des fichiers déjà traités ayant le marqueur '--odr--' ...
-[22:05:40] [INFO] Indexation terminée. Fichiers à traiter : 113996
-[22:05:40] [INFO] Analyse des fichiers...
-[22:05:40] [DEBUG] Début de New-Plan
-[22:05:40] [DEBUG] Analyse du fichier
-[22:05:40] [DEBUG] ID             : 440B3E9A717E6203!19275
-[22:05:40] [DEBUG] Nom original   : JP et ses petits en 2011_2.jpg
-[22:05:40] [DEBUG] Chemin source  : /drive/root:/Images/ensemble/Saved Pictures/Mes images/BlackBerry 9800]
-[22:05:40] [DEBUG] Extension      : .jpg
-[22:05:40] [DEBUG] Date fichier   : 09/17/2011 16:38:19
-[22:05:40] [DEBUG] Classification intelligente = (Images)
-[22:05:40] [DEBUG] Tags de chemin : ensemble_Saved Pictures_BlackBerry 9800]
-[22:05:40] [DEBUG] Nouveau nom généré : 20110917_163819_ensemble_Saved_Pictures_BlackBerry_9800_JP_ses_petits_2011_2_Research_In--odr--.jpg
-[22:05:40] [DEBUG] Chemin destination = (/Images/Pellicule/2011/09)
-[22:05:40] [DEBUG] ----------------------------------------------
-[22:05:40] [DEBUG] Analyse du fichier
-[22:05:40] [DEBUG] ID             : 440B3E9A717E6203!127415
-[22:05:40] [DEBUG] Nom original   : IMG_20231028_104319854.jpg
-[22:05:40] [DEBUG] Chemin source  : /drive/root:/Images/Pellicule/2023/10
-[22:05:40] [DEBUG] Extension      : .jpg
-[22:05:40] [DEBUG] Date fichier   : 10/28/2023 10:43:20
-[22:05:40] [DEBUG] Classification intelligente = (Images)
-[22:06:14] [DEBUG] Localisation GPS : 
-[22:06:14] [DEBUG] Tags de chemin : 2023_10
-[22:06:14] [DEBUG] Nouveau nom généré : 20231028_104320_2023_10_IMG_20231028_104319854_motorola_moto_g_5G_2022--odr--.jpg
-[22:06:14] [DEBUG] Chemin destination = (/Images/Pellicule/2023/10)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!s83d286384b19428f9b02145f769beb4c
-[22:06:14] [DEBUG] Nom original   : Lara-Croft-leeteRR-Tomb-Raider-Animated-Hentai-3D-CGI-Video.mp4
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/vid
-[22:06:14] [DEBUG] Extension      : .mp4
-[22:06:14] [DEBUG] Date fichier   : 08/23/2018 11:33:32
-[22:06:14] [DEBUG] Classification intelligente = (Videos)
-[22:06:14] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_vid
-[22:06:14] [DEBUG] Nouveau nom généré : 20180823_113332_VersCoffreFort_archives_xxx_vid_Lara_Croft_leeteRR_Tomb_Raider_Animated_H--odr--.mp4
-[22:06:14] [DEBUG] Chemin destination = (/Videos/Pellicule/2018/08)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!sb40f3f8a8c1646039e009bdc8df6637f
-[22:06:14] [DEBUG] Nom original   : de487da1d5c08365e767906fe3cc9df0.jpg
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/Nouveau dossier (3)/xx
-[22:06:14] [DEBUG] Extension      : .jpg
-[22:06:14] [DEBUG] Date fichier   : 02/19/2023 06:23:46
-[22:06:14] [DEBUG] Classification intelligente = (Images)
-[22:06:14] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_Nouveau dossier (3)_xx
-[22:06:14] [DEBUG] Nouveau nom généré : 20230219_062346_VersCoffreFort_archives_xxx_Nouveau_dossier_3_xx--odr--.jpg
-[22:06:14] [DEBUG] Chemin destination = (/Images/Pellicule/2023/02)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!sa264fd525655415f88be40299ea2bb85
-[22:06:14] [DEBUG] Nom original   : 7_521.jpg
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/3d/Nouveau dossier (4)/Nouveau dossier/b (25)
-[22:06:14] [DEBUG] Extension      : .jpg
-[22:06:14] [DEBUG] Date fichier   : 07/15/2012 06:10:08
-[22:06:14] [DEBUG] Classification intelligente = (Images)
-[22:06:14] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_3d_Nouveau dossier (4)_Nouveau dossier_b (25)
-[22:06:14] [DEBUG] Nouveau nom généré : 20120715_061008_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_b_25_7_521--odr--.jpg
-[22:06:14] [DEBUG] Chemin destination = (/Images/Pellicule/2012/07)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!s4325502085994f829ea41990acdfe56a
-[22:06:14] [DEBUG] Nom original   : fetisch-lack0022.jpg
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/heike
-[22:06:14] [DEBUG] Extension      : .jpg
-[22:06:14] [DEBUG] Date fichier   : 06/17/2003 03:02:02
-[22:06:14] [DEBUG] Classification intelligente = (Images)
-[22:06:14] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_heike
-[22:06:14] [DEBUG] Nouveau nom généré : 20030617_030202_VersCoffreFort_archives_xxx_tri_img_heike_fetisch_lack0022--odr--.jpg
-[22:06:14] [DEBUG] Chemin destination = (/Images/Pellicule/2003/06)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!sf9b5580bf54a42dc921ebc22c06d9924
-[22:06:14] [DEBUG] Nom original   : BzpP3gCCcAAgUYi.jpg
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/ondrv/Nouveau dossier/XX/BOOTS/bottes
-[22:06:14] [DEBUG] Extension      : .jpg
-[22:06:14] [DEBUG] Date fichier   : 02/21/2015 04:15:58
-[22:06:14] [DEBUG] Classification intelligente = (Images)
-[22:06:14] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_ondrv_Nouveau dossier_XX_BOOTS_bottes
-[22:06:14] [DEBUG] Nouveau nom généré : 20150221_041558_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_BzpP3gC--odr--.jpg
-[22:06:14] [DEBUG] Chemin destination = (/Images/Pellicule/2015/02)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!s8f32712c2d61416ea2972dad749f6c50
-[22:06:14] [DEBUG] Nom original   : Jessica_Jaymes_04.jpg
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/ondrv/Nouveau dossier/XX/BOOTS/bottes
-[22:06:14] [DEBUG] Extension      : .jpg
-[22:06:14] [DEBUG] Date fichier   : 05/02/2013 04:23:26
-[22:06:14] [DEBUG] Classification intelligente = (Images)
-[22:06:14] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_ondrv_Nouveau dossier_XX_BOOTS_bottes
-[22:06:14] [DEBUG] Nouveau nom généré : 20130502_042326_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_Jessica--odr--.jpg
-[22:06:14] [DEBUG] Chemin destination = (/Images/Pellicule/2013/05)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!67040
-[22:06:14] [DEBUG] Nom original   : SMS avec Isabelle Carignan_61.pdf
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/Légal/Procédures Séparation jusqu'au divorce/courriels/1-Isabelle Carignan/psychosocial
-[22:06:14] [DEBUG] Extension      : .pdf
-[22:06:14] [DEBUG] Date fichier   : 08/31/2015 23:03:12
-[22:06:14] [DEBUG] Classification intelligente = (Stay)
-[22:06:14] [DEBUG] Ignoré : extension non supportée (.pdf)
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!s66bc8ae7f4174fa8a49385ae2546c00c
-[22:06:14] [DEBUG] Nom original   : Natasha_GreenDress_10_015.jpg
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/natasha
-[22:06:14] [DEBUG] Extension      : .jpg
-[22:06:14] [DEBUG] Date fichier   : 04/05/2012 20:15:56
-[22:06:14] [DEBUG] Classification intelligente = (Images)
-[22:06:14] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_natasha
-[22:06:14] [DEBUG] Nouveau nom généré : 20120405_201556_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_GreenDress_10_015--odr--.jpg
-[22:06:14] [DEBUG] Chemin destination = (/Images/Pellicule/2012/04)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!56935
-[22:06:14] [DEBUG] Nom original   : P2 Isa - me Desj.pdf
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/Légal/Procédures Séparation jusqu'au divorce/20150417 jour de Cour/v2
-[22:06:14] [DEBUG] Extension      : .pdf
-[22:06:14] [DEBUG] Date fichier   : 04/15/2015 00:36:54
-[22:06:14] [DEBUG] Classification intelligente = (Stay)
-[22:06:14] [DEBUG] Ignoré : extension non supportée (.pdf)
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!sf9a6e51099334428896635382ce893bb
-[22:06:14] [DEBUG] Nom original   : 04.mpg
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-video/blow/1 (8)
-[22:06:14] [DEBUG] Extension      : .mpg
-[22:06:14] [DEBUG] Date fichier   : 12/11/2007 03:41:00
-[22:06:14] [DEBUG] Classification intelligente = (Videos)
-[22:06:14] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-video_blow_1 (8)
-[22:06:14] [DEBUG] Nouveau nom généré : 20071211_034100_VersCoffreFort_archives_xxx_tri_video_blow_1_8_04--odr--.mpg
-[22:06:14] [DEBUG] Chemin destination = (/Videos/Pellicule/2007/12)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!sad6c8daef3194582a75f383be4d69a03
-[22:06:14] [DEBUG] Nom original   : fetisch-latex0057.jpg
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/heike
-[22:06:14] [DEBUG] Extension      : .jpg
-[22:06:14] [DEBUG] Date fichier   : 06/15/2003 23:49:50
-[22:06:14] [DEBUG] Classification intelligente = (Images)
-[22:06:14] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_heike
-[22:06:14] [DEBUG] Nouveau nom généré : 20030615_234950_VersCoffreFort_archives_xxx_tri_img_heike_fetisch_latex0057--odr--.jpg
-[22:06:14] [DEBUG] Chemin destination = (/Images/Pellicule/2003/06)
-[22:06:14] [DEBUG] ----------------------------------------------
-[22:06:14] [DEBUG] Analyse du fichier
-[22:06:14] [DEBUG] ID             : 440B3E9A717E6203!109305
-[22:06:14] [DEBUG] Nom original   : 20190831_121108.jpg
-[22:06:14] [DEBUG] Chemin source  : /drive/root:/Images/ensemble/2019 (1)
-[22:06:14] [DEBUG] Extension      : .jpg
-[22:06:14] [DEBUG] Date fichier   : 08/31/2019 12:11:08
-[22:06:14] [DEBUG] Classification intelligente = (Images)
+[23:51:58] [INFO] Chargement du cache OneDrive .\onedrive_cache.json ... 
+[23:52:03] [INFO] Chargement de la liste des ids/fichiers déjà traités (.\processed_ids.log) ... 
+[23:52:03] [INFO] Aucun fichier traité précédemment (fichier .\processed_ids.log absent).
+[23:52:03] [INFO] Découverte des fichiers déjà traités ayant le marqueur '--odr--' ...
+[23:52:07] [INFO] Indexation terminée. Fichiers à traiter : 114086
+[23:52:07] [INFO] Analyse des fichiers...
+[23:52:07] [DEBUG] Début de New-Plan
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!s907dfad3480c435d9fdfed9697dddb78
+[23:52:07] [DEBUG] Nom original   : 16_3.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/porn
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 12/16/2007 05:37:00
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_porn
+[23:52:07] [DEBUG] Nouveau nom généré : 20071216_053700_VersCoffreFort_archives_xxx_tri_img_porn_16_3_Nikon_SUPER_COOLSCAN_5000_E--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2007/12)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!30456
+[23:52:07] [DEBUG] Nom original   : IMG_9172.JPG
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/Images/ensemble/Saved Pictures/st hilaire/2015-10-10 St-Hilaire
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 10/10/2015 15:07:24
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Tags de chemin : ensemble_Saved Pictures_st hilaire_2015-10-10 St-Hilaire
+[23:52:07] [DEBUG] Nouveau nom généré : 20151010_150724_ensemble_Saved_Pictures_st_hilaire_2015_10_IMG_9172_Canon_PowerShot_SX280--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2015/10)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!sa1cb356f3f164c34878a1a1891542556
+[23:52:07] [DEBUG] Nom original   : heather_g10.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/usb/New Folder (5)/NF4/BEST
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 01/22/2005 15:52:12
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_usb_New Folder (5)_NF4_BEST
+[23:52:07] [DEBUG] Nouveau nom généré : 20050122_155212_VersCoffreFort_archives_xxx_usb_New_Folder_5_NF4_BEST_heather_g10--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2005/01)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!63478
+[23:52:07] [DEBUG] Nom original   : 2004-05-30 anniv VM - Luc et les siens.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/Documents/documents de papa/04-05-30 anniv VM/à exporter - anniv VM 2004
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 04/23/2017 02:15:51
+[23:52:07] [DEBUG] Classification intelligente = (Stay)
+[23:52:07] [DEBUG] Tags de chemin : 04-05-30 anniv VM_à exporter - anniv VM 2004
+[23:52:07] [DEBUG] Nouveau nom généré : 20170423_021551_04_05_30_anniv_VM_exporter_2004_Luc_siens--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Documents/documents_de_papa/04-05-30_anniv_VM/a_exporter_-_anniv_VM_2004)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!115864
+[23:52:07] [DEBUG] Nom original   : 20220412_202000__.jpeg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/JPM/Relations/justyna/Majorque 2022
+[23:52:07] [DEBUG] Extension      : .jpeg
+[23:52:07] [DEBUG] Date fichier   : 04/12/2022 20:20:00
+[23:52:07] [DEBUG] Classification intelligente = (Stay)
+[23:52:07] [DEBUG] Tags de chemin : Relations_justyna_Majorque 2022
+[23:52:07] [DEBUG] Nouveau nom généré : 20220412_202000_Relations_justyna_Majorque_2022_20220412_202000_Apple_iPhone_12_mini--odr--.jpeg
+[23:52:07] [DEBUG] Chemin destination = (/JPM/Relations/justyna/Majorque_2022)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!14958
+[23:52:07] [DEBUG] Nom original   : 2016-10-17 17.37.11.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/Images/ensemble/Saved Pictures/images
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 10/17/2016 17:37:11
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Localisation GPS : 
+[23:52:07] [DEBUG] Tags de chemin : ensemble_Saved Pictures
+[23:52:07] [DEBUG] Nouveau nom généré : 20161017_173711_ensemble_Saved_Pictures_2016_10_17_17.37.11_samsung_SM_G930W8--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2016/10)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!s5b7d1dbf24ec40849010e1aeaaf96605
+[23:52:07] [DEBUG] Nom original   : 82550_stephanisweet_thatsmydesire_08_123_413lo.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/bottes-porn
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 07/20/2008 03:25:02
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_bottes-porn
+[23:52:07] [DEBUG] Nouveau nom généré : 20080720_032502_VersCoffreFort_archives_xxx_tri_img_bottes_porn_82550_stephanisweet_thats--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2008/07)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!s612ccd9256f342f38eea81a2b4700ced
+[23:52:07] [DEBUG] Nom original   : 31264_l7_123_384lo.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/vinyl
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 06/05/2010 18:36:48
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_vinyl
+[23:52:07] [DEBUG] Nouveau nom généré : 20100605_183648_VersCoffreFort_archives_xxx_tri_img_vinyl_31264_l7_123_384lo_SIGMA_SD14--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2010/06)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!140234
+[23:52:07] [DEBUG] Nom original   : 20240613_095907.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/Images/Pellicule/2024/06
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 06/13/2024 09:59:07
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Localisation GPS : 
+[23:52:07] [DEBUG] Tags de chemin : 2024_06
+[23:52:07] [DEBUG] Nouveau nom généré : 20240613_095907_2024_06_20240613_095907_samsung_Galaxy_S23--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2024/06)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!s1ee3974c19aa4186bf8e6f0340a48a6f
+[23:52:07] [DEBUG] Nom original   : 1022098291.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/bottes-porn/james bertoni/Nouveau dossier
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 05/14/2008 03:40:00
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_bottes-porn_james bertoni_Nouveau dossier
+[23:52:07] [DEBUG] Nouveau nom généré : 20080514_034000_VersCoffreFort_archives_xxx_tri_img_bottes_porn_james_bertoni_Nouveau_dos--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2008/05)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!93355
+[23:52:07] [DEBUG] Nom original   : inbenta-conf.js
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/Finances/voyage/Annulation voyage Paris mai 2020/2020-03-27 Vueling demande d'annulation_fichiers
+[23:52:07] [DEBUG] Extension      : .js
+[23:52:07] [DEBUG] Date fichier   : 03/28/2020 03:30:37
+[23:52:07] [DEBUG] Classification intelligente = (Stay)
+[23:52:07] [DEBUG] Ignoré : extension non supportée (.js)
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!s73fb009d34914206afbd670ff2d1fb15
+[23:52:07] [DEBUG] Nom original   : Ella_BlackMinidress_10_016.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/ella
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 04/06/2012 10:23:34
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_ella
+[23:52:07] [DEBUG] Nouveau nom généré : 20120406_102334_VersCoffreFort_archives_xxx_LATEXOTICA_ella_BlackMinidress_10_016--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2012/04)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!s846424d81a554d318e1f41bcc5bee561
+[23:52:07] [DEBUG] Nom original   : Natalie_PoliceCatsuit_07_090.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/natalie
+[23:52:07] [DEBUG] Extension      : .jpg
+[23:52:07] [DEBUG] Date fichier   : 04/05/2012 20:14:12
+[23:52:07] [DEBUG] Classification intelligente = (Images)
+[23:52:07] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_natalie
+[23:52:07] [DEBUG] Nouveau nom généré : 20120405_201412_VersCoffreFort_archives_xxx_LATEXOTICA_natalie_PoliceCatsuit_07_090--odr--.jpg
+[23:52:07] [DEBUG] Chemin destination = (/Images/Pellicule/2012/04)
+[23:52:07] [DEBUG] ----------------------------------------------
+[23:52:07] [DEBUG] Analyse du fichier
+[23:52:07] [DEBUG] ID             : 440B3E9A717E6203!s7d946b12b60a417999d232ebf2c9e837
+[23:52:07] [DEBUG] Nom original   : img_1_1768532892313.jpg
+[23:52:07] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 01/16/2026 03:08:12
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX
+[23:52:08] [DEBUG] Nouveau nom généré : 20260116_030812_VersCoffreFort_archives_xxx_img_1_1768532892313--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2026/01)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!sdabf54ccebe741b3bb56af98a2fa2ed3
+[23:52:08] [DEBUG] Nom original   : fetisch-leder0077.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/heike
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 06/17/2003 02:55:32
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_heike
+[23:52:08] [DEBUG] Nouveau nom généré : 20030617_025532_VersCoffreFort_archives_xxx_tri_img_heike_fetisch_leder0077--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2003/06)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!70167
+[23:52:08] [DEBUG] Nom original   : filelist.xml
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Légal/Procédures Séparation jusqu'au divorce/Documentation et jurisprudence/jurisprudence pension ex epoux/a (656)_fichiers
+[23:52:08] [DEBUG] Extension      : .xml
+[23:52:08] [DEBUG] Date fichier   : 10/15/2014 01:54:53
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Ignoré : extension non supportée (.xml)
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!s652ac508c4ee43339cb768be87f7ddbc
+[23:52:08] [DEBUG] Nom original   : 11F.Leder002.MPG
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-video/heike
+[23:52:08] [DEBUG] Extension      : .mpg
+[23:52:08] [DEBUG] Date fichier   : 05/18/2003 20:31:50
+[23:52:08] [DEBUG] Classification intelligente = (Videos)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-video_heike
+[23:52:08] [DEBUG] Nouveau nom généré : 20030518_203150_VersCoffreFort_archives_xxx_tri_video_heike_11F.Leder002--odr--.mpg
+[23:52:08] [DEBUG] Chemin destination = (/Videos/Pellicule/2003/05)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!28994
+[23:52:08] [DEBUG] Nom original   : 2017-05-28 15.25.13.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/JPM/Relations/justyna/!justyna/moments avec Justyna/festival bd montreal
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 05/28/2017 15:25:13
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Localisation GPS : 
+[23:52:08] [DEBUG] Tags de chemin : Relations_justyna_!justyna_moments avec Justyna_festival bd montreal
+[23:52:08] [DEBUG] Nouveau nom généré : 20170528_152513_Relations_justyna_moments_festival_bd_montreal_2017_05_28_15.25.13_samsun--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/JPM/Relations/justyna/_justyna/moments_avec_Justyna/festival_bd_montreal)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!12134
+[23:52:08] [DEBUG] Nom original   : 2018-02-18 15.33.42.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Images/ensemble/Saved Pictures/a classer
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 02/18/2018 15:33:42
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : ensemble_Saved Pictures_a classer
+[23:52:08] [DEBUG] Nouveau nom généré : 20180218_153342_ensemble_Saved_Pictures_classer_2018_02_18_15.33.42_SONY_ILCE_6000--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2018/02)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!124984
+[23:52:08] [DEBUG] Nom original   : Screenshot_20230802-211718.png
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Images/Pellicule/2023/road trip Vermont début aout 2023
+[23:52:08] [DEBUG] Extension      : .png
+[23:52:08] [DEBUG] Date fichier   : 10/20/2025 03:20:42
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : 2023_road trip Vermont début aout 2023
+[23:52:08] [DEBUG] Nouveau nom généré : 20251020_032042_2023_road_trip_Vermont_debut_aout_Screenshot_20230802_211718--odr--.png
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2025/10)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!s41e3bfde6bee43c388b2aa9a467489e2
+[23:52:08] [DEBUG] Nom original   : DSC08762.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/anastacia/Anastacia - 2009-Black Latex Sleeved Dress-2
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 08/21/2009 17:08:48
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_anastacia_Anastacia - 2009-Black Latex Sleeved Dress-2
+[23:52:08] [DEBUG] Nouveau nom généré : 20090821_170848_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_2009_Black_Latex_Sleeved--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2009/08)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!76294
+[23:52:08] [DEBUG] Nom original   : Famille A.Simard 1b txt (Copie en conflit de usager-PC 2017-04-28).JPG
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Documents/documents de papa/Les Martin/Parents/Autres Simard/Famille Albert-Albina Simard
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 04/23/2017 15:05:12
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Tags de chemin : Les Martin_Parents_Autres Simard_Famille Albert-Albina Simard
+[23:52:08] [DEBUG] Nouveau nom généré : 20170423_150512_Martin_Parents_Autres_Simard_Famille_Albert_Albina_A.Simard_1b_txt_Copie--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Documents/documents_de_papa/Les_Martin/Parents/Autres_Simard/Famille_Albert-Albina_Simard)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!74747
+[23:52:08] [DEBUG] Nom original   : Règlement sur la déclaration des parties relative aux demandes d'obligation alimentaire, RLRQ c C-25, r 5.pdf
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Légal/Procédures Séparation jusqu'au divorce/Documentation et jurisprudence/(vieux)Défense personnelle/Procédures loi jurisprudence/Procédure
+[23:52:08] [DEBUG] Extension      : .pdf
+[23:52:08] [DEBUG] Date fichier   : 10/18/2014 01:12:38
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Ignoré : extension non supportée (.pdf)
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!sf4daebe6b7a34b34a8f58d5dc063d356
+[23:52:08] [DEBUG] Nom original   : Lara_BlackSleevedCatsuit_09_025.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/lara/lara (17)
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 04/05/2012 20:10:40
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_lara_lara (17)
+[23:52:08] [DEBUG] Nouveau nom généré : 20120405_201040_VersCoffreFort_archives_xxx_LATEXOTICA_lara_17_09_025--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2012/04)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!s7124cee4dd424dd79742de14725a723d
+[23:52:08] [DEBUG] Nom original   : eclair_studio_1.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/dessins
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 08/16/2011 02:22:30
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_dessins
+[23:52:08] [DEBUG] Nouveau nom généré : 20110816_022230_VersCoffreFort_archives_xxx_tri_img_dessins_eclair_studio_1--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2011/08)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!16169
+[23:52:08] [DEBUG] Nom original   : Dolores Cannon - Conversations With Nostradamus V2.epub
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Livres/Dolores cannon
+[23:52:08] [DEBUG] Extension      : .epub
+[23:52:08] [DEBUG] Date fichier   : 01/31/2019 13:48:33
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Ignoré : extension non supportée (.epub)
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!74184
+[23:52:08] [DEBUG] Nom original   : 2014_06.pdf
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Légal/Procédures Séparation jusqu'au divorce/courriels/1-Isabelle Carignan/juridique/combinés
+[23:52:08] [DEBUG] Extension      : .pdf
+[23:52:08] [DEBUG] Date fichier   : 09/03/2015 23:08:45
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Ignoré : extension non supportée (.pdf)
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!87093
+[23:52:08] [DEBUG] Nom original   : 20190809_131225.mp4
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/JPM/Relations/justyna/just
+[23:52:08] [DEBUG] Extension      : .mp4
+[23:52:08] [DEBUG] Date fichier   : 08/09/2019 17:12:26
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Tags de chemin : Relations_justyna_just
+[23:52:08] [DEBUG] Nouveau nom généré : 20190809_171226_Relations_justyna_just_20190809_131225--odr--.mp4
+[23:52:08] [DEBUG] Chemin destination = (/JPM/Relations/justyna/just)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!s5714850c9637478c931de7b073756ef2
+[23:52:08] [DEBUG] Nom original   : Jerri_BlackCapri_09_068.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/jerri
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 04/06/2012 10:32:16
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_jerri
+[23:52:08] [DEBUG] Nouveau nom généré : 20120406_103216_VersCoffreFort_archives_xxx_LATEXOTICA_jerri_BlackCapri_09_068--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2012/04)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!sadd2b008fede403ab56ffe6b9b4facea
+[23:52:08] [DEBUG] Nom original   : DSC00453.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/!alicia blonde/Alicia21
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 07/19/2007 03:35:56
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_!alicia blonde_Alicia21
+[23:52:08] [DEBUG] Nouveau nom généré : 20070719_033556_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia21_DSC00453--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2007/07)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!s74e11cd3b3994908b2d7f1d1bae10e8c
+[23:52:08] [DEBUG] Nom original   : Ella_TurquoiseSkirt_11_007.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/ella
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 04/06/2012 10:24:48
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_ella
+[23:52:08] [DEBUG] Nouveau nom généré : 20120406_102448_VersCoffreFort_archives_xxx_LATEXOTICA_ella_TurquoiseSkirt_11_007--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2012/04)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!s5fd25b413e534108915c455d64c3fd55
+[23:52:08] [DEBUG] Nom original   : tumblr_no0opaC0Pr1tybheio1_400.gif
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/gif animé/double
+[23:52:08] [DEBUG] Extension      : .gif
+[23:52:08] [DEBUG] Date fichier   : 05/15/2015 01:51:50
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_gif animé_double
+[23:52:08] [DEBUG] Nouveau nom généré : 20150515_015150_VersCoffreFort_archives_xxx_tri_img_gif_anime_double_tumblr_400--odr--.gif
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2015/05)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!sae8212ed0e2b4760a2fd5fad53675d63
+[23:52:08] [DEBUG] Nom original   : privat-leder5732.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/heike
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 09/02/2007 16:25:14
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_heike
+[23:52:08] [DEBUG] Nouveau nom généré : 20070902_162514_VersCoffreFort_archives_xxx_tri_img_heike_privat_leder5732--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2007/09)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!sd72079db3761483f9fe4bf07d142eb4f
+[23:52:08] [DEBUG] Nom original   : d2ff92bdb32ff0b34a8b1c70b732280a.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/glamour
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 01/05/2017 03:52:50
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_glamour
+[23:52:08] [DEBUG] Nouveau nom généré : 20170105_035250_VersCoffreFort_archives_xxx_tri_img_glamour--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2017/01)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!74582
+[23:52:08] [DEBUG] Nom original   : 20150604_Re_ dossier 65879012 Carignan _ Martin soumission bm65887_12.pdf
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Légal/Procédures Séparation jusqu'au divorce/courriels/Juridique/3-Remy Sirois/archives
+[23:52:08] [DEBUG] Extension      : .pdf
+[23:52:08] [DEBUG] Date fichier   : 09/01/2015 01:19:31
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Ignoré : extension non supportée (.pdf)
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!74543
+[23:52:08] [DEBUG] Nom original   : 20150729_Re_ Réclamation finale, suggestions_2.pdf
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Légal/Procédures Séparation jusqu'au divorce/courriels/Juridique/3-Remy Sirois/archives
+[23:52:08] [DEBUG] Extension      : .pdf
+[23:52:08] [DEBUG] Date fichier   : 09/01/2015 01:21:40
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Ignoré : extension non supportée (.pdf)
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!126236
+[23:52:08] [DEBUG] Nom original   : IMG-20230905-WA0019.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Images/ensemble/Michelle MichalKovic/Michelle Michalkovic (1)
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 09/05/2023 22:34:39
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : ensemble_Michelle MichalKovic_Michelle Michalkovic (1)
+[23:52:08] [DEBUG] Nouveau nom généré : 20230905_223439_ensemble_Michelle_MichalKovic_1_IMG_20230905_WA0019--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2023/09)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!sb4759f735bac4e35b218c53d32dcea30
+[23:52:08] [DEBUG] Nom original   : JennyMcCarthy01.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/usb/New Folder (5)/H7
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 10/17/2001 02:58:50
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_usb_New Folder (5)_H7
+[23:52:08] [DEBUG] Nouveau nom généré : 20011017_025850_VersCoffreFort_archives_xxx_usb_New_Folder_5_H7_JennyMcCarthy01--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2001/10)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!21955
+[23:52:08] [DEBUG] Nom original   : IMG_0792.JPG
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Images/ensemble/Saved Pictures/Mes images/Canon PowerShot S5 IS
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 08/10/2010 11:44:18
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : ensemble_Saved Pictures_Canon PowerShot S5 IS
+[23:52:08] [DEBUG] Nouveau nom généré : 20100810_114418_ensemble_Saved_Pictures_Canon_PowerShot_S5_IS_IMG_0792--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2010/08)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!sbb10f41d3e3f4521b4d97703405acb5f
+[23:52:08] [DEBUG] Nom original   : Lauren_PoliceCatsuit_07_058.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/lauren/lau (12)
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 04/05/2012 20:11:40
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_lauren_lau (12)
+[23:52:08] [DEBUG] Nouveau nom généré : 20120405_201140_VersCoffreFort_archives_xxx_LATEXOTICA_lauren_lau_12_PoliceCatsuit_07_058--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2012/04)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!123318
+[23:52:08] [DEBUG] Nom original   : IMG_20230408_115723452.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Images/ensemble
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 04/08/2023 11:57:23
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Localisation GPS : 
+[23:52:08] [DEBUG] Tags de chemin : ensemble
+[23:52:08] [DEBUG] Nouveau nom généré : 20230408_115723_ensemble_IMG_20230408_115723452_motorola_moto_g_5G_2022--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2023/04)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!sff1f9d1c2ca54a4494c743b9b1ed37a9
+[23:52:08] [DEBUG] Nom original   : VM_Agd_1963-0009.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/Images/jp
+[23:52:08] [DEBUG] Extension      : .jpg
+[23:52:08] [DEBUG] Date fichier   : 07/17/2019 00:51:43
+[23:52:08] [DEBUG] Classification intelligente = (Images)
+[23:52:08] [DEBUG] Tags de chemin : jp
+[23:52:08] [DEBUG] Nouveau nom généré : 20190717_005143_jp_VM_Agd_1963_0009--odr--.jpg
+[23:52:08] [DEBUG] Chemin destination = (/Images/Pellicule/2019/07)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!116045
+[23:52:08] [DEBUG] Nom original   : 20220414_184948.mp4
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/JPM/Relations/justyna/Majorque 2022
+[23:52:08] [DEBUG] Extension      : .mp4
+[23:52:08] [DEBUG] Date fichier   : 04/14/2022 16:49:50
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Tags de chemin : Relations_justyna_Majorque 2022
+[23:52:08] [DEBUG] Nouveau nom généré : 20220414_164950_Relations_justyna_Majorque_2022_20220414_184948--odr--.mp4
+[23:52:08] [DEBUG] Chemin destination = (/JPM/Relations/justyna/Majorque_2022)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!81081
+[23:52:08] [DEBUG] Nom original   : 20190113_090638.mp4
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/JPM/Relations/justyna/just
+[23:52:08] [DEBUG] Extension      : .mp4
+[23:52:08] [DEBUG] Date fichier   : 01/13/2019 14:06:40
+[23:52:08] [DEBUG] Classification intelligente = (Stay)
+[23:52:08] [DEBUG] Tags de chemin : Relations_justyna_just
+[23:52:08] [DEBUG] Nouveau nom généré : 20190113_140640_Relations_justyna_just_20190113_090638--odr--.mp4
+[23:52:08] [DEBUG] Chemin destination = (/JPM/Relations/justyna/just)
+[23:52:08] [DEBUG] ----------------------------------------------
+[23:52:08] [DEBUG] Analyse du fichier
+[23:52:08] [DEBUG] ID             : 440B3E9A717E6203!s36c2c163e2c4465d8ace5c6081af6d1c
+[23:52:08] [DEBUG] Nom original   : 772acaf8fa5b15ea35019caca348a0cc.jpg
+[23:52:08] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/Nouveau dossier/Nouveau dossier (7)/Nouveau dossier (6)
+[23:52:09] [DEBUG] Extension      : .jpg
+[23:52:09] [DEBUG] Date fichier   : 11/20/2021 02:51:16
+[23:52:09] [DEBUG] Classification intelligente = (Images)
+[23:52:09] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_Nouveau dossier_Nouveau dossier (7)_Nouveau dossier (6)
+[23:52:09] [DEBUG] Nouveau nom généré : 20211120_025116_VersCoffreFort_archives_xxx_Nouveau_dossier_7_6--odr--.jpg
+[23:52:09] [DEBUG] Chemin destination = (/Images/Pellicule/2021/11)
+[23:52:09] [DEBUG] ----------------------------------------------
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!19900
+[23:52:09] [DEBUG] Nom original   : 2007-12-21 11-05-05 (Noel Au Chalet).jpg
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/Images/ensemble/Saved Pictures/Mes images/Canon PowerShot S2 IS
+[23:52:09] [DEBUG] Extension      : .jpg
+[23:52:09] [DEBUG] Date fichier   : 12/21/2007 11:05:05
+[23:52:09] [DEBUG] Classification intelligente = (Images)
+[23:52:09] [DEBUG] Tags de chemin : ensemble_Saved Pictures_Canon PowerShot S2 IS
+[23:52:09] [DEBUG] Nouveau nom généré : 20071221_110505_ensemble_Saved_Pictures_Canon_PowerShot_S2_IS_2007_12_21_11_05_Noel_Chale--odr--.jpg
+[23:52:09] [DEBUG] Chemin destination = (/Images/Pellicule/2007/12)
+[23:52:09] [DEBUG] ----------------------------------------------
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!56986
+[23:52:09] [DEBUG] Nom original   : 21 avril 2015b Gmail - Mesure temporaires et versements compensatoires.pdf
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/Légal/Procédures Séparation jusqu'au divorce/20150529 Mise en demeure M Desjardin/Revenu compensatoire
+[23:52:09] [DEBUG] Extension      : .pdf
+[23:52:09] [DEBUG] Date fichier   : 05/30/2015 19:11:35
+[23:52:09] [DEBUG] Classification intelligente = (Stay)
+[23:52:09] [DEBUG] Ignoré : extension non supportée (.pdf)
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!74021
+[23:52:09] [DEBUG] Nom original   : 20140904_SMS avec Isabelle Carignan_200.pdf
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/Légal/Procédures Séparation jusqu'au divorce/courriels/1-Isabelle Carignan/juridique/archives
+[23:52:09] [DEBUG] Extension      : .pdf
+[23:52:09] [DEBUG] Date fichier   : 08/31/2015 23:14:03
+[23:52:09] [DEBUG] Classification intelligente = (Stay)
+[23:52:09] [DEBUG] Ignoré : extension non supportée (.pdf)
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!s5dd5ce46c2814ce787f3a3412b0e0dc3
+[23:52:09] [DEBUG] Nom original   : 6970758fd348f5ffeccd4d61.mp4
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX
+[23:52:09] [DEBUG] Extension      : .mp4
+[23:52:09] [DEBUG] Date fichier   : 01/24/2026 03:26:56
+[23:52:09] [DEBUG] Classification intelligente = (Videos)
+[23:52:09] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX
+[23:52:09] [DEBUG] Nouveau nom généré : 20260124_032656_VersCoffreFort_archives_xxx--odr--.mp4
+[23:52:09] [DEBUG] Chemin destination = (/Videos/Pellicule/2026/01)
+[23:52:09] [DEBUG] ----------------------------------------------
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!144720
+[23:52:09] [DEBUG] Nom original   : IMG-20241008-WA0134.jpg
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/ai/Nouveau dossier
+[23:52:09] [DEBUG] Extension      : .jpg
+[23:52:09] [DEBUG] Date fichier   : 02/03/2025 20:00:31
+[23:52:09] [DEBUG] Classification intelligente = (Images)
+[23:52:09] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_ai_Nouveau dossier
+[23:52:09] [DEBUG] Nouveau nom généré : 20250203_200031_VersCoffreFort_archives_xxx_ai_Nouveau_dossier_IMG_20241008_WA0134--odr--.jpg
+[23:52:09] [DEBUG] Chemin destination = (/Images/Pellicule/2025/02)
+[23:52:09] [DEBUG] ----------------------------------------------
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!sc1e47979c6df4d06bf2ab56cd8218587
+[23:52:09] [DEBUG] Nom original   : LEANN11.JPG
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/usb/New Folder (5)/NF4/BEST
+[23:52:09] [DEBUG] Extension      : .jpg
+[23:52:09] [DEBUG] Date fichier   : 01/29/2005 20:07:18
+[23:52:09] [DEBUG] Classification intelligente = (Images)
+[23:52:09] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_usb_New Folder (5)_NF4_BEST
+[23:52:09] [DEBUG] Nouveau nom généré : 20050129_200718_VersCoffreFort_archives_xxx_usb_New_Folder_5_NF4_BEST_LEANN11--odr--.jpg
+[23:52:09] [DEBUG] Chemin destination = (/Images/Pellicule/2005/01)
+[23:52:09] [DEBUG] ----------------------------------------------
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!sb8c9e4dab5474d45a08c8be08af246e4
+[23:52:09] [DEBUG] Nom original   : 93156954b54e2d7e1e1.jpg
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/porn
+[23:52:09] [DEBUG] Extension      : .jpg
+[23:52:09] [DEBUG] Date fichier   : 02/15/2017 05:15:48
+[23:52:09] [DEBUG] Classification intelligente = (Images)
+[23:52:09] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_porn
+[23:52:09] [DEBUG] Nouveau nom généré : 20170215_051548_VersCoffreFort_archives_xxx_tri_img_porn--odr--.jpg
+[23:52:09] [DEBUG] Chemin destination = (/Images/Pellicule/2017/02)
+[23:52:09] [DEBUG] ----------------------------------------------
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!sfbe57efcf3e540b98d125acd4255a9f9
+[23:52:09] [DEBUG] Nom original   : lackh_n8.jpg
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/heike
+[23:52:09] [DEBUG] Extension      : .jpg
+[23:52:09] [DEBUG] Date fichier   : 06/15/2003 23:35:50
+[23:52:09] [DEBUG] Classification intelligente = (Images)
+[23:52:09] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_tri-img_heike
+[23:52:09] [DEBUG] Nouveau nom généré : 20030615_233550_VersCoffreFort_archives_xxx_tri_img_heike_lackh_n8--odr--.jpg
+[23:52:09] [DEBUG] Chemin destination = (/Images/Pellicule/2003/06)
+[23:52:09] [DEBUG] ----------------------------------------------
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!sb3ba5313887f43a890071ac743d95b1e
+[23:52:09] [DEBUG] Nom original   : 903750.mp4
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/VersCoffreFort/archives/xxx/XXX/vid/Nouveau dossier
+[23:52:09] [DEBUG] Extension      : .mp4
+[23:52:09] [DEBUG] Date fichier   : 12/14/2021 03:15:32
+[23:52:09] [DEBUG] Classification intelligente = (Videos)
+[23:52:09] [DEBUG] Tags de chemin : VersCoffreFort_archives_xxx_XXX_vid_Nouveau dossier
+[23:52:09] [DEBUG] Nouveau nom généré : 20211214_031532_VersCoffreFort_archives_xxx_vid_Nouveau_dossier_903750--odr--.mp4
+[23:52:09] [DEBUG] Chemin destination = (/Videos/Pellicule/2021/12)
+[23:52:09] [DEBUG] ----------------------------------------------
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!123072
+[23:52:09] [DEBUG] Nom original   : IMG_20230225_190234498_copy_3156x2340 (1) (1).jpg
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/Images/ensemble/backup photos
+[23:52:09] [DEBUG] Extension      : .jpg
+[23:52:09] [DEBUG] Date fichier   : 02/26/2023 06:02:42
+[23:52:09] [DEBUG] Classification intelligente = (Images)
+[23:52:09] [DEBUG] Tags de chemin : ensemble_backup photos
+[23:52:09] [DEBUG] Nouveau nom généré : 20230226_060242_ensemble_backup_photos_IMG_20230225_190234498_copy_3156x2340_1--odr--.jpg
+[23:52:09] [DEBUG] Chemin destination = (/Images/Pellicule/2023/02)
+[23:52:09] [DEBUG] ----------------------------------------------
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!98116
+[23:52:09] [DEBUG] Nom original   : ManualSave_4dced_7e43a000_76d4db.sav
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/Documents/The Witcher 3/gamesaves
+[23:52:09] [DEBUG] Extension      : .sav
+[23:52:09] [DEBUG] Date fichier   : 08/09/2020 05:54:54
+[23:52:09] [DEBUG] Classification intelligente = (Stay)
+[23:52:09] [DEBUG] Ignoré : extension non supportée (.sav)
+[23:52:09] [DEBUG] Analyse du fichier
+[23:52:09] [DEBUG] ID             : 440B3E9A717E6203!55876
+[23:52:09] [DEBUG] Nom original   : 2019-01-08 15.49.21.jpg
+[23:52:09] [DEBUG] Chemin source  : /drive/root:/JPM/Relations/justyna/!justyna/moments avec Justyna/2019 Mexique/Voyage au mexique - mon cellulaire
+[23:52:09] [DEBUG] Extension      : .jpg
+[23:52:09] [DEBUG] Date fichier   : 01/08/2019 15:49:21
+[23:52:09] [DEBUG] Classification intelligente = (Stay)
