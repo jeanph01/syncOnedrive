@@ -232,6 +232,7 @@ function Get-LocationName($gps) {
         $lat = [double]$lat
         $lon = [double]$lon
 
+        # Clé de grille pour le cache (~100m)
         $gridKey = Get-GpsGridKey -Lat $lat -Lon $lon
 
         # 1. Cache exact
@@ -239,12 +240,13 @@ function Get-LocationName($gps) {
             return $script:GpsCache[$gridKey]
         }
 
-        # 2. Clustering
+        # 2. Vérification de proximité (Clustering)
         $near = Find-NearbyGpsKey -Lat $lat -Lon $lon -Cache $script:GpsCache
         if ($near) {
             return $script:GpsCache[$near]
         }
 
+        # 3. Appel API Nominatim
         Write-Log "[API GPS] Résolution ($gridKey)" "WARN"
 
         # 3. API principale
@@ -262,22 +264,22 @@ function Get-LocationName($gps) {
             }
         }
 
-        # Si aucune réponse exploitable
-        if (!$res -or !$res.address) {
-            Write-Log "=== DEBUG GPS DUMP ===" "ERROR"
-            Write-Log "URL : https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&zoom=10&addressdetails=1" "ERROR"
-            try {
-                $raw = $res | ConvertTo-Json -Depth 10
-                Write-Log "Réponse JSON brute : $raw" "ERROR"
-            }
-            catch {
-                Write-Log "Réponse brute non JSON : $res" "ERROR"
-            }
-            Write-Log "Aucun champ address trouvé dans la réponse" "ERROR"
-            Write-Log "=== FIN DEBUG GPS DUMP ===" "ERROR"
-            Write-Log "GPS introuvable : $gridKey" "WARN"
-            return $null
+
+
+
+        # Gestion des erreurs de géocodage (ex: milieu de l'océan)
+        if (-not $res -or $res.error -or -not $res.address) {
+            Write-Log "GPS introuvable pour $gridKey (Zone hors-carte ou erreur API)" "DEBUG"
+            return $null 
         }
+
+        # Extraction intelligente (Ville > Village > Comté > Pays)
+        $addr = $res.address
+        $locPart = $addr.city ?? $addr.town ?? $addr.village ?? $addr.hamlet ?? $addr.suburb ?? $addr.municipality ?? $addr.county ?? $addr.country
+
+        if (-not $locPart) { return $null }
+
+
 
         $addr = $res.address
 

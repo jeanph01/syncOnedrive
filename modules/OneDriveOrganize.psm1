@@ -156,6 +156,12 @@ function New-SmartFileName {
     )
 
     try {
+        # FIX : Si le nom original est vide ou n'est qu'une extension, on utilise "unnamed"
+        $cleanOriginal = if ([string]::IsNullOrWhiteSpace($OriginalName) -or $OriginalName -eq $Extension) { 
+            "unnamed" 
+        } else { 
+            Convert-ToAscii $OriginalName 
+        }
         $timestamp = $DateRef.ToString("yyyyMMdd_HHmmss")
         $year      = $DateRef.ToString("yyyy")
         $yearMonth = $DateRef.ToString("yyyy_MM")
@@ -322,7 +328,7 @@ function Resolve-FileRouting {
 
     try {
         $srcDirClean = $FileMeta.p -replace "^/drive/root:", ""
-        $ext = $Extension.ToLower()
+        #$ext = $Extension.ToLower()
 
         # RÈGLE 1 — FINANCES (Stay STRICT)
         if ($srcDirClean -match "^/Finances(/|$)") {

@@ -5,8 +5,8 @@
 param (
     [ValidateSet("Online", "Offline")]
     [string]$Mode = "Online",                     # Mode de scan OneDrive
-    [switch]$ForceNewScan = $false,               # Force un nouveau scan OneDrive
-    [switch]$ResetCache = $false,                 # Réinitialise les fichiers internes
+    [switch]$ForceNewScan,   # Force uniquement le scan OneDrive (Index Cloud)
+    [switch]$ResetCache,     # Reset TOTAL (Cloud + Hash Locaux + Logs)
     [string]$LocalFolder = "D:\recup",            # Dossier local à analyser
     [string]$TokenFile = ".\_cache\graph_token.json", # Token Graph
     [string]$ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061", # ClientId Graph

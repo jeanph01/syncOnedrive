@@ -25,46 +25,48 @@ $script:ModuleLoaded = $true
 # ============================================================
 function Write-Log {
     [CmdletBinding()]
-    param([string]$Message, [string]$Level = "INFO")
+    param(
+        [Parameter(Mandatory)][string]$Message, 
+        [string]$Level = "INFO"
+    )
 
     try {
         $timestamp = Get-Date -Format "HH:mm:ss"
         $normalized = $Level.Trim().ToUpper()
 
+        # Définition des couleurs pour la console
         $color = switch ($normalized) {
             "ERREUR" { "Red" }
             "ERROR"  { "Red" }
-            "E"      { "Red" }
-
             "WARN"   { "Yellow" }
-            "WARNING"{ "Yellow" }
-            "W"      { "Yellow" }
-
             "SUCCESS"{ "Green" }
-            "OK"     { "Green" }
-            "S"      { "Green" }
-
             "DEBUG"  { "DarkGray" }
-            "D"      { "DarkGray" }
-
-            "INFO"   { "DarkGray" }
-            "I"      { "DarkGray" }
-
             default  { "Gray" }
         }
 
         $msg = "[$timestamp] [$normalized] $Message"
 
-        if ($normalized -ne "DEBUG" -or $VerboseMode) {
+        # Affichage console (sauf si DEBUG est désactivé)
+        if ($normalized -ne "DEBUG" -or $script:VerboseMode) {
             Write-Host $msg -ForegroundColor $color
         }
 
-        $msg | Add-Content $LogFile -ErrorAction SilentlyContinue
+        # Écriture dans le fichier log avec gestion du verrouillage (3 tentatives)
+        $maxRetries = 3
+        for ($i = 0; $i -lt $maxRetries; $i++) {
+            try {
+                $msg | Add-Content $LogFile -ErrorAction Stop
+                break 
+            }
+            catch {
+                Start-Sleep -Milliseconds 150
+            }
+        }
     }
     catch {
-        Write-Host "ERREUR Write-Log: $_" -ForegroundColor Red
+        Write-Host "ERREUR critique dans Write-Log: $_" -ForegroundColor Red
     }
-}
+} # Write-Log
 
 
 # ============================================================
@@ -197,6 +199,100 @@ function Get-GraphToken {
 }
 
 
+
+# =====================================================================
+# HASH DU CACHE
+# =====================================================================
+
+# Calcule le hash du fichier de cache OneDrive
+function Get-CacheHash {
+    try {
+        if (-not (Test-Path $IndexFile)) {
+            Write-Log "Impossible de calculer le hash, fichier absent : $IndexFile" "WARN"
+            return $null
+        }
+        return (Get-FileHash $IndexFile -Algorithm SHA256).Hash
+    }
+    catch {
+        Write-Log "Erreur calcul hash : $($_.Exception.Message)" "ERROR"
+        return $null
+    }
+} # Get-CacheHash
+
+
+# Retourne les détails d'une erreur HTTP
+function Get-ErrorDetails {
+    param(
+        $Exception  # Exception à analyser
+    )
+    try {
+        if ($Exception.Response) {
+            $reader = New-Object System.IO.StreamReader($Exception.Response.GetResponseStream())
+            return $reader.ReadToEnd()
+        }
+    }
+    catch {
+        Write-Log "Erreur lors de la lecture des détails d'erreur : $($_.Exception.Message)" "ERROR"
+    }
+    return $Exception.Message
+} # Get-ErrorDetails
+
+
+# Convertit une chaîne en ASCII safe pour noms de fichiers/chemins
+function Convert-ToAscii {
+    param(
+        [string]$Text,          # Texte à normaliser
+        [bool]$IsPath = $false  # Indique si c'est un chemin
+    )
+
+    try {
+        if ([string]::IsNullOrWhiteSpace($Text)) { return "" }
+
+        # Normalisation Unicode → ASCII
+        $clean = $Text.Normalize([System.Text.NormalizationForm]::FormD) -replace '\p{M}', ''
+        # Suppression GUIDs et longues séquences hex/base64
+        $clean = $clean -replace "[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}", ""
+        $clean = $clean -replace "[a-zA-Z0-9]{16,}", ""
+
+        # Filtrage caractères invalides
+        $pattern = if ($IsPath) { "[^a-zA-Z0-9\.\-/]" } else { "[^a-zA-Z0-9\.\-]" }
+        return ($clean -replace $pattern, "_" -replace "_+", "_").Trim("_")
+    }
+    catch {
+        Write-Log "Erreur Convert-ToAscii : $($_.Exception.Message)" "ERROR"
+        return ""
+    }
+} # Convert-ToAscii
+
+# =====================================================================
+# AUTHENTIFICATION
+# =====================================================================
+
+# Obtient un token Graph et prépare les en-têtes
+function Connect-AzureGraph {
+    try {
+        Write-Log "Obtention du token Graph via module..."
+        $auth = Get-GraphToken
+
+        if (-not $auth.access_token) {
+            Write-Log "Échec token Graph" "ERROR"
+            throw "Impossible d'obtenir un token Graph."
+        }
+
+        $Global:State.Headers = @{
+            Authorization  = "Bearer $($auth.access_token)"
+            "Content-Type" = "application/json"
+        }
+
+        Write-Log "Token Graph chargé." "SUCCESS"
+    }
+    catch {
+        Write-Log "Erreur Connect-AzureGraph : $($_.Exception.Message)" "ERROR"
+        throw
+    }
+} # Connect-AzureGraph
+
+
 # ============================================================
 # INITIALISATION
 # ============================================================
@@ -214,11 +310,10 @@ function main {
     catch {
         Write-Log "Échec main: $_" "ERREUR"
     }
-}
+} # main
+
 
 main
-
-
 # ============================================================
 # EXPORT
 # ============================================================
