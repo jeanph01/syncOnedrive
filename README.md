@@ -1,99 +1,220 @@
-# 🚀 syncOnedrive (V10.4)
-Outil PowerShell haute performance pour la détection de doublons locaux et le nettoyage de données via Microsoft Graph API.
+# syncOnedrive
 
-## 🌟 Points Forts
-- **Deep Scan Récursif** : Contourne les limitations d'indexation (plafond des 64k) en explorant chaque dossier.
-- **Gestion intelligente du Token** : Refresh token chiffré via DPAPI stocké dans `%LOCALAPPDATA%`.
-- **Zéro Pollution** : Désactivation des barres de progression système pour un affichage propre.
-- **Sécurité** : Détection automatique et exclusion du Coffre-fort (Personal Vault).
+Solution PowerShell pour **indexer OneDrive via Microsoft Graph**, **détecter/traiter les doublons**, et **organiser automatiquement les médias** à partir d’un moteur de configuration externe.
 
-## 📋 Prérequis
-- **PowerShell 7+** recommandé (ou Windows PowerShell).
-- **Compte Azure** : Une App Registration configurée (voir section Manifeste).
+> Objectif du projet : fournir une base **générique, partageable et industrialisable** pour une publication GitHub (sans règles métier codées en dur).
 
-## ⚙️ Configuration
-Éditez les variables au début du script `onedrivesync.ps1` :
-- `$LocalFolder` : Dossier à nettoyer (ex: `D:\recup`).
-- `$ClientId` : `176fc7bc-42c9-4a25-82b5-0ad584d3c061`.
-- `$TenantId` : Utilisez `common` ou `consumers` pour les comptes personnels.
+---
 
-## 🚀 Utilisation
+## 1) Ce que fait le projet
 
-### Mode Standard (Nettoyage Direct)
-Scan le Cloud, compare les Hash SHA1 et déplace les doublons locaux vers `_Doublons`.
+Le dépôt fournit 3 scripts principaux :
+
+1. **`OneDrive_Sync.ps1`**
+   - Construit/met à jour un cache OneDrive (`delta API`).
+   - Compare les fichiers locaux avec le cloud par taille/hash.
+   - Déplace les doublons locaux vers `_Doublons`.
+2. **`OneDrive_PictureMovieOrganiser.ps1`**
+   - Analyse le cache cloud.
+   - Calcule un plan de renommage/routage (JSON) selon des règles.
+   - Applique les déplacements/renommages OneDrive via Graph.
+3. **`OneDrive_CloudCleaner.ps1`**
+   - Regroupe les doublons cloud par hash.
+   - Conserve la meilleure occurrence selon des règles de priorité.
+   - Supprime les occurrences redondantes via Graph.
+
+---
+
+## 2) Architecture du code
+
+### Entrypoints
+- `OneDrive_Sync.ps1`
+- `OneDrive_PictureMovieOrganiser.ps1`
+- `OneDrive_CloudCleaner.ps1`
+
+### Modules
+- `modules/AppConfig.psm1` : lecture `config.ini` + `rules.json`.
+- `modules/OneDriveTools.psm1` : logs, authentification Graph (device code), utilitaires communs.
+- `modules/OneDriveOrganize.psm1` : classification média, routage, génération de noms.
+- `modules/OneDriveCacheUtils.psm1` : chargement/réparation cache, planification, collisions.
+- `modules/GpsTools.psm1` : résolution GPS (cache + Nominatim), normalisation localités.
+
+### Données de travail
+- `_cache/onedrive_cache.json` : index cloud.
+- `_cache/plan.json` : plan des actions d’organisation.
+- `_cache/processed_ids.log` : IDs déjà traités.
+- `_cache/*.txt`, `_cache/*.csv` : logs/rapports opérationnels.
+
+---
+
+## 3) Configuration externe (nouveau modèle)
+
+Le projet externalise désormais la configuration et les règles dans 2 fichiers :
+
+- **`config.ini`** : paramètres d’exécution (client Graph, chemins, options globales, extensions autorisées).
+- **`rules.json`** : logique métier (routing, patterns applicatifs, stopwords, scoring de suppression, mapping extension→catégorie).
+- Les scripts n’acceptent plus les chemins de cache/log/rapport en paramètres : ces valeurs viennent exclusivement de `config.ini`.
+
+### 3.1 `config.ini`
+Sections principales :
+- `[general]` : `verbose_mode`
+- `[graph]` : `client_id`
+- `[paths]` : fichiers cache/token/log/report
+- `[organizer]` : `rename_marker`, `max_name_len`
+- `[sync]` : `local_folder`
+- `[extensions]` : liste `allowed` (CSV)
+
+Le fichier est commenté (préfixes `;` / `#`) pour documenter chaque paramètre.
+
+### 3.2 `rules.json`
+Objets principaux :
+- `extensionMap`
+- `categoryRules`
+- `routingRules`
+- `namingRules`
+- `cleanerRules`
+
+`rules.json` n’autorise pas les commentaires natifs. Le projet utilise donc des champs `_comments` pour documenter la finalité des blocs.
+
+> Recommandation : conservez les règles spécifiques à votre contexte **uniquement** dans `rules.json`.
+
+---
+
+## 4) Prérequis
+
+- Windows + OneDrive.
+- PowerShell 7 recommandé (Windows PowerShell 5.1 possible selon environnement).
+- Une App Registration Azure AD / Microsoft Entra compatible Device Code.
+- Accès Microsoft Graph pour les scopes nécessaires (au minimum lecture/écriture fichiers selon usage).
+
+---
+
+## 5) Mise en route rapide
+
+### Étape A — Préparer la configuration
+1. Copier/adapter `config.ini`.
+2. Copier/adapter `rules.json`.
+3. Vérifier :
+   - `client_id`
+   - chemins `_cache`
+   - dossier local (`local_folder`)
+   - règles de routage/suppression.
+
+### Étape B — Générer/actualiser le cache cloud
 ```powershell
-.\onedrivesync.ps1
+.\OneDrive_Sync.ps1 -Mode Online
+```
 
-Gemini a dit
-C'est parfait. Ce document est très complet et reflète bien la structure professionnelle nécessaire pour un repo GitHub. J'ai fusionné tes informations techniques (manifeste, gestion du token, licences SPO) avec les instructions de fonctionnement du script V10.4 (Deep Scan) pour créer le README.md ultime.
-
-Voici le contenu final à enregistrer :
-
-Markdown
-# 🚀 syncOnedrive (V10.4)
-Outil PowerShell haute performance pour la détection de doublons locaux et le nettoyage de données via Microsoft Graph API.
-
-## 🌟 Points Forts
-- **Deep Scan Récursif** : Contourne les limitations d'indexation (plafond des 64k) en explorant chaque dossier.
-- **Gestion intelligente du Token** : Refresh token chiffré via DPAPI stocké dans `%LOCALAPPDATA%`.
-- **Zéro Pollution** : Désactivation des barres de progression système pour un affichage propre.
-- **Sécurité** : Détection automatique et exclusion du Coffre-fort (Personal Vault).
-
-## 📋 Prérequis
-- **PowerShell 7+** recommandé (ou Windows PowerShell).
-- **Compte Azure** : Une App Registration configurée (voir section Manifeste).
-
-## ⚙️ Configuration
-Éditez les variables au début du script `onedrivesync.ps1` :
-- `$LocalFolder` : Dossier à nettoyer (ex: `D:\recup`).
-- `$ClientId` : `176fc7bc-42c9-4a25-82b5-0ad584d3c061`.
-- `$TenantId` : Utilisez `common` ou `consumers` pour les comptes personnels.
-
-## 🚀 Utilisation
-
-### Mode Standard (Nettoyage Direct)
-Scan le Cloud, compare les Hash SHA1 et déplace les doublons locaux vers `_Doublons`.
+### Étape C — Simuler l’organisation (sans exécution)
 ```powershell
-.\onedrivesync.ps1
-Mode Audit (Génération de rapports)
-Génère le cache JSON et les fichiers CSV de comparaison dans .\Reports.
+.\OneDrive_PictureMovieOrganiser.ps1 -Execute:$false
+```
 
-PowerShell
-.\onedrivesync.ps1 -Silent:$false
-Mode Offline
-Analyse le disque en utilisant le dernier cache local sans solliciter l'API.
+### Étape D — Exécuter les déplacements OneDrive
+```powershell
+.\OneDrive_PictureMovieOrganiser.ps1 -Execute:$true
+```
 
-PowerShell
-.\onedrivesync.ps1 -Mode Offline
-🔐 Authentification & Sécurité
-Le script utilise le flux Device Code (URL + code).
+### Étape E — Nettoyer les doublons cloud (optionnel)
+```powershell
+.\OneDrive_CloudCleaner.ps1
+```
 
-Le token est sauvegardé dans : %LOCALAPPDATA%\syncOnedrive\token.json.
+---
 
-Réinitialisation :
+## 6) Référence CLI
 
-PowerShell
-Remove-Item "$env:LOCALAPPDATA\syncOnedrive\token.json" -ErrorAction SilentlyContinue
-🛠️ Résolution des problèmes (SPO License)
-Si vous obtenez l'erreur Tenant does not have a SPO license sur un compte pro :
+### `OneDrive_Sync.ps1`
+Paramètres importants :
+- `-Mode Online|Offline`
+- `-ForceNewScan`
+- `-ResetCache`
+- `-ConfigFile`
 
-PowerShell
-# Attribution de licence via MSOnline
-Connect-MsolService
-Set-MsolUserLicense -UserPrincipalName user@domain.com -AddLicenses "votre_tenant:ENTERPRISEPACK"
-📄 Extrait du Manifeste Azure
-Configuration requise pour l'App Registration :
+Exemples :
+```powershell
+# Re-scan cloud complet
+.\OneDrive_Sync.ps1 -Mode Online -ForceNewScan
 
-signInAudience : AzureADandPersonalMicrosoftAccount
+# Mode offline depuis le cache existant
+.\OneDrive_Sync.ps1 -Mode Offline
+```
 
-allowPublicClient : true
+### `OneDrive_PictureMovieOrganiser.ps1`
+Paramètres importants :
+- `-Execute`
+- `-ResetCache`
+- `-ConfigFile`
 
-Permissions Graph (Scopes) :
+Exemples :
+```powershell
+# Dry run de validation
+.\OneDrive_PictureMovieOrganiser.ps1 -Execute:$false
 
-Files.Read.All (id: 10465720-29dd-4523-a11a-6a75c743c9d9)
+# Exécution réelle
+.\OneDrive_PictureMovieOrganiser.ps1 -Execute:$true
+```
 
-offline_access (id: 7427b0d9-2fd0-4035-8740-a29e6ca3a3b7)
+### `OneDrive_CloudCleaner.ps1`
+Paramètres importants :
+- `-ConfigFile`
 
-openid (id: e1fe6dd8-ba31-4d61-89e7-88639da4683d)
+Exemple :
+```powershell
+.\OneDrive_CloudCleaner.ps1
+```
 
-Note : Le cache onedrive_cache.json est mis à jour tous les 10 dossiers explorés pour garantir la reprise sur erreur.
+---
+
+## 7) Flux de données recommandé
+
+1. **Sync** (`OneDrive_Sync.ps1`) pour fiabiliser le cache cloud.
+2. **Organisation** (`OneDrive_PictureMovieOrganiser.ps1`) en dry-run puis exécution.
+3. **Cleaner cloud** (`OneDrive_CloudCleaner.ps1`) en option, si besoin de purge doublons côté OneDrive.
+
+Ce séquencement réduit les erreurs et facilite les reprises (`plan.json`, `processed_ids.log`, hash cache).
+
+---
+
+## 8) Bonnes pratiques pour publication GitHub
+
+- Ne pas committer de secrets/token (`_cache/graph_token.json` doit être ignoré).
+- Fournir des exemples :
+  - `config.ini.example`
+  - `rules.json.example`
+- Documenter vos règles métier par commentaire JSON (`README` + historique des versions).
+- Tester chaque modification de `rules.json` en dry-run avant exécution réelle.
+- Garder les logs `_cache` pour audit et rollback opérationnel.
+
+---
+
+## 9) Limites connues / points à améliorer
+
+- Plusieurs scripts ont encore des messages/fonctions en français + conventions mixtes : une normalisation globale aidera à la maintenance open-source.
+- Les tests automatisés (Pester) ne sont pas encore fournis.
+- Un packaging module + release notes faciliterait les contributions externes.
+
+---
+
+## 10) Roadmap suggérée
+
+- [ ] Ajouter `config.ini.example` et `rules.json.example`.
+- [ ] Ajouter `.gitignore` strict (`_cache`, tokens, rapports).
+- [ ] Ajouter tests Pester unitaires (par module).
+- [ ] Ajouter workflow CI (lint PowerShell + tests).
+- [ ] Ajouter changelog (`CHANGELOG.md`) et versioning semver.
+
+---
+
+## 11) Licence
+
+Ajoutez une licence explicite avant publication officielle (MIT recommandé pour démarrer).
+
+---
+
+## 12) Contribution
+
+Les PRs sont bienvenues si elles respectent :
+- la séparation **code générique** vs **règles métier externes**,
+- la compatibilité de l’existant (`config.ini` / `rules.json`),
+- un test manuel documenté dans la PR.

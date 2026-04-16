@@ -1,0 +1,147 @@
+{
+  "_comments": {
+    "purpose": "Règles métier externalisées. JSON ne supporte pas les commentaires natifs, ce bloc documente les sections.",
+    "extensionMap": "Associe extension -> catégorie média utilisée par le routing.",
+    "categoryRules": "Catégorisation logique initiale (ex: zones standard, zones confidentielles).",
+    "routingRules": "Règles de destination des fichiers.",
+    "namingRules": "Nettoyage des mots pour la génération des noms.",
+    "cleanerRules": "Scoring de conservation/suppression des doublons cloud."
+  },
+  "extensionMap": {
+    ".jpg": "Images",
+    ".jpeg": "Images",
+    ".png": "Images",
+    ".gif": "Images",
+    ".bmp": "Images",
+    ".webp": "Images",
+    ".heic": "Images",
+    ".heif": "Images",
+    ".tif": "Images",
+    ".tiff": "Images",
+    ".svg": "Images",
+    ".mp4": "Videos",
+    ".mov": "Videos",
+    ".avi": "Videos",
+    ".mkv": "Videos",
+    ".wmv": "Videos",
+    ".webm": "Videos",
+    ".m4v": "Videos",
+    ".3gp": "Videos",
+    ".mpg": "Videos",
+    ".mpeg": "Videos",
+    ".mp3": "Audio",
+    ".wav": "Audio",
+    ".m4a": "Audio",
+    ".flac": "Audio",
+    ".amr": "Audio",
+    ".opus": "Audio",
+    ".pdf": "Documents",
+    ".doc": "Documents",
+    ".docx": "Documents",
+    ".xls": "Documents",
+    ".xlsx": "Documents",
+    ".ppt": "Documents",
+    ".pptx": "Documents",
+    ".txt": "Documents",
+    ".rtf": "Documents",
+    ".csv": "Documents",
+    ".json": "Documents",
+    ".xml": "Documents"
+  },
+  "categoryRules": {
+    "stayPatterns": [
+      "Finances",
+      "Légal",
+      "Documents",
+      "Vie des enfants",
+      "JPM",
+      "Loisirs",
+      "Livres",
+      "Cuisine",
+      "Syndicat",
+      "Apps"
+    ],
+    "confidentialRegex": "(?i)confidential|privatevault|securevault"
+  },
+  "routingRules": {
+    "financeRegex": "^/Finances(/|$)",
+    "confidentialRegexList": [
+      "(?i)confidential",
+      "(?i)privatevault",
+      "(?i)securevault"
+    ],
+    "appsPatterns": [
+      "WhatsApp",
+      "Messenger",
+      "Facebook",
+      "Instagram",
+      "Screenshots",
+      "Camera Roll",
+      "DCIM",
+      "Android",
+      "iOS"
+    ],
+    "adminPatterns": [
+      "Documents",
+      "Légal",
+      "Syndicat",
+      "Vie des enfants",
+      "Cuisine",
+      "Livres",
+      "JPM"
+    ],
+    "sourceHints": [
+      "WhatsApp",
+      "Messenger",
+      "Instagram"
+    ]
+  },
+  "namingRules": {
+    "stopWords": [
+      "de",
+      "du",
+      "des",
+      "la",
+      "le",
+      "les",
+      "avec",
+      "pour",
+      "sur",
+      "dans",
+      "et",
+      "en",
+      "a",
+      "au",
+      "aux"
+    ]
+  },
+  "cleanerRules": {
+    "priorityRules": [
+      {
+        "field": "name",
+        "pattern": "* - Copie*",
+        "score": 50
+      },
+      {
+        "field": "name",
+        "pattern": "* (1)*",
+        "score": 40
+      },
+      {
+        "field": "path",
+        "pattern": "*/Importations/*",
+        "score": 30
+      },
+      {
+        "field": "path",
+        "pattern": "*/Old/*",
+        "score": 20
+      },
+      {
+        "field": "path",
+        "pattern": "*/bureau/*",
+        "score": 10
+      }
+    ]
+  }
+}

@@ -17,7 +17,7 @@ if (-not (Get-Command Get-GraphToken -ErrorAction SilentlyContinue)) {
 }
 
 # --- AJOUT 1 : User-Agent conforme Nominatim ---
-$script:UserAgent = "OneDriveOrganizer_JPM_$($Config.ClientId)"
+$script:UserAgent = "OneDriveOrganizer_$($Config.ClientId)"
 
 # --- Marqueur mémoire pour rate-limit ---
 if (-not $script:LastApiCall) {

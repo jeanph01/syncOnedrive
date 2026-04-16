@@ -3,13 +3,18 @@
 # ============================================================
 
 param(
-    [string]$IndexFile = ".\_cache\onedrive_cache.json",
-    [string]$ClientId  = "176fc7bc-42c9-4a25-82b5-0ad584d3c061",
-    [string]$TokenFile = ".\_cache\graph_token.json",
-    [string]$LogFile   = ".\_cache\onedrive_cleaner_log.txt"
+    [string]$ConfigFile = ".\config.ini"
 )
 
 Clear-Host
+
+Import-Module "$PSScriptRoot\modules\AppConfig.psm1" -Force
+$app = Get-AppConfiguration -ConfigFile $ConfigFile
+$Global:Rules = $app.Rules
+$IndexFile = $app.IndexFile
+$ClientId = $app.ClientId
+$TokenFile = $app.TokenFile
+$LogFile = $app.CloudCleanerLogFile
 
 # --- Charger le module utilitaire ---
 Import-Module ".\modules\OneDriveTools.psm1" -ArgumentList $ClientId, $TokenFile, $LogFile -Force
@@ -67,11 +72,14 @@ foreach ($hash in $HashGroups.Keys) {
         # Tri par priorité
         $sorted = $group | Sort-Object {
             $score = 100
-            if ($_.n -like "* - Copie*") { $score += 50 }
-            if ($_.n -like "* (1)*")     { $score += 40 }
-            if ($_.p -like "*/Importations/*") { $score += 30 }
-            if ($_.p -like "*/Old/*")          { $score += 20 }
-            if ($_.p -like "*/bureau/*")       { $score += 10 }
+            foreach ($rule in $Global:Rules.cleanerRules.priorityRules) {
+                if ($rule.field -eq "name" -and $_.n -like $rule.pattern) {
+                    $score += [int]$rule.score
+                }
+                elseif ($rule.field -eq "path" -and $_.p -like $rule.pattern) {
+                    $score += [int]$rule.score
+                }
+            }
             $score
         }
 

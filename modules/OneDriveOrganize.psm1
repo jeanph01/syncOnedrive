@@ -102,16 +102,16 @@ function Get-SmartCategory {
 
     try {
         # Règles STAY (catégorie logique, pas le routing final)
-        $stayPatterns = @("Finances", "Légal", "Documents", "Vie des enfants", "JPM", "Loisirs", "Livres", "Cuisine", "Syndicat", "Apps")
+        $stayPatterns = @($Global:Rules.categoryRules.stayPatterns)
         foreach ($p in $stayPatterns) {
             if ($Path -match "(?i)$p") {
                 return "Stay"
             }
         }
 
-        # Coffre-fort (catégorie logique)
-        if ($Path -match "(?i)coffre.?fort") {
-            return "Coffre-fort"
+        # Confidential (catégorie logique)
+        if ($Path -match $Global:Rules.categoryRules.confidentialRegex) {
+            return "Confidential"
         }
 
         # Standards
@@ -187,7 +187,7 @@ function New-SmartFileName {
         $srcWords  = Split-Words $cleanSource
 
         # Stopwords
-        $stopWords = @("de","du","des","la","le","les","avec","pour","sur","dans","et","en","a","au","aux")
+        $stopWords = @($Global:Rules.namingRules.stopWords)
 
         function Remove-StopWords($list) {
             if (-not $list) { return @() }
@@ -278,18 +278,18 @@ function Resolve-FileRouting {
         RÈGLE 2 — COFFRE-FORT (Stay + mediaType) — SANS EXCEPTION
             Condition :
                 - Le chemin source contient (insensible à la casse) :
-                    "coffre-fort", "coffre fort", "pour coffre fort", "coffre-fort", "verscoffrefort"
+                    "confidential", "confidential", "pour confidential", "confidential", "privatevault"
             Intention :
-                - Stay dans la racine Coffre-fort
+                - Stay dans la racine Confidential
                 - Conserver le 2e niveau (Michelle, relations, archives, etc.)
                 - Organiser par type média (images / videos)
                 - Classer par année / mois
             Destination :
-                /<racine_coffre>/<sous_dossier>/<images|videos>/<YYYY>/<MM>/<NewName>
+                /<racine_confidential>/<sous_dossier>/<images|videos>/<YYYY>/<MM>/<NewName>
             Exemple :
-                /drive/root:/Coffre-Fort/relations/... → /Coffre-Fort/relations/videos/YYYY/MM/<NewName>
-                /drive/root:/VersCoffreFort/relations/... → /VersCoffreFort/relations/images/YYYY/MM/<NewName>
-                /drive/root:/VersCoffreFort/archives/... → /VersCoffreFort/archives/videos/YYYY/MM/<NewName>
+                /drive/root:/Confidential/relations/... → /Confidential/relations/videos/YYYY/MM/<NewName>
+                /drive/root:/VersConfidentialVault/relations/... → /VersConfidentialVault/relations/images/YYYY/MM/<NewName>
+                /drive/root:/VersConfidentialVault/archives/... → /VersConfidentialVault/archives/videos/YYYY/MM/<NewName>
 
         RÈGLE 3 — APPS (WhatsApp, Messenger, DCIM, etc.)
             Condition :
@@ -317,8 +317,8 @@ function Resolve-FileRouting {
 
     .OUTPUTS
         Hashtable avec :
-            Mode  = "StayStrict" | "CoffreFort" | "AppsOrDefaultMove" | "StaySimplified"
-            Root  = racine logique (pour CoffreFort) ou $null pour les autres
+            Mode  = "StayStrict" | "ConfidentialVault" | "AppsOrDefaultMove" | "StaySimplified"
+            Root  = racine logique (pour ConfidentialVault) ou $null pour les autres
     #>
     [CmdletBinding()]
     param(
@@ -331,7 +331,7 @@ function Resolve-FileRouting {
         #$ext = $Extension.ToLower()
 
         # RÈGLE 1 — FINANCES (Stay STRICT)
-        if ($srcDirClean -match "^/Finances(/|$)") {
+        if ($srcDirClean -match $Global:Rules.routingRules.financeRegex) {
             return @{
                 Mode = "StayStrict"
                 Root = $srcDirClean
@@ -339,15 +339,27 @@ function Resolve-FileRouting {
         }
 
         # RÈGLE 2 — COFFRE-FORT (Stay + mediaType) — SANS EXCEPTION
-        if ($srcDirClean -match "(?i)coffre.?fort" -or $srcDirClean -match "(?i)verscoffrefort") {
-            $parts = $srcDirClean.Trim('/').Split('/')
-            $idx = 0
-            for ($i = 0; $i -lt $parts.Count; $i++) {
-                if ($parts[$i] -match "(?i)coffre.?fort" -or $parts[$i] -match "(?i)verscoffrefort") {
-                    $idx = $i
-                    break
-                }
+        $confidentialRegexList = @($Global:Rules.routingRules.confidentialRegexList)
+        $isConfidential = $false
+        foreach ($regex in $confidentialRegexList) {
+            if ($srcDirClean -match $regex) {
+                $isConfidential = $true
+                break
             }
+        }
+        if ($isConfidential) {
+            $parts = $srcDirClean.Trim('/').Split('/')
+            $idx = -1
+            for ($i = 0; $i -lt $parts.Count; $i++) {
+                foreach ($regex in $confidentialRegexList) {
+                    if ($parts[$i] -match $regex) {
+                        $idx = $i
+                        break
+                    }
+                }
+                if ($idx -ge 0) { break }
+            }
+            if ($idx -lt 0) { $idx = 0 }
 
             $rootParts = @()
             $rootParts += $parts[$idx]
@@ -357,13 +369,13 @@ function Resolve-FileRouting {
             $baseRoot = "/" + ($rootParts -join "/")
 
             return @{
-                Mode = "CoffreFort"
+                Mode = "ConfidentialVault"
                 Root = $baseRoot
             }
         }
 
         # RÈGLE 3 — APPS (WhatsApp, Messenger, DCIM, etc.) → même logique que Default
-        $appsPatterns = @("WhatsApp","Messenger","Facebook","Instagram","Screenshots","Camera Roll","DCIM","Android","iOS")
+        $appsPatterns = @($Global:Rules.routingRules.appsPatterns)
         foreach ($p in $appsPatterns) {
             if ($srcDirClean -match [Regex]::Escape($p)) {
                 return @{
@@ -374,7 +386,7 @@ function Resolve-FileRouting {
         }
 
         # RÈGLE 4 — ADMINISTRATIF NON FINANCES (Stay simplifié)
-        $adminPatterns = @("Documents","Légal","Syndicat","Vie des enfants","Cuisine","Livres","JPM")
+        $adminPatterns = @($Global:Rules.routingRules.adminPatterns)
         foreach ($p in $adminPatterns) {
             if ($srcDirClean -match "(?i)$p") {
                 return @{
@@ -414,12 +426,12 @@ function Get-DestinationPath {
 
         PRIORITÉ 2 — COFFRE-FORT (Stay + mediaType) — SANS EXCEPTION
             - Condition :
-                Le chemin source contient "coffre-fort", "coffre fort", "pour coffre fort", "coffre-fort", "verscoffrefort"
+                Le chemin source contient "confidential", "confidential", "pour confidential", "confidential", "privatevault"
             - Comportement :
-                On reste dans la racine Coffre-fort, on conserve le 2e niveau (Michelle, relations, archives, etc.),
+                On reste dans la racine Confidential, on conserve le 2e niveau (Michelle, relations, archives, etc.),
                 on crée un sous-dossier images/ ou videos/ selon le type média, puis on classe par année / mois.
             - Destination :
-                /<racine_coffre>/<sous_dossier>/<images|videos>/<YYYY>/<MM>/<NewName>
+                /<racine_confidential>/<sous_dossier>/<images|videos>/<YYYY>/<MM>/<NewName>
 
         PRIORITÉ 3 — APPS (WhatsApp, Messenger, DCIM, etc.)
             - Condition :
@@ -445,7 +457,7 @@ function Get-DestinationPath {
                     - Autres → /Images/Pellicule/YYYY/MM/<NewName> (par défaut)
 
     .PARAMETER Category
-        Catégorie logique (Images, Videos, Stay, Coffre-fort, etc.). Utilisée pour certains cas historiques,
+        Catégorie logique (Images, Videos, Stay, Confidential, etc.). Utilisée pour certains cas historiques,
         mais la logique principale repose sur Resolve-FileRouting et le type média.
 
     .PARAMETER FileMeta
@@ -509,7 +521,7 @@ function Get-DestinationPath {
                 $rawDestination = $srcDirClean
             }
 
-            "CoffreFort" {
+            "ConfidentialVault" {
                 # COFFRE-FORT : racine + 2e niveau + images/videos + YYYY/MM
                 $baseRoot = $root
                 $mediaFolder = switch ($mediaType) {

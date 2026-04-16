@@ -219,9 +219,12 @@ function New-Plan {
 
             # Source hint
             $sourceHint = ""
-            if ($fileMeta.p -match "WhatsApp") { $sourceHint = "WhatsApp" }
-            elseif ($fileMeta.p -match "Messenger") { $sourceHint = "Messenger" }
-            elseif ($fileMeta.p -match "Instagram") { $sourceHint = "Instagram" }
+            foreach ($hint in $Global:Rules.routingRules.sourceHints) {
+                if ($fileMeta.p -match [Regex]::Escape($hint)) {
+                    $sourceHint = $hint
+                    break
+                }
+            }
 
             # Nouveau nom
             $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($fileMeta.n)
