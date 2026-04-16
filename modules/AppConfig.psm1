@@ -2,7 +2,7 @@ function Read-IniFile {
     param([Parameter(Mandatory)][string]$Path)
 
     if (-not (Test-Path $Path)) {
-        throw "Fichier INI introuvable: $Path"
+        throw "INI file not found: $Path"
     }
 
     $result = @{}
@@ -116,7 +116,7 @@ function Get-AppConfiguration {
     $rulesFile = Resolve-ConfigPath -BaseDir $configDir -PathValue (Get-IniValue -Ini $ini -Section 'paths' -Key 'rules_file' -Default '.\rules.json')
 
     if (-not (Test-Path $rulesFile)) {
-        throw "Fichier de règles introuvable: $rulesFile"
+        throw "Rules file not found: $rulesFile"
     }
     $rules = Get-Content -Path $rulesFile -Raw | ConvertFrom-Json -AsHashtable
 
@@ -145,7 +145,7 @@ function Get-AppConfiguration {
         GpsCacheFile       = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'gps_cache_file' -Default 'gps_cache.json')
         OrganizerLogFile   = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'organizer_log_file' -Default 'organisation_log.txt')
         SyncLogFile        = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'sync_log_file' -Default 'onedrive_indexer_log.txt')
-        SyncReportFile     = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'sync_report_file' -Default 'onedrive_doublons_rapport.txt')
+        SyncReportFile     = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'sync_report_file' -Default 'onedrive_duplicates_report.txt')
         LocalHashCacheFile = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'local_hash_cache_file' -Default 'local_hash_cache.json')
         CloudCleanerLogFile= Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'cloud_cleaner_log_file' -Default 'onedrive_cleaner_log.txt')
         LocalFolder        = Get-IniValue -Ini $ini -Section 'sync' -Key 'local_folder' -Default 'D:\recup'

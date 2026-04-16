@@ -11,21 +11,21 @@ if ($script:ModuleLoaded) {
 }
 $script:ModuleLoaded = $true
 
-# Vérifie la dépendance OneDriveTools
+# Validate OneDriveTools dependency
 if (-not (Get-Command Get-GraphToken -ErrorAction SilentlyContinue)) {
-    throw "ERREUR: Les fonctions de OneDriveTools ne sont pas disponibles. Vérifie l'import dans le script principal."
+    throw "ERROR: OneDriveTools functions are not available. Check the import in the main script."
 }
 
-# --- AJOUT 1 : User-Agent conforme Nominatim ---
+# --- Configure user agent for Nominatim ---
 $script:UserAgent = "OneDriveOrganizer_$($Config.ClientId)"
 
-# --- Marqueur mémoire pour rate-limit ---
+# --- Rate limit tracking ---
 if (-not $script:LastApiCall) {
-$script:LastApiCall = Get-Date
+    $script:LastApiCall = Get-Date
 }
 
 # ============================
-#   CHARGEMENT DU CACHE
+#   CACHE LOADING
 # ============================
 function Import-GpsCache {
     try {
@@ -33,16 +33,16 @@ function Import-GpsCache {
             $json = Get-Content $GpsCacheFile -Raw
             if ($json -and $json.Trim() -ne "") {
                 $script:GpsCache = $json | ConvertFrom-Json -AsHashtable
-                Write-Log "Cache GPS chargé : $($script:GpsCache.Count) entrées" "DEBUG"
+                Write-Log "GPS cache loaded: $($script:GpsCache.Count) entries" "DEBUG"
                 return
             }
         }
-        # Si fichier vide ou absent → Hashtable vide
+        # If file is empty or missing -> start with an empty Hashtable
         $script:GpsCache = @{}
-        Write-Log "Cache GPS initialisé (vide)" "DEBUG"
+        Write-Log "GPS cache initialized empty" "DEBUG"
     }
     catch {
-        Write-Log "Erreur Import-GpsCache: $_" "ERREUR"
+        Write-Log "Import-GpsCache error: $_" "ERROR"
         $script:GpsCache = @{}
     }
 }
@@ -54,7 +54,7 @@ function Initialize-GpsCache {
         }
 
         if ($script:GpsCache -isnot [hashtable]) {
-            Write-Log "Conversion du cache GPS en Hashtable" "DEBUG"
+            Write-Log "Converting GPS cache to Hashtable" "DEBUG"
             $new = @{ }
             foreach ($p in $script:GpsCache.PSObject.Properties) {
                 $new[$p.Name] = $p.Value
@@ -63,23 +63,23 @@ function Initialize-GpsCache {
         }
     }
     catch {
-        Write-Log "Échec Initialize-GpsCache: $_" "ERREUR"
+        Write-Log "Initialize-GpsCache failure: $_" "ERROR"
     }
 } # Initialize-GpsCache
 
-# Sauvegarde le cache GPS dans le fichier JSON global
+# Save GPS cache to global JSON file
 function Save-GpsCache {
     try {
         if (-not $GpsCacheFile) {
-            Write-Log "Save-GpsCache appelé sans GpsCacheFile défini" "WARN"
+            Write-Log "Save-GpsCache called without GpsCacheFile defined" "WARN"
             return
         }
 
         $script:GpsCache | ConvertTo-Json | Set-Content $GpsCacheFile
-        Write-Log "Cache GPS sauvegardé dans $GpsCacheFile" "DEBUG"
+        Write-Log "GPS cache saved to $GpsCacheFile" "DEBUG"
     }
     catch {
-        Write-Log "Échec Save-GpsCache: $_" "ERREUR"
+        Write-Log "Save-GpsCache failure: $_" "ERROR"
     }
 } # Save-GpsCache
 
@@ -93,7 +93,7 @@ function Get-GpsGridKey {
         return "$gLat,$gLon"
     }
     catch {
-        Write-Log "Échec Get-GpsGridKey: $_" "ERREUR"
+        Write-Log "Get-GpsGridKey failure: $_" "ERROR"
     }
 } # Get-GpsGridKey
 
@@ -117,7 +117,7 @@ function Find-NearbyGpsKey {
         return $null
     }
     catch {
-        Write-Log "Échec Find-NearbyGpsKey: $_" "ERREUR"
+        Write-Log "Find-NearbyGpsKey failure: $_" "ERROR"
     }
 } # Find-NearbyGpsKey
 
@@ -136,17 +136,17 @@ function Convert-LocationName {
         return ($clean -replace "-+", "-").Trim("-")
     }
     catch {
-        Write-Log "Échec Convert-LocationName: $_" "ERREUR"
+        Write-Log "Convert-LocationName failure: $_" "ERROR"
     }
 } # Convert-LocationName
 
-# Appelle l’API Nominatim pour résoudre une position GPS
+# Call the Nominatim API to resolve a GPS position
 function Resolve-GpsApi {
     param([double]$Lat, [double]$Lon)
 
     try {
 
-        # --- Rate-limit intelligent ---
+        # --- Smart rate limiting ---
         $elapsed = (Get-Date) - $script:LastApiCall
         if ($elapsed.TotalSeconds -lt 1.2) {
             $sleepMs = [int](1200 - $elapsed.TotalMilliseconds)
@@ -162,29 +162,29 @@ function Resolve-GpsApi {
                 return Invoke-RestMethod -Uri $uri -UserAgent $script:UserAgent -ErrorAction Stop
             }
             catch {
-            # Retourner le contenu brut pour debug
-            if ($_.Exception.Response) {
-                $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
-                $raw = $reader.ReadToEnd()
-                Write-Log "Réponse brute API GPS: $raw" "ERROR"
+# Return raw response for debug
+                if ($_.Exception.Response) {
+                    $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
+                    $raw = $reader.ReadToEnd()
+                    Write-Log "GPS API raw response: $raw" "ERROR"
                 return $raw
             }
 
-            Write-Log "Erreur API GPS: $_" "ERREUR"
+            Write-Log "GPS API error: $_" "ERROR"
         return $null
         }
     }
     catch {
-        Write-Log "Échec Resolve-GpsApi: $_" "ERREUR"
+        Write-Log "Resolve-GpsApi failure: $_" "ERROR"
     }
 } # Resolve-GpsApi
 
-# Répare le cache GPS : normalise clés/noms, fusionne les doublons et réécrit le fichier
+# Repair the GPS cache: normalize keys/names, merge duplicates, and rewrite the file
 function Repair-GpsCache {
     param([string]$CacheFile)
 
     try {
-        Write-Log "Réparation du cache GPS ($CacheFile)" "INFO"
+        Write-Log "Repairing GPS cache ($CacheFile)" "INFO"
 
         $cache = Get-Content $CacheFile | ConvertFrom-Json
         $newCache = @{ }
@@ -214,10 +214,10 @@ function Repair-GpsCache {
         $newCache | ConvertTo-Json | Set-Content $CacheFile
         $script:GpsCache = $newCache
 
-        Write-Log "Cache GPS réparé : $($newCache.Count) entrées" "SUCCESS"
+        Write-Log "GPS cache repaired: $($newCache.Count) entries" "SUCCESS"
     }
     catch {
-        Write-Log "Échec Repair-GpsCache: $_" "ERREUR"
+        Write-Log "Repair-GpsCache failure: $_" "ERROR"
     }
 } # Repair-GpsCache
 
@@ -246,13 +246,13 @@ function Get-LocationName($gps) {
             return $script:GpsCache[$near]
         }
 
-        # 3. Appel API Nominatim
+        # 3. Call Nominatim API
         Write-Log "[API GPS] Résolution ($gridKey)" "WARN"
 
         # 3. API principale
         $res = Resolve-GpsApi -Lat $lat -Lon $lon
 
-        # 4. Tolérance ±1 km
+        # 4. Tolerance ±1 km
         if (!$res) {
             $offsets = @(-0.01, 0, 0.01)
             foreach ($dx in $offsets) {
@@ -267,15 +267,22 @@ function Get-LocationName($gps) {
 
 
 
-        # Gestion des erreurs de géocodage (ex: milieu de l'océan)
+        # Handle geocoding errors (e.g. open ocean)
         if (-not $res -or $res.error -or -not $res.address) {
-            Write-Log "GPS introuvable pour $gridKey (Zone hors-carte ou erreur API)" "DEBUG"
+            Write-Log "GPS not found for $gridKey (off-map area or API error)" "DEBUG"
             return $null 
         }
 
         # Extraction intelligente (Ville > Village > Comté > Pays)
         $addr = $res.address
-        $locPart = $addr.city ?? $addr.town ?? $addr.village ?? $addr.hamlet ?? $addr.suburb ?? $addr.municipality ?? $addr.county ?? $addr.country
+        $locPart = $addr.city
+        if (-not $locPart) { $locPart = $addr.town }
+        if (-not $locPart) { $locPart = $addr.village }
+        if (-not $locPart) { $locPart = $addr.hamlet }
+        if (-not $locPart) { $locPart = $addr.suburb }
+        if (-not $locPart) { $locPart = $addr.municipality }
+        if (-not $locPart) { $locPart = $addr.county }
+        if (-not $locPart) { $locPart = $addr.country }
 
         if (-not $locPart) { return $null }
 
@@ -284,16 +291,16 @@ function Get-LocationName($gps) {
         $addr = $res.address
 
         # Fallbacks intelligents (ville → municipalité → comté → état → pays)
-        $city = $addr.city ??
-                $addr.town ??
-                $addr.village ??
-                $addr.hamlet ??
-                $addr.suburb ??
-                $addr.neighbourhood ??
-                $addr.municipality ??
-                $addr.county ??
-                $addr.state ??
-                $addr.country
+        $city = $addr.city
+        if (-not $city) { $city = $addr.town }
+        if (-not $city) { $city = $addr.village }
+        if (-not $city) { $city = $addr.hamlet }
+        if (-not $city) { $city = $addr.suburb }
+        if (-not $city) { $city = $addr.neighbourhood }
+        if (-not $city) { $city = $addr.municipality }
+        if (-not $city) { $city = $addr.county }
+        if (-not $city) { $city = $addr.state }
+        if (-not $city) { $city = $addr.country }
 
         # Fallback ultime si vraiment rien
         if (-not $city) {
@@ -304,12 +311,17 @@ function Get-LocationName($gps) {
                 Write-Log "Réponse JSON brute : $raw" "ERROR"
             }
             catch {
-                Write-Log "Réponse brute non JSON : $res" "ERROR"
+                Write-Log "Raw non-JSON response: $res" "ERROR"
             }
             Write-Log "=== FIN DEBUG GPS DUMP ===" "ERROR"
         }
-        $state   = $addr.state   ?? $addr.county  ?? "NA"
-        $country = $addr.country ?? "NA"
+
+        $state = $addr.state
+        if (-not $state) { $state = $addr.county }
+        if (-not $state) { $state = "NA" }
+
+        $country = $addr.country
+        if (-not $country) { $country = "NA" }
 
 
         $fullLoc = "$city-$state-$country" -replace " ", "-"
@@ -329,7 +341,7 @@ function Get-LocationName($gps) {
         return $clean
     }
     catch {
-        Write-Log "Erreur Get-LocationName: $_" "ERREUR"
+        Write-Log "Get-LocationName error: $_" "ERROR"
         return $null
     }
 } # Get-LocationName

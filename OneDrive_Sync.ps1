@@ -1,13 +1,13 @@
 # ============================================================
-# VERSION: 15.0 (Runspace Edition + Scan delta optimisé)
+# VERSION: 15.0 (Runspace Edition + optimized delta scan)
 # ============================================================
 
 param (
     [ValidateSet("Online", "Offline")]
-    [string]$Mode = "Online",                     # Mode de scan OneDrive
-    [switch]$ForceNewScan,   # Force uniquement le scan OneDrive (Index Cloud)
-    [switch]$ResetCache,     # Reset TOTAL (Cloud + Hash Locaux + Logs)
-    [string]$ConfigFile = ".\config.ini"         # Configuration applicative
+    [string]$Mode = "Online",                     # OneDrive scan mode
+    [switch]$ForceNewScan,   # Force only the OneDrive scan (cloud index)
+    [switch]$ResetCache,     # Total reset (cloud + local hashes + logs)
+    [string]$ConfigFile = ".\config.ini"         # Application configuration
 )
 
 $ProgressPreference = 'SilentlyContinue'
@@ -20,15 +20,15 @@ $Global:Rules = $app.Rules
 $LocalFolder = $app.LocalFolder
 $TokenFile = $app.TokenFile
 $ClientId = $app.ClientId
-$VerboseMode = $app.VerboseMode
+#$VerboseMode = $app.VerboseMode
 
 # --- LOG FILE ---
 $global:LogFile = $app.SyncLogFile
 
-# ---------------- EN-TÊTE & CONFIG ----------------
-function enteteConfig {
+# ---------------- HEADER & CONFIG ----------------
+function Initialize-Configuration {
 
-    # todo déplacer les extensions dans un fichier externe
+    # todo move extensions to an external configuration file
     $script:TimeStart = Get-Date
 
     $cache = $app.CacheDir
@@ -37,9 +37,9 @@ function enteteConfig {
     $global:ReportFile         = $app.SyncReportFile
     $global:LocalHashCacheFile = $app.LocalHashCacheFile
     $global:LogFile            = $app.SyncLogFile
-    $global:DupFolder = Join-Path $LocalFolder "_Doublons"
+    $global:DupFolder = Join-Path $LocalFolder "_Duplicates"
 
-    # Extensions autorisées
+    # Allowed extensions
     $global:AllowedExt = if ($app.AllowedExt -and $app.AllowedExt.Count -gt 0) {
         $app.AllowedExt
     }
@@ -50,28 +50,28 @@ function enteteConfig {
     $global:AllowedExtSet = [System.Collections.Generic.HashSet[string]]::new()
     foreach ($ext in $global:AllowedExt) { $null = $global:AllowedExtSet.Add($ext) }
 
-    Write-Log "Configuration chargée"
-    Write-Log "Mode: $Mode | ForceNewScan: $ForceNewScan | Dossier: $LocalFolder"
+    Write-Log "Configuration loaded"
+    Write-Log "Mode: $Mode | ForceNewScan: $ForceNewScan | Folder: $LocalFolder"
 
     if (Test-Path $global:LogFile) {
         Remove-Item $global:LogFile -Force
     }
-} # enteteConfig
+} # Initialize-Configuration
 # =====================================================================
-# MODULES EXTERNES
+# EXTERNAL MODULES
 # =====================================================================
 Import-Module ".\modules\OneDriveTools.psm1" -ArgumentList $ClientId, $TokenFile, $global:LogFile -Force
 Import-Module ".\modules\OneDriveOrganize.psm1" 
 
 # =====================================================================
-# 1. CHARGEMENT / SCAN
+# 1. LOAD / SCAN
 # =====================================================================
 
 function Invoke-GraphWithRetry {
     param(
         [Parameter(Mandatory)] [string]$Uri,      # URL Graph
-        [Parameter(Mandatory)] $Headers,          # En-têtes Graph
-        [int]$MaxRetry = 5                        # Nombre max de tentatives
+        [Parameter(Mandatory)] $Headers,          # Graph headers
+        [int]$MaxRetry = 5                        # Maximum number of attempts
     )
 
     $retry = 0
@@ -91,31 +91,31 @@ function Invoke-GraphWithRetry {
         }
     }
 
-    # Si on arrive ici → échec fatal
-    Write-Log "ERREUR FATALE: Impossible de récupérer la page Graph après $MaxRetry tentatives." "ERROR"
+    # If we reach this point -> fatal failure
+    Write-Log "FATAL ERROR: Failed to retrieve the Graph page after $MaxRetry attempts." "ERROR"
     return $null
 } # Invoke-GraphWithRetry
 
-function ChargementScan {
-
-    Write-Log "[1/4] Chargement / Scan OneDrive (V15.1)"
+function Load-Scan {
+    
+    Write-Log "[1/4] Loading / scanning OneDrive (V15.1)"
 
     try {
     $script:Cache = @{ Files = @{} }
 
-    # Reset cache si demandé
+    # Reset cache if requested
     if ($ForceNewScan -and (Test-Path $global:IndexFile)) {
-        Write-Log "Suppression ancien cache"
+        Write-Log "Removing old cache"
         Remove-Item $global:IndexFile -Force
     }
 
-    # Mode offline
+    # Offline mode
     if ($Mode -ne "Online") {
-        Write-Log "Mode Offline → chargement du cache existant"
+        Write-Log "Offline mode -> loading existing cache"
         if (Test-Path $global:IndexFile) {
             $script:Cache = Get-Content $global:IndexFile -Raw | ConvertFrom-Json -AsHashtable
             if (-not $script:Cache.Files) { $script:Cache.Files = @{} }
-            Write-Log "Cache chargé ($($script:Cache.Files.Count) fichiers)"
+            Write-Log "Cache loaded ($($script:Cache.Files.Count) files)"
         }
         return
     }
@@ -125,39 +125,39 @@ function ChargementScan {
     $Token = $Auth.access_token
     $Headers = @{ Authorization = "Bearer $Token" }
 
-    # Charger cache existant si présent
+    # Load existing cache if present
     if ((-not $ForceNewScan) -and (Test-Path $global:IndexFile)) {
         try {
             $script:Cache = Get-Content $global:IndexFile -Raw | ConvertFrom-Json -AsHashtable
             if (-not $script:Cache.Files) { $script:Cache.Files = @{} }
-            Write-Log "Cache existant chargé ($($script:Cache.Files.Count) fichiers)"
+            Write-Log "Existing cache loaded ($($script:Cache.Files.Count) files)"
         }
         catch {
             $script:Cache = @{ Files = @{} }
-            Write-Log "Cache existant illisible, recréation"
+            Write-Log "Existing cache unreadable, recreating"
         }
     }
 
-    # Champs demandés
+    # Requested fields
     $select = "name,id,size,file,hashes,fileSystemInfo,parentReference,photo,location,video,audio,image"
     $baseUrl = "https://graph.microsoft.com/v1.0/me/drive/root/delta?`$select=$select"
 
-    # Delta complet ou incrémental
+    # Full or incremental delta
     if ($ForceNewScan -or -not $script:Cache.DeltaToken) {
         $deltaUrl = $baseUrl
-        Write-Log "Scan delta complet (nouvelle base)"
+        Write-Log "Full delta scan (new base)"
     }
     else {
-            $deltaUrl = $script:Cache.DDeltaToken
-        Write-Log "Scan delta incrémental depuis le dernier deltaToken"
+            $deltaUrl = $script:Cache.DeltaToken
+        Write-Log "Incremental delta scan from last deltaToken"
     }
 
-    # Boucle delta
+    # Delta loop
     while ($deltaUrl) {
 
         $res = Invoke-GraphWithRetry -Uri $deltaUrl -Headers $Headers
         if (-not $res) {
-            Write-Log "Abandon du scan delta (page irrécupérable)." "ERROR"
+            Write-Log "Aborting delta scan (unrecoverable page)." "ERROR"
             break
         }
 
@@ -181,30 +181,30 @@ function ChargementScan {
         }
         elseif ($res.'@odata.deltaLink') {
             $script:Cache.DeltaToken = $res.'@odata.deltaLink'
-            Write-Log "deltaLink final reçu → fin du scan"
+            Write-Log "Final deltaLink received -> end of scan"
             break
         }
         else {
-            Write-Log "Fin du scan"
+            Write-Log "End of scan"
             break
         }
     }
 
-    # Sauvegarde finale
+    # Final save
     $script:Cache | ConvertTo-Json -Depth 10 | Out-File $global:IndexFile -Encoding utf8 -NoNewline
-    Write-Log "Cache OneDrive sauvegardé"
+    Write-Log "OneDrive cache saved"
 }
     catch {
-        Write-Log "Erreur ChargementScan : $($_.Exception.Message)" "ERROR"
+        Write-Log "Error Load-Scan : $($_.Exception.Message)" "ERROR"
     }
-} # ChargementScan
+} # Load-Scan
 
 # =====================================================================
-# 2. RAPPORT DES DOUBLONS
+# 2. CLOUD DUPLICATES REPORT
 # =====================================================================
-function DoublonsOneDrive {
+function Find-CloudDuplicates {
     try {
-    Write-Log "[2/4] Analyse des doublons OneDrive"
+    Write-Log "[2/4] Analyzing OneDrive duplicates"
 
     $script:CloudDupCount = 0
     $HashGroups = @{}
@@ -225,36 +225,36 @@ function DoublonsOneDrive {
         if ($HashGroups[$h].Count -gt 1) { $script:CloudDupCount++ }
     }
 
-    Write-Log "Groupes doublons Cloud: $($script:CloudDupCount)"
+    Write-Log "Cloud duplicate groups: $($script:CloudDupCount)"
 }
     catch {
-        Write-Log "Erreur DoublonsOneDrive : $($_.Exception.Message)" "ERROR"
+        Write-Log "Error Find-CloudDuplicates : $($_.Exception.Message)" "ERROR"
     }
-} # DoublonsOneDrive
+} # Find-CloudDuplicates
 
 # =====================================================================
-# 3. NETTOYAGE LOCAL
+# 3. LOCAL CLEANUP
 # =====================================================================
-function NettoyageLocal {
+function Analyze-LocalFiles {
     try {
-    Write-Log "[3/4] Analyse locale"
+    Write-Log "[3/4] Local analysis"
 
-    # Dossier des doublons
+    # Duplicate folder
     if (!(Test-Path $global:DupFolder)) {
         New-Item -ItemType Directory -Path $global:DupFolder -Force | Out-Null
     }
 
-    # Construction du dictionnaire CloudSizes : taille → liste de hash
+    # Build CloudSizes dictionary: size -> list of hashes
     $CloudSizes = @{}
 
     foreach ($f in $script:Cache.Files.Values) {
 
-        # --- FILTRES DE SÉCURITÉ ---
+        # --- SAFETY FILTERS ---
         if ($null -eq $f) { continue }
-        if ($null -eq $f.s) { continue }   # taille manquante
-        if ($null -eq $f.h) { continue }   # hash manquant
+        if ($null -eq $f.s) { continue }   # missing size
+        if ($null -eq $f.h) { continue }   # missing hash
 
-        # --- AJOUT DANS CloudSizes ---
+        # --- ADD TO CloudSizes ---
         if (-not $CloudSizes.ContainsKey($f.s)) {
             $CloudSizes[$f.s] = New-Object System.Collections.Generic.List[string]
         }
@@ -262,7 +262,7 @@ function NettoyageLocal {
         $CloudSizes[$f.s].Add($f.h)
     }
 
-    # Chargement du cache local des hash
+    # Load local hash cache
     $script:LocalHashCache = @{}
     if (Test-Path $global:LocalHashCacheFile) {
         try {
@@ -271,9 +271,9 @@ function NettoyageLocal {
         catch { $script:LocalHashCache = @{} }
     }
 
-    # Fichiers locaux
+    # Local files
     $LocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse |
-                  Where-Object { $_.FullName -notlike "*_Doublons*" }
+                  Where-Object { $_.FullName -notlike "*_Duplicates*" }
 
     $script:cDel = 0
     $script:cMove = 0
@@ -289,14 +289,14 @@ function NettoyageLocal {
             Write-Log "Progression: $i / $($script:total)"
         }
 
-        # Extension non autorisée → suppression
+        # Disallowed extension -> remove
         if (-not $global:AllowedExtSet.Contains($file.Extension.ToLower())) {
             Remove-Item -LiteralPath $file.FullName -Force
             $script:cDel++
             continue
         }
 
-        # Taille non présente dans le cloud → ignoré
+        # Size not present in cloud -> skip
         if (-not $CloudSizes.ContainsKey($file.Length)) {
             $script:cSkipped++
             continue
@@ -304,14 +304,14 @@ function NettoyageLocal {
 
         $possibleHashes = $CloudSizes[$file.Length]
 
-        # Cas simple : un seul hash possible
+        # Simple case: one possible hash
         if ($possibleHashes.Count -eq 1) {
             $expected = $possibleHashes[0]
 
             if ($script:LocalHashCache.ContainsKey($file.FullName)) {
                 if ($script:LocalHashCache[$file.FullName] -eq $expected) {
 
-                    # Déplacement dans _Doublons
+                    # Move to _Duplicates
                     $dest = Join-Path $global:DupFolder $file.Name
                     $idx = 1
                     while (Test-Path -LiteralPath $dest) {
@@ -326,7 +326,7 @@ function NettoyageLocal {
             }
         }
 
-        # Calcul du hash local si nécessaire
+        # Calculate local hash if needed
         $sha1 = $null
         if ($script:LocalHashCache.ContainsKey($file.FullName)) {
             $sha1 = $script:LocalHashCache[$file.FullName]
@@ -351,70 +351,70 @@ function NettoyageLocal {
         }
     }
 
-    # Sauvegarde du cache local
+    # Save local hash cache
     $script:LocalHashCache | ConvertTo-Json -Depth 5 |
         Out-File $global:LocalHashCacheFile -Encoding utf8 -NoNewline
 
-    Write-Log "Nettoyage local terminé"
+    Write-Log "Local cleanup completed"
 }
     catch {
-        Write-Log "Erreur NettoyageLocal : $($_.Exception.Message)" "ERROR"
+        Write-Log "Error Analyze-LocalFiles : $($_.Exception.Message)" "ERROR"
     }
-} # NettoyageLocal
+} # Analyze-LocalFiles
 
 # =====================================================================
-# 4. DOSSIERS VIDES
+# 4. EMPTY FOLDERS
 # =====================================================================
-function DossiersVides {
+function Remove-EmptyFolders {
     try {
-    Write-Log "[4/4] Nettoyage dossiers vides"
+    Write-Log "[4/4] Cleaning empty folders"
 
     Get-ChildItem -Path $LocalFolder -Directory -Recurse |
     Sort-Object { $_.FullName.Length } -Descending |
     ForEach-Object {
         if ((Get-ChildItem -LiteralPath $_.FullName -ErrorAction SilentlyContinue).Count -eq 0) {
-            if ($_.FullName -notlike "*_Doublons*") {
+            if ($_.FullName -notlike "*_Duplicates*") {
                 Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
             }
         }
     }
 }
     catch {
-        Write-Log "Erreur DossiersVides : $($_.Exception.Message)" "ERROR"
+        Write-Log "Error Remove-EmptyFolders : $($_.Exception.Message)" "ERROR"
     }
-} # DossiersVides
+} # Remove-EmptyFolders
 
 # =====================================================================
-# BILAN
+# SUMMARY
 # =====================================================================
-function Bilan {
+function Write-Summary {
     try {
     $Duration = (Get-Date) - $script:TimeStart
 
-    Write-Log "=== BILAN FINAL ==="
-    Write-Log "Temps écoulé: $($Duration.Minutes)m $($Duration.Seconds)s"
-    Write-Log "Fichiers locaux: $($script:total)"
-    Write-Log "Ignorés (taille diff): $($script:cSkipped)"
-    Write-Log "Groupes doublons Cloud: $($script:CloudDupCount)"
-    Write-Log "Doublons locaux déplacés: $($script:cMove)"
-    Write-Log "Fichiers supprimés (ext non autorisées): $($script:cDel)"
+    Write-Log "=== FINAL SUMMARY ==="
+    Write-Log "Elapsed time: $($Duration.Minutes)m $($Duration.Seconds)s"
+    Write-Log "Local files: $($script:total)"
+    Write-Log "Ignored (size mismatch): $($script:cSkipped)"
+    Write-Log "Cloud duplicate groups: $($script:CloudDupCount)"
+    Write-Log "Local duplicates moved: $($script:cMove)"
+    Write-Log "Files deleted (disallowed extensions): $($script:cDel)"
 }
     catch {
-        Write-Log "Erreur Bilan : $($_.Exception.Message)" "ERROR"
+        Write-Log "Error Write-Summary : $($_.Exception.Message)" "ERROR"
     }
-} # Bilan
+} # Write-Summary
 
 # =====================================================================
 # MAIN
 # =====================================================================
 function main {
     try {
-        Write-Log "=== LANCEMENT DU SCRIPT V15.1 ==="
+        Write-Log "=== STARTING SCRIPT V15.1 ==="
 
-        enteteConfig
+        Initialize-Configuration
 
         if ($ResetCache) {
-            Write-Log "Reset du cache interne..." "WARN"
+            Write-Log "Resetting internal cache..." "WARN"
             $files = @(
                 $global:IndexFile,
                 $global:ReportFile,
@@ -424,17 +424,17 @@ function main {
             foreach ($f in $files) {
                 if (Test-Path $f) { Remove-Item $f -Force }
             }
-            Write-Log "Reset terminé." "SUCCESS"
+            Write-Log "Reset completed." "SUCCESS"
         }
 
-        ChargementScan
-        DoublonsOneDrive
-        NettoyageLocal
-        DossiersVides
-        Bilan
+        Load-Scan
+        Find-CloudDuplicates
+        Analyze-LocalFiles
+        Remove-EmptyFolders
+        Write-Summary
 }
     catch {
-        Write-Log "Erreur main : $($_.Exception.Message)" "ERROR"
+        Write-Log "Error main : $($_.Exception.Message)" "ERROR"
     }
 } # main
 

@@ -14,14 +14,14 @@ param(
 # ============================================================
 
 if ($script:ModuleLoaded) {
-    Write-Log "OneDriveTools.psm1 déjà chargé → import ignoré" "DEBUG"
+    Write-Log "OneDriveTools.psm1 already loaded -> import ignored" "DEBUG"
     return
 }
 $script:ModuleLoaded = $true
 
 
 # ============================================================
-# LOGGING UNIFIÉ
+# UNIFIED LOGGING
 # ============================================================
 function Write-Log {
     [CmdletBinding()]
@@ -34,7 +34,7 @@ function Write-Log {
         $timestamp = Get-Date -Format "HH:mm:ss"
         $normalized = $Level.Trim().ToUpper()
 
-        # Définition des couleurs pour la console
+        # Define console colors
         $color = switch ($normalized) {
             "ERREUR" { "Red" }
             "ERROR"  { "Red" }
@@ -46,12 +46,12 @@ function Write-Log {
 
         $msg = "[$timestamp] [$normalized] $Message"
 
-        # Affichage console (sauf si DEBUG est désactivé)
+        # Console output (unless DEBUG is disabled)
         if ($normalized -ne "DEBUG" -or $script:VerboseMode) {
             Write-Host $msg -ForegroundColor $color
         }
 
-        # Écriture dans le fichier log avec gestion du verrouillage (3 tentatives)
+        # Write to log file with locking retry (3 attempts)
         $maxRetries = 3
         for ($i = 0; $i -lt $maxRetries; $i++) {
             try {
@@ -64,25 +64,25 @@ function Write-Log {
         }
     }
     catch {
-        Write-Host "ERREUR critique dans Write-Log: $_" -ForegroundColor Red
+        Write-Host "CRITICAL ERROR in Write-Log: $_" -ForegroundColor Red
     }
 } # Write-Log
 
 
 # ============================================================
-# VALIDATION PARAMÈTRES
+# PARAMETER VALIDATION
 # ============================================================
 function Assert-ValidParam {
     param([string]$Name, [string]$Value)
 
     try {
         if ([string]::IsNullOrWhiteSpace($Value)) {
-            Write-Log "Paramètre '$Name' vide ou invalide" "ERREUR"
-            throw "Paramètre '$Name' invalide"
+            Write-Log "Parameter '$Name' is empty or invalid" "ERROR"
+            throw "Parameter '$Name' is invalid"
         }
     }
     catch {
-        Write-Log "Échec Assert-ValidParam: $_" "ERREUR"
+        Write-Log "Assert-ValidParam failed: $_" "ERROR"
         throw
     }
 }
@@ -99,7 +99,7 @@ function Read-GraphToken {
         return $null
     }
     catch {
-        Write-Log "Token illisible → ignoré" "WARN"
+        Write-Log "Unreadable token -> ignored" "WARN"
         return $null
     }
 }
@@ -109,10 +109,10 @@ function Save-GraphToken {
 
     try {
         $Auth | ConvertTo-Json | Set-Content $TokenFile -ErrorAction Stop
-        Write-Log "Token Graph sauvegardé" "DEBUG"
+        Write-Log "Graph token saved" "DEBUG"
     }
     catch {
-        Write-Log "Impossible d'écrire le token dans '$TokenFile'" "ERREUR"
+        Write-Log "Unable to write token to '$TokenFile'" "ERROR"
     }
 }
 
@@ -137,24 +137,24 @@ function Test-GraphToken {
 # ============================================================
 function Get-GraphToken {
     try {
-        Write-Log "Get-GraphToken: Vérification du token existant"
+        Write-Log "Get-GraphToken: checking existing token"
 
         $existing = Read-GraphToken
 
         if ($existing -and $existing.access_token) {
 
             if ($existing.expires_on -gt (Get-Date).ToUniversalTime().ToFileTimeUtc()) {
-                Write-Log "Token valide chargé depuis le cache"
+                Write-Log "Valid token loaded from cache"
                 return $existing
             }
 
             if (Test-GraphToken $existing.access_token) {
-                Write-Log "Token encore valide (Graph OK)"
+                Write-Log "Token still valid (Graph OK)"
                 return $existing
             }
         }
 
-        Write-Log "[AUTH] Nouveau token requis"
+        Write-Log "[AUTH] New token required"
 
         Assert-ValidParam -Name "ClientId" -Value $ClientId
 
@@ -180,7 +180,7 @@ function Get-GraphToken {
                     }
             }
             catch {
-                Write-Log "Tentative d'obtention du token..." "DEBUG"
+                Write-Log "Attempting to obtain token..." "DEBUG"
             }
         }
 
@@ -189,26 +189,26 @@ function Get-GraphToken {
         )
 
         Save-GraphToken $Auth
-        Write-Log "Token Graph obtenu"
+        Write-Log "Graph token acquired"
 
         return $Auth
     }
     catch {
-        Write-Log "Échec Get-GraphToken: $_" "ERREUR"
+        Write-Log "Get-GraphToken failed: $_" "ERROR"
     }
 }
 
 
 
 # =====================================================================
-# HASH DU CACHE
+# CACHE HASH
 # =====================================================================
 
-# Calcule le hash du fichier de cache OneDrive
+# Calculate hash of OneDrive cache file
 function Get-CacheHash {
     try {
         if (-not (Test-Path $IndexFile)) {
-            Write-Log "Impossible de calculer le hash, fichier absent : $IndexFile" "WARN"
+            Write-Log "Unable to calculate hash, file missing: $IndexFile" "WARN"
             return $null
         }
         return (Get-FileHash $IndexFile -Algorithm SHA256).Hash
@@ -220,10 +220,10 @@ function Get-CacheHash {
 } # Get-CacheHash
 
 
-# Retourne les détails d'une erreur HTTP
+# Return the details of an HTTP error
 function Get-ErrorDetails {
     param(
-        $Exception  # Exception à analyser
+        $Exception  # Exception to analyze
     )
     try {
         if ($Exception.Response) {
@@ -232,17 +232,17 @@ function Get-ErrorDetails {
         }
     }
     catch {
-        Write-Log "Erreur lors de la lecture des détails d'erreur : $($_.Exception.Message)" "ERROR"
+        Write-Log "Failed to read error details: $($_.Exception.Message)" "ERROR"
     }
     return $Exception.Message
 } # Get-ErrorDetails
 
 
-# Convertit une chaîne en ASCII safe pour noms de fichiers/chemins
+# Convert a string to ASCII-safe form for file names/paths
 function Convert-ToAscii {
     param(
-        [string]$Text,          # Texte à normaliser
-        [bool]$IsPath = $false  # Indique si c'est un chemin
+        [string]$Text,          # Text to normalize
+        [bool]$IsPath = $false  # Indicates if it's a path
     )
 
     try {
@@ -250,33 +250,33 @@ function Convert-ToAscii {
 
         # Normalisation Unicode → ASCII
         $clean = $Text.Normalize([System.Text.NormalizationForm]::FormD) -replace '\p{M}', ''
-        # Suppression GUIDs et longues séquences hex/base64
+        # Remove GUIDs and long hex/base64 sequences
         $clean = $clean -replace "[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}", ""
         $clean = $clean -replace "[a-zA-Z0-9]{16,}", ""
 
-        # Filtrage caractères invalides
+        # Filter invalid characters
         $pattern = if ($IsPath) { "[^a-zA-Z0-9\.\-/]" } else { "[^a-zA-Z0-9\.\-]" }
         return ($clean -replace $pattern, "_" -replace "_+", "_").Trim("_")
     }
     catch {
-        Write-Log "Erreur Convert-ToAscii : $($_.Exception.Message)" "ERROR"
+        Write-Log "Convert-ToAscii failed: $($_.Exception.Message)" "ERROR"
         return ""
     }
 } # Convert-ToAscii
 
 # =====================================================================
-# AUTHENTIFICATION
+# AUTHENTICATION
 # =====================================================================
 
-# Obtient un token Graph et prépare les en-têtes
+# Obtain a Graph token and prepare headers
 function Connect-AzureGraph {
     try {
-        Write-Log "Obtention du token Graph via module..."
+        Write-Log "Obtaining Graph token via module..."
         $auth = Get-GraphToken
 
         if (-not $auth.access_token) {
-            Write-Log "Échec token Graph" "ERROR"
-            throw "Impossible d'obtenir un token Graph."
+            Write-Log "Graph token failed" "ERROR"
+            throw "Unable to obtain Graph token."
         }
 
         $Global:State.Headers = @{
@@ -284,7 +284,7 @@ function Connect-AzureGraph {
             "Content-Type" = "application/json"
         }
 
-        Write-Log "Token Graph chargé." "SUCCESS"
+        Write-Log "Graph token loaded." "SUCCESS"
     }
     catch {
         Write-Log "Erreur Connect-AzureGraph : $($_.Exception.Message)" "ERROR"
@@ -302,13 +302,13 @@ function main {
         Assert-ValidParam -Name "TokenFile" -Value $TokenFile
         Assert-ValidParam -Name "LogFile"   -Value $LogFile
 
-        Write-Log "OneDriveTools.psm1 chargé"
+        Write-Log "OneDriveTools.psm1 loaded"
         Write-Log "ClientId=$ClientId"  "DEBUG"
         Write-Log "TokenFile=$TokenFile" "DEBUG"
         Write-Log "LogFile=$LogFile"     "DEBUG"
     }
     catch {
-        Write-Log "Échec main: $_" "ERREUR"
+        Write-Log "Main failed: $_" "ERROR"
     }
 } # main
 

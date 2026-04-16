@@ -1,11 +1,11 @@
 {
   "_comments": {
-    "purpose": "Règles métier externalisées. JSON ne supporte pas les commentaires natifs, ce bloc documente les sections.",
-    "extensionMap": "Associe extension -> catégorie média utilisée par le routing.",
-    "categoryRules": "Catégorisation logique initiale (ex: zones standard, zones confidentielles).",
-    "routingRules": "Règles de destination des fichiers.",
-    "namingRules": "Nettoyage des mots pour la génération des noms.",
-    "cleanerRules": "Scoring de conservation/suppression des doublons cloud."
+    "purpose": "Externalized business rules. JSON does not support native comments, this block describes the sections.",
+    "extensionMap": "Maps extension -> media category used by routing.",
+    "categoryRules": "Initial logical categorization (e.g. standard zones, confidential zones).",
+    "routingRules": "Destination rules for files.",
+    "namingRules": "Word cleaning rules for name generation.",
+    "cleanerRules": "Scoring rules to keep/remove cloud duplicates."
   },
   "extensionMap": {
     ".jpg": "Images",

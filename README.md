@@ -1,31 +1,31 @@
 # syncOnedrive
 
-Solution PowerShell pour **indexer OneDrive via Microsoft Graph**, **détecter/traiter les doublons**, et **organiser automatiquement les médias** à partir d’un moteur de configuration externe.
+PowerShell solution to **index OneDrive via Microsoft Graph**, **detect/process duplicates**, and **automatically organize media** using an external configuration engine.
 
-> Objectif du projet : fournir une base **générique, partageable et industrialisable** pour une publication GitHub (sans règles métier codées en dur).
+> Project goal: provide a **generic, shareable, and industrializable** foundation for a GitHub release (without hard-coded business rules).
 
 ---
 
-## 1) Ce que fait le projet
+## 1) What this project does
 
-Le dépôt fournit 3 scripts principaux :
+The repository provides 3 main scripts:
 
 1. **`OneDrive_Sync.ps1`**
-   - Construit/met à jour un cache OneDrive (`delta API`).
-   - Compare les fichiers locaux avec le cloud par taille/hash.
-   - Déplace les doublons locaux vers `_Doublons`.
+   - Builds/updates a OneDrive cache (`delta API`).
+   - Compares local files with cloud items by size/hash.
+   - Moves local duplicates to `_Doublons`.
 2. **`OneDrive_PictureMovieOrganiser.ps1`**
-   - Analyse le cache cloud.
-   - Calcule un plan de renommage/routage (JSON) selon des règles.
-   - Applique les déplacements/renommages OneDrive via Graph.
+   - Analyzes the cloud cache.
+   - Calculates a renaming/routing plan (JSON) according to rules.
+   - Applies OneDrive moves/renames via Graph.
 3. **`OneDrive_CloudCleaner.ps1`**
-   - Regroupe les doublons cloud par hash.
-   - Conserve la meilleure occurrence selon des règles de priorité.
-   - Supprime les occurrences redondantes via Graph.
+   - Groups cloud duplicates by hash.
+   - Keeps the best occurrence according to priority rules.
+   - Deletes redundant occurrences via Graph.
 
 ---
 
-## 2) Architecture du code
+## 2) Code architecture
 
 ### Entrypoints
 - `OneDrive_Sync.ps1`
@@ -33,188 +33,188 @@ Le dépôt fournit 3 scripts principaux :
 - `OneDrive_CloudCleaner.ps1`
 
 ### Modules
-- `modules/AppConfig.psm1` : lecture `config.ini` + `rules.json`.
-- `modules/OneDriveTools.psm1` : logs, authentification Graph (device code), utilitaires communs.
-- `modules/OneDriveOrganize.psm1` : classification média, routage, génération de noms.
-- `modules/OneDriveCacheUtils.psm1` : chargement/réparation cache, planification, collisions.
-- `modules/GpsTools.psm1` : résolution GPS (cache + Nominatim), normalisation localités.
+- `modules/AppConfig.psm1` : reads `config.ini` + `rules.json`.
+- `modules/OneDriveTools.psm1` : logs, Graph authentication (device code), common utilities.
+- `modules/OneDriveOrganize.psm1` : media classification, routing, name generation.
+- `modules/OneDriveCacheUtils.psm1` : cache loading/repair, planning, collisions.
+- `modules/GpsTools.psm1` : GPS resolution (cache + Nominatim), location normalization.
 
-### Données de travail
-- `_cache/onedrive_cache.json` : index cloud.
-- `_cache/plan.json` : plan des actions d’organisation.
-- `_cache/processed_ids.log` : IDs déjà traités.
-- `_cache/*.txt`, `_cache/*.csv` : logs/rapports opérationnels.
+### Working data
+- `_cache/onedrive_cache.json` : cloud index.
+- `_cache/plan.json` : organization action plan.
+- `_cache/processed_ids.log` : already processed IDs.
+- `_cache/*.txt`, `_cache/*.csv` : operational logs/reports.
 
 ---
 
-## 3) Configuration externe (nouveau modèle)
+## 3) External configuration (new model)
 
-Le projet externalise désormais la configuration et les règles dans 2 fichiers :
+The project now externalizes configuration and rules in two files:
 
-- **`config.ini`** : paramètres d’exécution (client Graph, chemins, options globales, extensions autorisées).
-- **`rules.json`** : logique métier (routing, patterns applicatifs, stopwords, scoring de suppression, mapping extension→catégorie).
-- Les scripts n’acceptent plus les chemins de cache/log/rapport en paramètres : ces valeurs viennent exclusivement de `config.ini`.
+- **`config.ini`** : runtime settings (Graph client, paths, global options, allowed extensions).
+- **`rules.json`** : business logic (routing, application patterns, stopwords, deletion scoring, extension→category mapping).
+- Scripts no longer accept cache/log/report paths as parameters: these values come exclusively from `config.ini`.
 
 ### 3.1 `config.ini`
-Sections principales :
+Main sections:
 - `[general]` : `verbose_mode`
 - `[graph]` : `client_id`
-- `[paths]` : fichiers cache/token/log/report
+- `[paths]` : cache/token/log/report files
 - `[organizer]` : `rename_marker`, `max_name_len`
 - `[sync]` : `local_folder`
-- `[extensions]` : liste `allowed` (CSV)
+- `[extensions]` : `allowed` list (CSV)
 
-Le fichier est commenté (préfixes `;` / `#`) pour documenter chaque paramètre.
+The file is documented with comments (`;` / `#`).
 
 ### 3.2 `rules.json`
-Objets principaux :
+Main objects:
 - `extensionMap`
 - `categoryRules`
 - `routingRules`
 - `namingRules`
 - `cleanerRules`
 
-`rules.json` n’autorise pas les commentaires natifs. Le projet utilise donc des champs `_comments` pour documenter la finalité des blocs.
+`rules.json` does not allow native comments. The project therefore uses `_comments` fields to document the purpose of blocks.
 
-> Recommandation : conservez les règles spécifiques à votre contexte **uniquement** dans `rules.json`.
+> Recommendation: keep context-specific rules only in `rules.json`.
 
 ---
 
-## 4) Prérequis
+## 4) Requirements
 
 - Windows + OneDrive.
-- PowerShell 7 recommandé (Windows PowerShell 5.1 possible selon environnement).
-- Une App Registration Azure AD / Microsoft Entra compatible Device Code.
-- Accès Microsoft Graph pour les scopes nécessaires (au minimum lecture/écriture fichiers selon usage).
+- PowerShell 7 recommended (Windows PowerShell 5.1 possible depending on environment).
+- An Azure AD / Microsoft Entra App Registration compatible with Device Code.
+- Microsoft Graph access for required scopes (at minimum file read/write for intended usage).
 
 ---
 
-## 5) Mise en route rapide
+## 5) Quick start
 
-### Étape A — Préparer la configuration
-1. Copier/adapter `config.ini`.
-2. Copier/adapter `rules.json`.
-3. Vérifier :
+### Step A — Prepare configuration
+1. Copy/adapt `config.ini`.
+2. Copy/adapt `rules.json`.
+3. Verify:
    - `client_id`
-   - chemins `_cache`
-   - dossier local (`local_folder`)
-   - règles de routage/suppression.
+   - `_cache` paths
+   - local folder (`local_folder`)
+   - routing/deletion rules.
 
-### Étape B — Générer/actualiser le cache cloud
+### Step B — Generate/update the cloud cache
 ```powershell
 .\OneDrive_Sync.ps1 -Mode Online
 ```
 
-### Étape C — Simuler l’organisation (sans exécution)
+### Step C — Simulate organization (no execution)
 ```powershell
 .\OneDrive_PictureMovieOrganiser.ps1 -Execute:$false
 ```
 
-### Étape D — Exécuter les déplacements OneDrive
+### Step D — Execute OneDrive moves
 ```powershell
 .\OneDrive_PictureMovieOrganiser.ps1 -Execute:$true
 ```
 
-### Étape E — Nettoyer les doublons cloud (optionnel)
+### Step E — Clean cloud duplicates (optional)
 ```powershell
 .\OneDrive_CloudCleaner.ps1
 ```
 
 ---
 
-## 6) Référence CLI
+## 6) CLI Reference
 
 ### `OneDrive_Sync.ps1`
-Paramètres importants :
+Important parameters:
 - `-Mode Online|Offline`
 - `-ForceNewScan`
 - `-ResetCache`
 - `-ConfigFile`
 
-Exemples :
+Examples:
 ```powershell
-# Re-scan cloud complet
+# Complete cloud re-scan
 .\OneDrive_Sync.ps1 -Mode Online -ForceNewScan
 
-# Mode offline depuis le cache existant
+# Offline mode from existing cache
 .\OneDrive_Sync.ps1 -Mode Offline
 ```
 
 ### `OneDrive_PictureMovieOrganiser.ps1`
-Paramètres importants :
+Important parameters:
 - `-Execute`
 - `-ResetCache`
 - `-ConfigFile`
 
-Exemples :
+Examples:
 ```powershell
-# Dry run de validation
+# Validation dry run
 .\OneDrive_PictureMovieOrganiser.ps1 -Execute:$false
 
-# Exécution réelle
+# Real execution
 .\OneDrive_PictureMovieOrganiser.ps1 -Execute:$true
 ```
 
 ### `OneDrive_CloudCleaner.ps1`
-Paramètres importants :
+Important parameters:
 - `-ConfigFile`
 
-Exemple :
+Example:
 ```powershell
 .\OneDrive_CloudCleaner.ps1
 ```
 
 ---
 
-## 7) Flux de données recommandé
+## 7) Recommended data flow
 
-1. **Sync** (`OneDrive_Sync.ps1`) pour fiabiliser le cache cloud.
-2. **Organisation** (`OneDrive_PictureMovieOrganiser.ps1`) en dry-run puis exécution.
-3. **Cleaner cloud** (`OneDrive_CloudCleaner.ps1`) en option, si besoin de purge doublons côté OneDrive.
+1. **Sync** (`OneDrive_Sync.ps1`) to stabilize the cloud cache.
+2. **Organization** (`OneDrive_PictureMovieOrganiser.ps1`) in dry-run then execution.
+3. **Cloud cleaner** (`OneDrive_CloudCleaner.ps1`) optional, if OneDrive side duplicate purging is needed.
 
-Ce séquencement réduit les erreurs et facilite les reprises (`plan.json`, `processed_ids.log`, hash cache).
+This sequencing reduces errors and facilitates resumes (`plan.json`, `processed_ids.log`, hash cache).
 
 ---
 
-## 8) Bonnes pratiques pour publication GitHub
+## 8) Best practices for GitHub publication
 
-- Ne pas committer de secrets/token (`_cache/graph_token.json` doit être ignoré).
-- Fournir des exemples :
+- Do not commit secrets/tokens (`_cache/graph_token.json` must be ignored).
+- Provide examples:
   - `config.ini.example`
   - `rules.json.example`
-- Documenter vos règles métier par commentaire JSON (`README` + historique des versions).
-- Tester chaque modification de `rules.json` en dry-run avant exécution réelle.
-- Garder les logs `_cache` pour audit et rollback opérationnel.
+- Document your business rules with JSON comments (`README` + version history).
+- Test each `rules.json` modification in dry-run before real execution.
+- Keep `_cache` logs for audit and operational rollback.
 
 ---
 
-## 9) Limites connues / points à améliorer
+## 9) Known limitations / improvement opportunities
 
-- Plusieurs scripts ont encore des messages/fonctions en français + conventions mixtes : une normalisation globale aidera à la maintenance open-source.
-- Les tests automatisés (Pester) ne sont pas encore fournis.
-- Un packaging module + release notes faciliterait les contributions externes.
-
----
-
-## 10) Roadmap suggérée
-
-- [ ] Ajouter `config.ini.example` et `rules.json.example`.
-- [ ] Ajouter `.gitignore` strict (`_cache`, tokens, rapports).
-- [ ] Ajouter tests Pester unitaires (par module).
-- [ ] Ajouter workflow CI (lint PowerShell + tests).
-- [ ] Ajouter changelog (`CHANGELOG.md`) et versioning semver.
+- Several scripts still have messages/functions in French + mixed conventions: a global normalization will help open-source maintenance.
+- Automated tests (Pester) are not yet provided.
+- Packaging the project as a module with release notes would improve external contributions.
 
 ---
 
-## 11) Licence
+## 10) Suggested roadmap
 
-Ajoutez une licence explicite avant publication officielle (MIT recommandé pour démarrer).
+- [ ] Add `config.ini.example` and `rules.json.example`.
+- [ ] Add a strict `.gitignore` (`_cache`, tokens, reports).
+- [ ] Add Pester unit tests (per module).
+- [ ] Add CI workflow (PowerShell lint + tests).
+- [ ] Add changelog (`CHANGELOG.md`) and semver versioning.
+
+---
+
+## 11) License
+
+Add an explicit license before official publication (MIT recommended to start).
 
 ---
 
 ## 12) Contribution
 
-Les PRs sont bienvenues si elles respectent :
-- la séparation **code générique** vs **règles métier externes**,
-- la compatibilité de l’existant (`config.ini` / `rules.json`),
-- un test manuel documenté dans la PR.
+PRs are welcome if they respect:
+- the separation **generic code** vs **external business rules**,
+- compatibility with existing (`config.ini` / `rules.json`),
+- a documented manual test in the PR.

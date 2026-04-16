@@ -1,6 +1,6 @@
-function Test-Cache {
+﻿function Test-Cache {
     try {
-        Write-Log "=== VALIDATION DU CACHE ===" "INFO"
+        Write-Log "=== CACHE VALIDATION ===" "INFO"
 
         $cache = $Global:State.Cache.Files
         $total = $cache.Count
@@ -13,16 +13,16 @@ function Test-Cache {
             -not $Config.ExtensionMap.ContainsKey($ext)
         }
 
-        Write-Log "Total entrées : $total" "INFO"
-        Write-Log "Chemin manquant : $($missingPath.Count)" "WARN"
-        Write-Log "Nom manquant : $($missingName.Count)" "WARN"
-        Write-Log "Chemin invalide : $($badPrefix.Count)" "WARN"
-        Write-Log "Extension inconnue : $($badExt.Count)" "WARN"
+        Write-Log "Total entries: $total" "INFO"
+        Write-Log "Missing path: $($missingPath.Count)" "WARN"
+        Write-Log "Missing name: $($missingName.Count)" "WARN"
+        Write-Log "Invalid path: $($badPrefix.Count)" "WARN"
+        Write-Log "Unknown extension: $($badExt.Count)" "WARN"
 
-        Write-Log "Validation terminée." "SUCCESS"
+        Write-Log "Validation terminee." "SUCCESS"
     }
     catch {
-        Write-Log "Erreur Invoke-Moves : $($_.Exception.Message)" "ERROR"
+        Write-Log "Invoke-Moves error: $($_.Exception.Message)" "ERROR"
         throw
     }
     
@@ -33,7 +33,7 @@ function Test-Cache {
 # REPRISE AUTOMATIQUE
 # =====================================================================
 
-# Charge un plan existant si le hash du cache est identique
+# Load existing plan if cache hash matches
 function Get-ExistingPlan {
     param(
         [string]$CurrentHash  # Hash actuel du cache OneDrive
@@ -51,44 +51,44 @@ function Get-ExistingPlan {
         $oldHash = Get-Content $hashFile -ErrorAction Stop
 
         if ($oldHash -eq $CurrentHash) {
-            Write-Log "Plan existant valide — reprise sans analyse." "SUCCESS"
+            Write-Log "Plan existant valide - reprise sans analyse." "SUCCESS"
             return (Get-Content $planFile -Raw | ConvertFrom-Json)
         }
 
-        Write-Log "Plan existant invalide (hash différent)." "WARN"
+        Write-Log "Existing plan invalid (hash mismatch)." "WARN"
         return $null
     }
     catch {
-        Write-Log "Erreur lors du chargement du plan existant : $($_.Exception.Message)" "ERROR"
+        Write-Log "Error loading existing plan : $($_.Exception.Message)" "ERROR"
         return $null
     }
 } # Get-ExistingPlan
 
 
 # =====================================================================
-# CHARGEMENT DU CACHE
+# CACHE LOADING
 # =====================================================================
 
-# Charge le cache OneDrive et prépare FilesToProcess / ProcessedIds
+# Load OneDrive cache and prepare FilesToProcess / ProcessedIds
 function Import-Set-Cache {
     try {
-        # Write-Log "Nettoyage du vieux log $LogFile"
+        # Write-Log "Cleaning old log $LogFile"
         # if (Test-Path $LogFile) { Remove-Item $LogFile -Force }
 
-        Write-Log "Chargement du cache OneDrive $IndexFile ..."
+        Write-Log "Loading OneDrive cache $IndexFile ..."
         if (!(Test-Path $IndexFile)) {
-            Write-Log "Cache introuvable : $IndexFile" "ERROR"
+            Write-Log "Cache not found: $IndexFile" "ERROR"
             exit 1
         }
 
         $Global:State.Cache = Get-Content $IndexFile -Raw | ConvertFrom-Json -AsHashtable
 
         if (-not $Global:State.Cache.Files) {
-            Write-Log "Aucun fichier dans le cache." "ERROR"
+            Write-Log "No files in cache." "ERROR"
             exit 1
         }
 
-        Write-Log "Chargement des IDs déjà traités ($ProcessedLog) ..."
+        Write-Log "Loading already processed IDs ($ProcessedLog) ..."
         $Global:State.ProcessedIds = @{}
         $Global:State.FilesToProcess = @{}
 
@@ -97,57 +97,57 @@ function Import-Set-Cache {
                 $id = $_.Trim()
                 if ($id) { $Global:State.ProcessedIds[$id] = $true }
             }
-            Write-Log "Fichiers déjà traités : $($Global:State.ProcessedIds.Count)"
+            Write-Log "Already processed files : $($Global:State.ProcessedIds.Count)"
         }
         else {
-            Write-Log "Aucun fichier traité précédemment (fichier $ProcessedLog absent)."
+            Write-Log "No previously processed files (file $ProcessedLog missing)."
         }
 
-        Write-Log "Découverte des fichiers déjà traités ayant le marqueur '$($Config.RenameMarker)' ..."
+        Write-Log "Discovering already processed files containing marker '$($Config.RenameMarker)' ..."
         $index = 0
         $total = $Global:State.Cache.Files.Count
         foreach ($id in $Global:State.Cache.Files.Keys) {
             $index++
             if ($index % 500 -eq 0) {
-                Write-Progress -Activity "Analyse des fichiers" `
+                Write-Progress -Activity "Analyzing files" `
                     -Status "$index / $total" `
                     -PercentComplete (($index / $total) * 100)
             }
             $fileMeta = $Global:State.Cache.Files[$id]
 
-            # a) Si déjà dans ProcessedIds → ignorer
+            # a) Si deja dans ProcessedIds => ignorer
             if ($Global:State.ProcessedIds.ContainsKey($id)) {
-                Write-Log "Ignoré (déjà traité) : $id" "DEBUG"
+                Write-Log "Ignored (already processed): $id" "DEBUG"
                 continue
             }
-            # b) Si le nom contient le marqueur → l'ajouter à ProcessedIds
+            # b) Si le nom contient le marqueur => l'ajouter a ProcessedIds
             if ($fileMeta.n -like "*$($Config.RenameMarker)*") {
-                Write-Log "Ajouté à ProcessedIds (déjà renommé) : $($fileMeta.p)/$($fileMeta.n)" "DEBUG"
+                Write-Log "Added to ProcessedIds (already renamed): $($fileMeta.p)/$($fileMeta.n)" "DEBUG"
                 $Global:State.ProcessedIds[$id] = $true
                 continue
             }
 
-            # c) Sinon → fichier à traiter
+            # c) Otherwise → file to process
             $Global:State.FilesToProcess[$id] = $fileMeta
         }
 
-        Write-Progress -Activity "Analyse terminée" -Completed
-        Write-Log "Indexation terminée. Fichiers à traiter : $($Global:State.FilesToProcess.Count)"
+        Write-Progress -Activity "Analysis completed" -Completed
+        Write-Log "Indexing complete. Files to process: $($Global:State.FilesToProcess.Count)"
         "Timestamp,ID,Status,OldPath,NewPath,Error" | Set-Content $ExecutionReport
     }
     catch {
-        Write-Log "Erreur Import-Set-Cache : $($_.Exception.Message)" "ERROR"
+        Write-Log "Import-Set-Cache error : $($_.Exception.Message)" "ERROR"
         throw
     }
 } # Import-Set-Cache
 
 # =====================================================================
-# PIPELINE FUSIONNÉ : ANALYSE + BARRE DE PROGRESSION + PLAN
+# MERGED PIPELINE: ANALYSIS + PROGRESS BAR + PLAN
 # =====================================================================
 
-# Analyse les fichiers et construit le plan de déplacement
+# Analyze files and build relocation plan
 function New-Plan {
-    Write-Log "Analyse des fichiers (pipeline fusionné)..."
+    Write-Log "Scanning files (merged pipeline)..."
 
     try {
         $FileIds = $Global:State.FilesToProcess.Keys
@@ -179,42 +179,42 @@ function New-Plan {
                     Set-Content $planFile
                 }
                 catch {
-                    Write-Log "Erreur sauvegarde progression : $($_.Exception.Message)" "ERROR"
+                    Write-Log "Progress save error : $($_.Exception.Message)" "ERROR"
                 }
             }
 
             Write-Log "----------------------------------------------" "DEBUG"
-            Write-Log "Analyse du fichier" "DEBUG"
+            Write-Log "Analyzing file" "DEBUG"
             Write-Log "ID             : $fileId" "DEBUG"
-            Write-Log "Nom original   : $($fileMeta.n)" "DEBUG"
-            Write-Log "Chemin source  : $($fileMeta.p)" "DEBUG"
+            Write-Log "Original name   : $($fileMeta.n)" "DEBUG"
+            Write-Log "Source path     : $($fileMeta.p)" "DEBUG"
             Write-Log "Extension      : $extension" "DEBUG"
-            Write-Log "Date fichier   : $($fileMeta.d)" "DEBUG"
-            Write-Log "GPS            : $($fileMeta.gps)" "DEBUG"
+            Write-Log "File date      : $($fileMeta.d)" "DEBUG"
+            Write-Log "GPS            : $($fileMeta.GPS)" "DEBUG"
 
             # Classification
             $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension
-            Write-Log "Classification intelligente = ($category)" "DEBUG"
+            Write-Log "Smart classification = ($category)" "DEBUG"
 
             if (-not $Config.ExtensionMap.ContainsKey($extension)) {
-                Write-Log "Ignoré : extension non supportée ($extension)" "DEBUG"
+                Write-Log "Ignored: unsupported extension ($extension)" "DEBUG"
                 continue
             }
 
             $fileDate = [DateTime]$fileMeta.d
 
             # GPS
-            $gpsLocation = $null
-            if ($fileMeta.gps) {
-                $gpsLocation = Get-LocationName $fileMeta.gps
-                Write-Log "Localisation GPS : $gpsLocation" "DEBUG"
+            $GPSLocation = $null
+            if ($fileMeta.GPS) {
+                $GPSLocation = Get-LocationName $fileMeta.GPS
+                Write-Log "GPS location : $GPSLocation" "DEBUG"
             }
 
             # Tags
             $pathTags = Get-PathTags $fileMeta.p
-            Write-Log "Tags de chemin : $pathTags" "DEBUG"
+            Write-Log "Tags de Path : $pathTags" "DEBUG"
 
-            # Caméra
+            # Camera
             $camera = $fileMeta.cam
 
             # Source hint
@@ -229,7 +229,7 @@ function New-Plan {
             # Nouveau nom
             $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($fileMeta.n)
             if ([string]::IsNullOrWhiteSpace($originalNameNoExt)) {
-                Write-Log "Nom de fichier vide, fichier ignoré : $($fileMeta.p)/$($fileMeta.n)" "WARN"
+                Write-Log "Empty filename, skipping file: $($fileMeta.p)/$($fileMeta.n)" "WARN"
                 continue
             }
 
@@ -237,12 +237,12 @@ function New-Plan {
                 -DateRef      $fileDate `
                 -OriginalName $originalNameNoExt `
                 -Extension    $extension `
-                -GpsLocation  $gpsLocation `
+                -GPSLocation  $GPSLocation `
                 -PathTags     $pathTags `
                 -Camera       $camera `
                 -SourceHint   $sourceHint
 
-            Write-Log "Nouveau nom généré : $newName" "DEBUG"
+            Write-Log "Generated new name: $newName" "DEBUG"
             # Destination
             $dest = Get-DestinationPath `
                 -Category     $category `
@@ -252,16 +252,16 @@ function New-Plan {
                 -NewName      $newName `
                 -FileDate     $fileDate
 
-            Write-Log "Chemin destination = ($($dest.CleanDestination))" "DEBUG"
+            Write-Log "Destination path = ($($dest.CleanDestination))" "DEBUG"
             $cleanDestination = $dest.CleanDestination
             $fullDestination = $dest.FullDestination
 
-            # Vérification si déjà à la bonne place
+            # Verification si deja a la bonne place
             $srcDirClean = $fileMeta.p -replace "^/drive/root:", ""
             $currentPath = "$($srcDirClean.Trim('/'))/$($fileMeta.n)"
 
             if ($currentPath -eq $fullDestination.Trim('/')) {
-                Write-Log "Déjà à la bonne place : $($fileMeta.n)" "DEBUG"
+                Write-Log "Already in correct place: $($fileMeta.n)" "DEBUG"
                 continue
             }
 
@@ -276,20 +276,20 @@ function New-Plan {
                 })
         }
 
-        Write-Log "Plan généré : $($Global:State.PlannedActions.Count) fichiers." "SUCCESS"
-        # Sauvegarde du plan JSON
+        Write-Log "Plan generated: $($Global:State.PlannedActions.Count) files." "SUCCESS"
+        # Save JSON plan
         try {
             $cacheFolder = Split-Path $IndexFile -Parent
             $planFile = Join-Path $cacheFolder "plan.json"
             $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content $planFile
-            Write-Log "Plan sauvegardé dans $planFile" "SUCCESS"
+            Write-Log "Plan saved to $planFile" "SUCCESS"
         }
         catch {
-            Write-Log "Erreur lors de la sauvegarde du plan : $($_.Exception.Message)" "ERROR"
+            Write-Log "Error saving plan : $($_.Exception.Message)" "ERROR"
         }
     }
     catch {
-        Write-Log "Erreur New-Plan : $($_.Exception.Message)" "ERROR"
+        Write-Log "New-Plan error : $($_.Exception.Message)" "ERROR"
         throw
     }
 } # New-Plan
@@ -298,37 +298,37 @@ function New-Plan {
 
 function Test-Plan {
     try {
-        # Analyse de l'état en mémoire au lieu de recharger le fichier JSON
+        # Analyze in-memory state instead of reloading JSON file
         $plan = $Global:State.PlannedActions
 
         if (-not $plan -or $plan.Count -eq 0) {
-            Write-Log "Aucun plan chargé pour analyse." "WARN"
+            Write-Log "No plan loaded for analysis." "WARN"
             return
         }
 
-        Write-Log "=== ANALYSE DU PLAN ===" "INFO"
+        Write-Log "=== PLAN ANALYSIS ===" "INFO"
         Write-Log "Total actions : $($plan.Count)" "INFO"
 
-        # 1. Vérifier les collisions de noms
+        # 1. Check for name collisions
         $duplicates = $plan.FullDst | Group-Object | Where-Object { $_.Count -gt 1 }
         if ($duplicates) {
-            Write-Log "Collisions détectées :" "ERROR"
+            Write-Log "Collisions detected:" "ERROR"
             foreach ($d in $duplicates) {
                 Write-Log " - $($d.Name) ($($d.Count) occurrences)" "ERROR"
             }
         }
         else {
-            Write-Log "Aucune collision détectée." "SUCCESS"
+            Write-Log "No collisions detected." "SUCCESS"
         }
 
-        # 2. Vérifier les chemins trop longs
+        # 2. Check for overly long paths
         $tooLong = $plan | Where-Object { $_.FullDst.Length -gt 250 }
-        if ($tooLong) { Write-Log "Chemins > 250 caractères : $($tooLong.Count)" "INFO" }
+        if ($tooLong) { Write-Log "Paths > 250 characters: $($tooLong.Count)" "INFO" }
 
-        Write-Log "Analyse terminée." "SUCCESS"
+        Write-Log "Analysis complete." "SUCCESS"
     }
     catch {
-        Write-Log "Erreur Test-Plan : $($_.Exception.Message)" "ERROR"
+        Write-Log "Test-Plan error : $($_.Exception.Message)" "ERROR"
     }
 } # Test-Plan
 
@@ -339,28 +339,28 @@ function Debug-File {
     )
     try {
         if (-not $Global:State.Cache) {
-            Write-Log "Cache non chargé." "ERROR"
+            Write-Log "Cache not loaded." "ERROR"
             return
         }
 
         if (-not $Global:State.Cache.Files.ContainsKey($Id)) {
-            Write-Log "ID introuvable dans le cache." "ERROR"
+            Write-Log "ID not found in cache." "ERROR"
             return
         }
 
         $f = $Global:State.Cache.Files[$Id]
 
         Write-Log "=== DEBUG FILE $Id ===" "INFO"
-        Write-Log "Chemin : $($f.p)" "INFO"
+        Write-Log "Path : $($f.p)" "INFO"
         Write-Log "Nom    : $($f.n)" "INFO"
         Write-Log "Date   : $($f.d)" "INFO"
-        Write-Log "GPS    : $($f.gps)" "INFO"
-        Write-Log "Caméra : $($f.cam)" "INFO"
+        Write-Log "GPS    : $($f.GPS)" "INFO"
+        Write-Log "Camera : $($f.cam)" "INFO"
         Write-Log "========================" "INFO"
 
     }
     catch {
-        Write-Log "Erreur Invoke-Moves : $($_.Exception.Message)" "ERROR"
+        Write-Log "Invoke-Moves error: $($_.Exception.Message)" "ERROR"
         throw
     }
 
@@ -372,54 +372,54 @@ function Start-DryRun {
 
         Test-Plan
 
-        Write-Log "Aucun déplacement ne sera effectué." "WARN"
-        Write-Log "Vous pouvez maintenant exécuter : -Execute `$true" "INFO"
+        Write-Log "No move will be performed." "WARN"
+        Write-Log "You can now run with: -Execute `$true" "INFO"
 
     }
     catch {
-        Write-Log "Erreur Invoke-Moves : $($_.Exception.Message)" "ERROR"
+        Write-Log "Invoke-Moves error: $($_.Exception.Message)" "ERROR"
         throw
     }
 } # Start-DryRun
 
 function Repair-Cache {
     try {
-        Write-Log "=== FIX CACHE : Nettoyage automatique du cache OneDrive ===" "WARN"
+        Write-Log "=== FIX CACHE: Automatic OneDrive cache cleanup ===" "WARN"
 
         $cache = $Global:State.Cache.Files
         $removed = 0
         $fixedExt = 0
 
-        # On extrait les clés dans un tableau fixe pour éviter l'erreur d'énumération
+        # Extract keys into fixed array to avoid enumeration error
         $keys = @($cache.Keys)
 
         foreach ($id in $keys) {
             $f = $cache[$id]
 
-            # Supprimer les entrées sans chemin ou nom
+            # Supprimer les entrees sans Path ou nom
             if (-not $f.p -or -not $f.n) {
                 $cache.Remove($id)
                 $removed++
                 continue
             }
 
-            # Supprimer les chemins invalides
+            # Supprimer les Paths invalides
             if ($f.p -notmatch "^/drive/root:") {
                 $cache.Remove($id)
                 $removed++
                 continue
             }
 
-            # Corriger les extensions polluées (ex: .jpg?width=...)
+            # Corriger les extensions polluees (ex: .jpg?width=...)
             $ext = [IO.Path]::GetExtension($f.n).ToLower()
-            $cleanExt = $ext -replace "\?.*$","" -replace "\&.*$",""
+            $cleanExt = $ext -replace '\?.*$','' -replace '\&.*$',''
 
             if ($ext -ne $cleanExt) {
                 $f.n = $f.n.Replace($ext, $cleanExt)
                 $fixedExt++
             }
 
-            # Supprimer les extensions inconnues
+            # Remove unknown extensions
             if (-not $Config.ExtensionMap.ContainsKey($cleanExt)) {
                 $cache.Remove($id)
                 $removed++
@@ -427,55 +427,55 @@ function Repair-Cache {
             }
         }
 
-        Write-Log "Fix terminé : $removed entrées supprimées, $fixedExt extensions corrigées." "SUCCESS"
+        Write-Log "Fix complete: $removed entries removed, $fixedExt extensions corrected." "SUCCESS"
         $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
     }
     catch {
-        Write-Log "Erreur Repair-Cache : $($_.Exception.Message)" "ERROR"
+        Write-Log "Repair-Cache error : $($_.Exception.Message)" "ERROR"
     }
 }
 
 function Repair-Collisions {
     try {
-        Write-Log "=== FIX COLLISIONS : Résolution proactive ===" "WARN"
+        Write-Log "=== FIX COLLISIONS: Proactive resolution ===" "WARN"
         
-        # On travaille directement sur la liste en mémoire
+        # On travaille directement sur la liste en memoire
         $groups = $Global:State.PlannedActions | Group-Object FullDst | Where-Object { $_.Count -gt 1 }
 
         if (-not $groups) {
-            Write-Log "Aucune collision détectée." "SUCCESS"
+            Write-Log "No collisions detected." "SUCCESS"
             return
         }
 
         foreach ($g in $groups) {
-            # Le premier fichier garde son nom, les suivants sont indexés
+            # The first file keeps its name, the following ones are indexed
             for ($i = 1; $i -lt $g.Count; $i++) {
                 $item = $g.Group[$i]
                 $ext = [System.IO.Path]::GetExtension($item.DstName)
                 $nameOnly = [System.IO.Path]::GetFileNameWithoutExtension($item.DstName)
                 
-                # Mise à jour du nom et du chemin complet de destination
+                # Mise a jour du nom et du Path complet de destination
                 $item.DstName = "$nameOnly`_$i$ext"
                 $item.FullDst = "$($item.DstDir.TrimEnd('/'))/$($item.DstName)"
             }
         }
 
-        # On sauvegarde le plan modifié sur le disque immédiatement
+        # Save the modified plan to disk immediately
         $planFile = Join-Path (Split-Path $IndexFile -Parent) "plan.json"
         $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content $planFile
 
-        Write-Log "Collisions résolues et plan synchronisé sur disque." "SUCCESS"
+        Write-Log "Collisions resolved and plan synced to disk." "SUCCESS"
     }
     catch {
-        Write-Log "Erreur Repair-Collisions : $($_.Exception.Message)" "ERROR"
+        Write-Log "Repair-Collisions error : $($_.Exception.Message)" "ERROR"
     }
 }
 
 
 function Repair-Paths {
-    # Normalise les chemins OneDrive (double slash, espaces, caractères invalides).
+    # Normalise les Paths OneDrive (double slash, espaces, caracteres invalides).
     try {
-        Write-Log "=== FIX PATHS : Normalisation des chemins ===" "WARN"
+        Write-Log "=== FIX PATHS : Normalize paths ===" "WARN"
 
         foreach ($entry in $Global:State.Cache.Files.GetEnumerator()) {
             $f = $entry.Value
@@ -488,17 +488,17 @@ function Repair-Paths {
             }
         }
 
-        Write-Log "Normalisation des chemins terminée." "SUCCESS"
+        Write-Log "Path normalization complete." "SUCCESS"
     }
     catch {
-        Write-Log "Erreur Repair-Paths : $($_.Exception.Message)" "ERROR"
+        Write-Log "Repair-Paths error : $($_.Exception.Message)" "ERROR"
     }
 } # Repair-Paths
 
 function Repair-Names {
-    # Corrige les noms invalides (espaces, caractères interdits, noms trop longs).
+    # Corrige les noms invalides (espaces, caracteres interdits, noms trop longs).
     try {
-        Write-Log "=== FIX NAMES : Normalisation des noms ===" "WARN"
+        Write-Log "=== FIX NAMES : Normalize names ===" "WARN"
 
         foreach ($entry in $Global:State.Cache.Files.GetEnumerator()) {
             $f = $entry.Value
@@ -514,36 +514,36 @@ function Repair-Names {
             }
         }
 
-        Write-Log "Normalisation des noms terminée." "SUCCESS"
+        Write-Log "Name normalization complete." "SUCCESS"
     }
     catch {
-        Write-Log "Erreur Repair-Names : $($_.Exception.Message)" "ERROR"
+        Write-Log "Repair-Names error : $($_.Exception.Message)" "ERROR"
     }
 } # Repair-Names
 
 
 function Repair-GPS {
-    # Supprime les coordonnées GPS invalides ou corrompues.
+    # Supprime les coordonnees GPS invalides ou corrompues.
     try {
-        Write-Log "=== FIX GPS : Nettoyage des GPS invalides ===" "WARN"
+        Write-Log "=== FIX GPS: Clean invalid GPS entries ===" "WARN"
 
         foreach ($entry in $Global:State.Cache.Files.GetEnumerator()) {
             $f = $entry.Value
 
-            if ($f.gps) {
-                $lat = $f.gps.lat
-                $lon = $f.gps.lon
+            if ($f.GPS) {
+                $lat = $f.GPS.lat
+                $lon = $f.GPS.lon
 
                 if ($lat -lt -90 -or $lat -gt 90 -or $lon -lt -180 -or $lon -gt 180) {
-                    $f.gps = $null
+                    $f.GPS = $null
                 }
             }
         }
 
-        Write-Log "Nettoyage GPS terminé." "SUCCESS"
+        Write-Log "GPS cleanup complete." "SUCCESS"
     }
     catch {
-        Write-Log "Erreur Repair-GPS : $($_.Exception.Message)" "ERROR"
+        Write-Log "Repair-GPS error : $($_.Exception.Message)" "ERROR"
     }
 } # Repair-GPS
 
@@ -553,16 +553,16 @@ function Repair-GPS {
 function main {
     try {      
         if ($script:ModuleLoaded) {
-            Write-Log "OneDriveCacheUtils.psm1 déjà chargé → import ignoré" "DEBUG"
+            Write-Log "OneDriveCacheUtils.psm1 already loaded -> import ignored" "DEBUG"
             return
         }
         $script:ModuleLoaded = $true
 
-        Write-Log "OneDriveCacheUtils.psm1 chargé"
+        Write-Log "OneDriveCacheUtils.psm1 loaded"
 
     }
     catch {
-        Write-Log "Échec : $_" "ERREUR"
+        Write-Log "Failure: $_" "ERROR"
     }
 } # main
 
@@ -572,3 +572,4 @@ main
 # EXPORT
 # ============================================================
 Export-ModuleMember -Function *
+

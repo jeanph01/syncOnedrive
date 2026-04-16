@@ -1,30 +1,30 @@
 # =====================================================================
-# Organisateur OneDrive — Pipeline moderne fusionné
-# - Analyse, classification, renommage intelligent, planification
-# - Barre de progression intégrée
-# - Logging harmonisé
-# - GPS, tags, caméra, source, destination
-# - Version optimisée et cohérente
+# OneDrive Organizer — Unified media pipeline
+# - Analysis, classification, smart renaming, planning
+# - Integrated progress bar
+# - Unified logging
+# - GPS, tags, camera, source, destination
+# - Optimized and consistent version
 # =====================================================================
 
 param (
-    [bool]$Execute = $true,                          # Exécute réellement les déplacements
-    [bool]$ResetCache = $false,                          # Réinitialise les fichiers internes sauf GPS et cache OneDrive
-    [string]$ConfigFile = ".\config.ini",               # Configuration applicative
-        # === NOUVEAUX PARAMÈTRES ===
-    [bool]$Analyze = $false,          # Analyse du plan.json
-    [bool]$DryRun = $false,           # Mode dry-run détaillé
-    [bool]$Validate = $false,         # Validation du cache OneDrive
-    [string]$DebugId = "",            # Debug d’un fichier précis
-    [bool]$ReportIgnored = $false     # Générer rapport fichiers ignorés
+    [bool]$Execute = $true,                          # Actually performs the moves
+    [bool]$ResetCache = $false,                      # Resets internal files except GPS and OneDrive cache
+    [string]$ConfigFile = ".\config.ini",          # Application configuration
+        # === NEW PARAMETERS ===
+    [bool]$Analyze = $false,          # Analyze plan.json
+    [bool]$DryRun = $false,           # Detailed dry-run mode
+    [bool]$Validate = $false,         # Validate OneDrive cache
+    [string]$DebugId = "",            # Debug a specific file
+    [bool]$ReportIgnored = $false     # Generate ignored files report
 )
 
-# --- Forcer l'affichage de Write-Progress (au cas où un autre script l'a désactivé)
+# --- Force Write-Progress display in case another script disabled it
 $ProgressPreference = 'Continue'
 
 
 # =====================================================================
-# CONFIGURATION GLOBALE (PLACÉE AVANT LES MODULES)
+# GLOBAL CONFIGURATION (PLACED BEFORE MODULES)
 # =====================================================================
 
 Import-Module "$PSScriptRoot\modules\AppConfig.psm1" -Force
@@ -48,7 +48,7 @@ $Config = [PSCustomObject]@{
 }
 
 # =====================================================================
-# MODULES EXTERNES
+# EXTERNAL MODULES
 # =====================================================================
 
 Import-Module "$PSScriptRoot\modules\OneDriveTools.psm1" -ArgumentList $Config.ClientId, $TokenFile, $LogFile -Force
@@ -56,7 +56,7 @@ Import-Module "$PSScriptRoot\modules\OneDriveOrganize.psm1" -Force
 Import-Module "$PSScriptRoot\modules\OneDriveCacheUtils.psm1" -Force -DisableNameChecking
 Import-Module "$PSScriptRoot\modules\GpsTools.psm1" -ArgumentList $GpsCacheFile -Force
 # =====================================================================
-# CRÉATION DU DOSSIER CACHE SI NÉCESSAIRE
+# CREATE CACHE FOLDER IF NEEDED
 # =====================================================================
 try {
     $cacheFolder = Split-Path $IndexFile -Parent
@@ -65,14 +65,14 @@ try {
     }
 }
 catch {
-    Write-Log "Erreur lors de la création du dossier cache : $($_.Exception.Message)" "ERROR"
+    Write-Log "Error creating cache folder: $($_.Exception.Message)" "ERROR"
 }
 
 # =====================================================================
-# ÉTAT GLOBAL
+# GLOBAL STATE
 # =====================================================================
 
-# État global du script
+# Global script state
 $Global:State = @{
     Headers        = $null
     Cache          = $null
@@ -83,12 +83,12 @@ $Global:State = @{
 
 
 # =====================================================================
-# RESET CACHE (strict minimum)
+# RESET CACHE (minimum)
 # =====================================================================
 
 if ($ResetCache) {
     try {
-        Write-Log "Reset du cache interne..." "WARN"
+        Write-Log "Resetting internal cache..." "WARN"
 
         $cacheFolder = Split-Path $IndexFile -Parent
         $planFile = Join-Path $cacheFolder "plan.json"
@@ -107,21 +107,21 @@ if ($ResetCache) {
             }
         }
 
-        Write-Log "Reset terminé (GPS + onedrive_cache.json conservés)." "SUCCESS"
+        Write-Log "Reset completed (GPS + onedrive_cache.json preserved)." "SUCCESS"
     }
     catch {
-        Write-Log "Erreur lors du reset du cache : $($_.Exception.Message)" "ERROR"
+        Write-Log "Error resetting cache: $($_.Exception.Message)" "ERROR"
     }
 }
 
 
 # =====================================================================
-# PRÉ-CRÉATION DES DOSSIERS
+# PRE-CREATE FOLDERS
 # =====================================================================
 
 # =====================================================================
-# FONCTION : Test-OneDrivePath
-# RÔLE      : Vérifie et crée récursivement une arborescence sur OneDrive
+# FUNCTION : Test-OneDrivePath
+# ROLE      : Verify and create a folder tree on OneDrive recursively
 # =====================================================================
 function Test-OneDrivePath {
     param(
@@ -129,19 +129,19 @@ function Test-OneDrivePath {
         [string]$RelativePath
     )
 
-    # 1. Initialisation de sécurité pour éviter les erreurs de variables inexistantes
-    $uriGet = "Non générée"
-    $uriPost = "Non générée"
+    # 1. Safety initialization to avoid missing variable errors
+    $uriGet = "Not generated"
+    $uriPost = "Not generated"
     $currentPathRaw = ""
     $currentPathEncoded = ""
-    $part = "Racine"
+    $part = "Root"
 
     try {
-        # Nettoyage du chemin (supprime les slashs de début et fin)
+        # Clean the path (remove leading/trailing slashes)
         $cleanPath = $RelativePath.Trim('/')
         if ([string]::IsNullOrWhiteSpace($cleanPath)) { return }
 
-        # Découpage et nettoyage des espaces invisibles
+        # Split path and trim invisible whitespace
         $pathParts = $cleanPath -split '/' | ForEach-Object { $_.Trim() }
 
         foreach ($part in $pathParts) {
@@ -150,7 +150,7 @@ function Test-OneDrivePath {
             $parentPathEncoded = $currentPathEncoded
             $encodedPart = [Uri]::EscapeDataString($part)
             
-            # Construction des chemins
+            # Build the paths
             if ($currentPathRaw -eq "") {
                 $currentPathRaw = $part
                 $currentPathEncoded = $encodedPart
@@ -159,21 +159,21 @@ function Test-OneDrivePath {
                 $currentPathEncoded += "/$encodedPart"
             }
 
-            # --- VÉRIFICATION (GET) ---
-            # Syntaxe Graph : root:/chemin/vers/dossier
+            # --- CHECK (GET) ---
+            # Graph syntax: root:/path/to/folder
             $uriGet = "https://graph.microsoft.com/v1.0/me/drive/root:/$currentPathEncoded"
 
             try {
                 Invoke-RestMethod -Headers $Global:State.Headers -Uri $uriGet -Method Get -ErrorAction Stop > $null
             }
             catch {
-                # --- CRÉATION (POST) ---
-                # Si le GET échoue, on tente de créer le dossier
+                # --- CREATE (POST) ---
+                # If GET fails, attempt to create the folder
                 if ($parentPathEncoded -eq "") {
-                    # Dossier à la racine
+                    # Folder at root
                     $uriPost = "https://graph.microsoft.com/v1.0/me/drive/root/children"
                 } else {
-                    # Dossier dans un parent (Notez les ':' autour du chemin parent)
+                    # Folder under a parent (note the ':' around the parent path)
                     $uriPost = "https://graph.microsoft.com/v1.0/me/drive/root:/$($parentPathEncoded):/children"
                 }
 
@@ -185,42 +185,42 @@ function Test-OneDrivePath {
 
                 Invoke-RestMethod -Headers $Global:State.Headers -Uri $uriPost -Method POST -Body $body -ContentType "application/json" -ErrorAction Stop > $null
                 
-                Write-Log "Dossier créé : /$currentPathRaw" "DEBUG"
-                $uriPost = "Non générée" # Reset après succès
+                Write-Log "Folder created: /$currentPathRaw" "DEBUG"
+                $uriPost = "Not generated" # Reset after success
             }
         }
     }
     catch {
-        # --- BLOC D'ERREUR ULTRA-SIMPLIFIÉ ---
+        # --- SIMPLIFIED ERROR BLOCK ---
         $errorMsg = $_.Exception.Message
-        $graphError = "Aucun détail"
+        $graphError = "No details"
 
-        # Tentative sécurisée de lire la réponse du serveur
+        # Safe attempt to read the server response
         if ($_.Exception.InnerException -and $_.Exception.InnerException.Response) {
             try {
                 $stream = $_.Exception.InnerException.Response.GetResponseStream()
                 $reader = New-Object System.IO.StreamReader($stream)
                 $graphError = $reader.ReadToEnd()
-            } catch { $graphError = "Impossible de lire la réponse" }
+            } catch { $graphError = "Unable to read response" }
         }
 
-        Write-Log "!!! ERREUR FATALE DANS TEST-ONEDRIVEPATH !!!" "ERROR"
-        Write-Log "Segment Fautif : [$part]" "ERROR"
-        Write-Log "Chemin Brut    : /$currentPathRaw" "ERROR"
-        Write-Log "URI utilisée   : $(if ($uriPost -ne 'Non générée') { $uriPost } else { $uriGet })" "ERROR"
-        Write-Log "Message PS     : $errorMsg" "ERROR"
-        Write-Log "Réponse Graph  : $graphError" "ERROR"
+        Write-Log "!!! FATAL ERROR IN TEST-ONEDRIVEPATH !!!" "ERROR"
+        Write-Log "Failed segment : [$part]" "ERROR"
+        Write-Log "Raw path      : /$currentPathRaw" "ERROR"
+        Write-Log "Used URI      : $(if ($uriPost -ne 'Not generated') { $uriPost } else { $uriGet })" "ERROR"
+        Write-Log "PS message    : $errorMsg" "ERROR"
+        Write-Log "Graph response: $graphError" "ERROR"
         
-        throw $_ # Arrête proprement le script
+        throw $_ # Stop the script cleanly
     }
 }
 # =====================================================================
-# DÉPLACEMENT
+# MOVES
 # =====================================================================
 
-# Applique les déplacements planifiés via Graph
+# Apply planned moves via Graph
 function Invoke-Moves {
-    Write-Log "Début du déplacement..." "WARN"
+Write-Log "Starting move execution..." "WARN"
 
     try {
         $total = $Global:State.PlannedActions.Count
@@ -230,8 +230,8 @@ function Invoke-Moves {
 
             $index++
             if ($index % 200 -eq 0) {
-                Write-Progress -Activity "Déplacement OneDrive" `
-                    -Status "Fichier $index / $total" `
+                Write-Progress -Activity "OneDrive move" `
+                    -Status "File $index / $total" `
                     -PercentComplete (($index / $total) * 100)
             }
 
@@ -255,7 +255,7 @@ function Invoke-Moves {
             }
             catch {
                 $errorDetails = Get-ErrorDetails $_
-                Write-Log "Erreur sur $($action.Id) : $errorDetails" "ERROR"
+                Write-Log "Error on $($action.Id): $errorDetails" "ERROR"
 
                 "$(Get-Date -Format 'HH:mm'),$($action.Id),ERROR,$($action.SrcPath),$($action.FullDst),$errorDetails" |
                 Add-Content $ExecutionReport
@@ -263,10 +263,10 @@ function Invoke-Moves {
         }
 
         $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
-        Write-Log "Déplacement terminé." "SUCCESS"
+        Write-Log "Move execution completed." "SUCCESS"
     }
     catch {
-        Write-Log "Erreur Invoke-Moves : $($_.Exception.Message)" "ERROR"
+        Write-Log "Invoke-Moves error: $($_.Exception.Message)" "ERROR"
         throw
     }
 } # Invoke-Moves
@@ -274,22 +274,22 @@ function Invoke-Moves {
 
 
 # =====================================================================
-# RAPPORT HTML (structure prête)
+# HTML REPORT (ready structure)
 # =====================================================================
 
-# Génère un rapport HTML simple à partir du plan
+# Generates a simple HTML report from the plan
 function Export-ReportHtml {
     param(
-        [string]$OutputFile = ".\onedrive_report.html"  # Fichier HTML de sortie
+        [string]$OutputFile = ".\onedrive_report.html"  # Output HTML file
     )
 
     try {
-        Write-Log "Génération du rapport HTML..." "INFO"
+        Write-Log "Generating HTML report..." "INFO"
 
         $html = @"
 <html>
 <head>
-<title>Rapport OneDrive</title>
+<title>OneDrive Report</title>
 <style>
 body { font-family: Arial; margin: 20px; }
 h1 { color: #444; }
@@ -299,16 +299,16 @@ th { background: #eee; }
 </style>
 </head>
 <body>
-<h1>Rapport OneDrive</h1>
-<p>Généré le $(Get-Date)</p>
+<h1>OneDrive Report</h1>
+<p>Generated on $(Get-Date)</p>
 
-<h2>Résumé</h2>
+<h2>Summary</h2>
 <ul>
-<li>Total fichiers analysés : $($Global:State.FilesToProcess.Count)</li>
-<li>Total actions planifiées : $($Global:State.PlannedActions.Count)</li>
+<li>Total files analyzed: $($Global:State.FilesToProcess.Count)</li>
+<li>Total planned actions: $($Global:State.PlannedActions.Count)</li>
 </ul>
 
-<h2>Actions planifiées</h2>
+<h2>Planned actions</h2>
 <table>
 <tr><th>ID</th><th>Source</th><th>Destination</th></tr>
 "@
@@ -324,10 +324,10 @@ th { background: #eee; }
 "@
 
         $html | Set-Content $OutputFile
-        Write-Log "Rapport HTML généré : $OutputFile" "SUCCESS"
+        Write-Log "HTML report generated: $OutputFile" "SUCCESS"
     }
     catch {
-        Write-Log "Erreur Export-ReportHtml : $($_.Exception.Message)" "ERROR"
+        Write-Log "Error Export-ReportHtml : $($_.Exception.Message)" "ERROR"
     }
 } # Export-ReportHtml
 
@@ -335,96 +335,96 @@ th { background: #eee; }
 # MAIN
 # =====================================================================
 
-# Point d'entrée principal du script
+# Main entry point of the script
 function Start-OneDriveOrganizer {
     <#
     .SYNOPSIS
-        Point d'entrée principal de l'organisateur OneDrive.
-        Gère le cycle de vie : Nettoyage -> Planification -> Correction -> Exécution.
+        Main entry point of the OneDrive organizer.
+        Manages lifecycle: cleanup -> planning -> correction -> execution.
     #>
     
-    # 1. NETTOYAGE DU LOG (Une seule fois au début strict)
+    # 1. LOG CLEANUP (single run at startup)
     if (Test-Path $LogFile) { 
         try {
             Remove-Item $LogFile -Force -ErrorAction SilentlyContinue
-            # On recrée un fichier vide pour que Write-Log puisse écrire immédiatement
+            # Recreate an empty log file so Write-Log can write immediately
             New-Item -Path $LogFile -ItemType File -Force | Out-Null
         } catch {
-            Write-Host "Impossible de réinitialiser le log : $($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host "Unable to reset the log: $($_.Exception.Message)" -ForegroundColor Yellow
         }
     }
 
-    Write-Log "=== DÉMARRAGE DE LA SESSION : $(Get-Date -Format 'dd/MM/yyyy HH:mm:ss') ===" "INFO"
+    Write-Log "=== SESSION START: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ===" "INFO"
 
     try {
-        # 2. CHARGEMENT ET RÉPARATION DES DONNÉES EN MÉMOIRE
-        # Note : On n'appelle Import-Set-Cache qu'UNE SEULE FOIS.
+        # 2. LOAD AND REPAIR IN-MEMORY DATA
+        # Note: Import-Set-Cache is called ONLY ONCE.
         Import-Set-Cache
         
-        # On répare le cache en mémoire (suppression entrées invalides, etc.)
+        # Repair in-memory cache (remove invalid entries, etc.)
         Repair-Cache       
         
-        # On normalise les métadonnées (Chemins, Noms, GPS)
+        # Normalize metadata (paths, names, GPS)
         Repair-Paths
         Repair-Names
         Repair-GPS
 
-        # 3. GESTION DU PLAN (Reprise ou Nouveau)
-        # On vérifie si un plan existe déjà pour ce fichier de cache précis (via Hash)
+        # 3. PLAN MANAGEMENT (Resume or New)
+        # Check whether a plan already exists for this exact cache file (via hash)
         $hash = Get-CacheHash
         $plan = if ($hash) { Get-ExistingPlan -CurrentHash $hash } else { $null }
 
         if ($null -eq $plan) {
-            Write-Log "Aucun plan valide trouvé. Lancement de l'analyse complète..." "INFO"
+            Write-Log "No valid plan found. Starting full analysis..." "INFO"
             New-Plan
             
-            # Après New-Plan, on sauvegarde le hash actuel pour la prochaine fois
+            # After New-Plan, save the current hash for next time
             if ($hash) { 
                 $hashFile = Join-Path (Split-Path $IndexFile -Parent) "cache_hash.txt"
                 $hash | Set-Content $hashFile 
             }
         } 
         else {
-            Write-Log "Reprise du plan existant détectée (Hash SHA256 identique)." "SUCCESS"
+            Write-Log "Existing plan resume detected (identical SHA256 hash)." "SUCCESS"
             $Global:State.PlannedActions = [System.Collections.Generic.List[PSCustomObject]]$plan
         }
 
-        # 4. RÉSOLUTION DES CONFLITS ET VALIDATION
-        # On vérifie s'il y a des doublons de noms dans les destinations cibles
+        # 4. CONFLICT RESOLUTION AND VALIDATION
+        # Check for name collisions in target destinations
         Repair-Collisions
         
-        # Analyse finale du plan (doublons restants, chemins trop longs)
+        # Final plan analysis (remaining duplicates, too-long paths)
         Test-Plan
 
-        # 5. VÉRIFICATION DU MODE D'EXÉCUTION
+        # 5. EXECUTION MODE CHECK
         if (-not $Execute) {
             Write-Log "----------------------------------------------------------------" "WARN"
-            Write-Log "MODE APERÇU (DRY-RUN) : Aucune modification n'a été faite sur le Cloud." "WARN"
-            Write-Log "Vérifiez le fichier 'plan.json' dans le dossier cache configuré." "INFO"
-            Write-Log "Relancez le script avec le paramètre -Execute `$true pour appliquer." "INFO"
+            Write-Log "DRY-RUN MODE: No changes were made to the Cloud." "WARN"
+            Write-Log "Check the 'plan.json' file in the configured cache folder." "INFO"
+            Write-Log "Rerun the script with -Execute `$true to apply changes." "INFO"
             Write-Log "----------------------------------------------------------------" "WARN"
             return
         }
 
-        # 6. EXÉCUTION RÉELLE (GRAPH API)
-        Write-Log "PASSAGE EN MODE EXÉCUTION RÉELLE..." "WARN"
+        # 6. REAL EXECUTION (GRAPH API)
+        Write-Log "SWITCHING TO REAL EXECUTION MODE..." "WARN"
         Connect-AzureGraph
         
-        # Création proactive des dossiers de destination pour éviter les erreurs 404
-        Write-Log "Vérification de l'arborescence des dossiers sur OneDrive..." "INFO"
+        # Proactively create destination folders to avoid 404 errors
+        Write-Log "Checking OneDrive folder hierarchy..." "INFO"
         $uniqueDirs = $Global:State.PlannedActions.DstDir | Select-Object -Unique
         foreach ($dir in $uniqueDirs) { 
             Test-OneDrivePath $dir 
         }
 
-        # Déplacement effectif des fichiers
+        # Actual file move execution
         Invoke-Moves
         
-        Write-Log "Processus d'organisation terminé avec succès." "SUCCESS"
+        Write-Log "Organization process completed successfully." "SUCCESS"
     }
     catch {
-        Write-Log "ERREUR FATALE dans Start-OneDriveOrganizer : $($_.Exception.Message)" "ERROR"
-        Write-Log "Détails : $($_.ScriptStackTrace)" "DEBUG"
+        Write-Log "FATAL ERROR in Start-OneDriveOrganizer: $($_.Exception.Message)" "ERROR"
+        Write-Log "Details: $($_.ScriptStackTrace)" "DEBUG"
     }
 }
 

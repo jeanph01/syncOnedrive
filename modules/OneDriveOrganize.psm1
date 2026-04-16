@@ -1,21 +1,21 @@
-param(
+﻿param(
     [string]$ClientId,
     [string]$TokenFile,
     [string]$LogFile
 )
 
-# Empêche les imports multiples
+# Prevent multiple imports
 if ($script:ModuleLoaded) {
     return
 }
 $script:ModuleLoaded = $true
 
-# Vérifie la dépendance OneDriveTools
+# Check OneDriveTools dependency
 if (-not (Get-Command Get-GraphToken -ErrorAction SilentlyContinue)) {
-    throw "ERREUR: Les fonctions de OneDriveTools ne sont pas disponibles. Vérifie l'import dans le script principal."
+    throw "ERROR: OneDriveTools functions are not available. Check the import in the main script."
 }
 
-# Lit les métadonnées d’un item Azure (EXIF, GPS, caméra, vidéo, audio)
+# Read metadata from an Azure item (EXIF, GPS, camera, video, audio)
 function Read-AzureFileInfo {
     param($item)
 
@@ -25,15 +25,15 @@ function Read-AzureFileInfo {
         }
 
         # GPS
-        $gps = $null
-        if ($item.photo -and $item.photo.gps) {
-            $gps = "$($item.photo.gps.latitude),$($item.photo.gps.longitude)"
+        $GPS = $null
+        if ($item.photo -and $item.photo.GPS) {
+            $GPS = "$($item.photo.GPS.latitude),$($item.photo.GPS.longitude)"
         }
         elseif ($item.location -and $item.location.latitude) {
-            $gps = "$($item.location.latitude),$($item.location.longitude)"
+            $GPS = "$($item.location.latitude),$($item.location.longitude)"
         }
 
-        # Caméra
+        # Camera
         $camera = $null
         if ($item.photo) {
             $camera = "$($item.photo.cameraMake) $($item.photo.cameraModel)".Trim()
@@ -48,7 +48,7 @@ function Read-AzureFileInfo {
             }
         }
 
-        # Vidéo
+        # Video
         $videoInfo = $null
         if ($item.video) {
             $videoInfo = @{
@@ -68,7 +68,7 @@ function Read-AzureFileInfo {
             }
         }
 
-        # Date EXIF ou fallback
+        # EXIF date or fallback
         $refDate = $null
         if ($item.photo -and $item.photo.takenDateTime) {
             $refDate = [DateTime]$item.photo.takenDateTime
@@ -83,7 +83,7 @@ function Read-AzureFileInfo {
             h   = $item.file.hashes.sha1Hash.ToLower()
             d   = $refDate
             p   = $item.parentReference.path
-            gps = $gps
+            GPS = $GPS
             cam = $camera
             img = $imgInfo
             vid = $videoInfo
@@ -91,17 +91,17 @@ function Read-AzureFileInfo {
         }
     }
     catch {
-        Write-Log "Échec Read-AzureFileInfo: $_" "Erreur"
+        Write-Log "Read-AzureFileInfo failure: $_" "ERROR"
     }
 } # Read-AzureFileInfo
 
 
-# Détermine la catégorie logique d’un fichier selon son chemin et son extension
+# Determine the logical category of a file based on its path and extension
 function Get-SmartCategory {
     param ([string]$Path, [string]$Extension)
 
     try {
-        # Règles STAY (catégorie logique, pas le routing final)
+        # STAY rules (logical category, not final routing)
         $stayPatterns = @($Global:Rules.categoryRules.stayPatterns)
         foreach ($p in $stayPatterns) {
             if ($Path -match "(?i)$p") {
@@ -109,7 +109,7 @@ function Get-SmartCategory {
             }
         }
 
-        # Confidential (catégorie logique)
+        # Confidential (logical category)
         if ($Path -match $Global:Rules.categoryRules.confidentialRegex) {
             return "Confidential"
         }
@@ -123,40 +123,40 @@ function Get-SmartCategory {
         return "Stay"
     }
     catch {
-        Write-Log "Échec Get-SmartCategory: $_" "Erreur"
+        Write-Log "Get-SmartCategory failure: $_" "ERROR"
     }
 } # Get-SmartCategory
 
 
-# Extrait les tags utiles du chemin source
+# Extract useful tags from the source path
 function Get-PathTags($fullPath) {
     try {
         $parts = $fullPath -replace "^/drive/root:/?", "" -split "/" |
-        Where-Object { $_ -and $_ -notmatch "Documents|Images|Vidéos|Musique|Pellicule|JPM" }
+        Where-Object { $_ -and $_ -notmatch "Documents|Images|Videos|Musique|Pellicule|JPM" }
 
         return ($parts -join "_")
     }
     catch {
-        Write-Log "Échec Get-PathTags: $_" "Erreur"
+        Write-Log "Get-PathTags failure: $_" "ERROR"
     }
 } # Get-PathTags
 
 
-# Génère un nom de fichier structuré, propre, déterministe (Style 3)
+# Generate structured, clean, deterministic filename (Style 3)
 function New-SmartFileName {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][DateTime]$DateRef,
         [Parameter(Mandatory)][string]$OriginalName,
         [Parameter(Mandatory)][string]$Extension,
-        [string]$GpsLocation,
+        [string]$GPSLocation,
         [string]$PathTags,
         [string]$Camera,
         [string]$SourceHint
     )
 
     try {
-        # FIX : Si le nom original est vide ou n'est qu'une extension, on utilise "unnamed"
+        # FIX: If original name is empty or just extension, use 'unnamed'
         $cleanOriginal = if ([string]::IsNullOrWhiteSpace($OriginalName) -or $OriginalName -eq $Extension) { 
             "unnamed" 
         } else { 
@@ -167,50 +167,50 @@ function New-SmartFileName {
         $yearMonth = $DateRef.ToString("yyyy_MM")
         $dateRaw   = $DateRef.ToString("yyyyMMdd")
 
-        # Normalisation ASCII
+        # ASCII normalization
         $cleanOriginal = Convert-ToAscii $OriginalName
         $cleanTags     = Convert-ToAscii $PathTags
-        $cleanGps      = Convert-ToAscii $GpsLocation
+        $cleanGPS      = Convert-ToAscii $GPSLocation
         $cleanCam      = Convert-ToAscii $Camera
         $cleanSource   = Convert-ToAscii $SourceHint
 
-        # Découpage
+        # Splitting
         function Split-Words($txt) {
             if (-not $txt) { return @() }
             return ($txt -split "[ _\-]" | Where-Object { $_ -and $_.Trim().Length -gt 0 })
         }
 
-        $gpsWords  = Split-Words $cleanGps
+        $GPSWords  = Split-Words $cleanGPS
         $tagWords  = Split-Words $cleanTags
         $origWords = Split-Words $cleanOriginal
         $camWords  = Split-Words $cleanCam
         $srcWords  = Split-Words $cleanSource
 
         # Stopwords
-        $stopWords = @($Global:Rules.namingRules.stopWords)
+        $Stopwords = @($Global:Rules.namingRules.Stopwords)
 
-        function Remove-StopWords($list) {
+        function Remove-Stopwords($list) {
             if (-not $list) { return @() }
-            return $list | Where-Object { $stopWords -notcontains $_.ToLower() }
+            return $list | Where-Object { $Stopwords -notcontains $_.ToLower() }
         }
 
-        $gpsWords  = Remove-StopWords $gpsWords
-        $tagWords  = Remove-StopWords $tagWords
-        $origWords = Remove-StopWords $origWords
+        $GPSWords  = Remove-Stopwords $GPSWords
+        $tagWords  = Remove-Stopwords $tagWords
+        $origWords = Remove-Stopwords $origWords
 
-        # Suppression des mots déjà présents dans GPS
-        $gpsSet = @{}
-        foreach ($w in $gpsWords) { $gpsSet[$w.ToLower()] = $true }
+        # Remove words already present in GPS
+        $GPSSet = @{}
+        foreach ($w in $GPSWords) { $GPSSet[$w.ToLower()] = $true }
 
-        function Remove-GpsRedundancy($list) {
+        function Remove-GPSRedundancy($list) {
             if (-not $list) { return @() }
-            return $list | Where-Object { -not $gpsSet.ContainsKey($_.ToLower()) }
+            return $list | Where-Object { -not $GPSSet.ContainsKey($_.ToLower()) }
         }
 
-        $tagWords  = Remove-GpsRedundancy $tagWords
-        $origWords = Remove-GpsRedundancy $origWords
+        $tagWords  = Remove-GPSRedundancy $tagWords
+        $origWords = Remove-GPSRedundancy $origWords
 
-        # Suppression des redondances de date
+        # Remove date redundancies
         function Remove-DateRedundancy($list) {
             if (-not $list) { return @() }
             return $list | Where-Object {
@@ -223,16 +223,16 @@ function New-SmartFileName {
         $tagWords  = Remove-DateRedundancy $tagWords
         $origWords = Remove-DateRedundancy $origWords
 
-        # Assemblage global
+        # Global assembly
         $allWords = New-Object System.Collections.Generic.List[string]
         $allWords.Add($timestamp)
-        $gpsWords  | ForEach-Object { $allWords.Add($_) }
+        $GPSWords  | ForEach-Object { $allWords.Add($_) }
         $tagWords  | ForEach-Object { $allWords.Add($_) }
         $origWords | ForEach-Object { $allWords.Add($_) }
         $camWords  | ForEach-Object { $allWords.Add($_) }
         $srcWords  | ForEach-Object { $allWords.Add($_) }
 
-        # Anti-doublon global
+        # Global anti-duplicate
         $seen = @{}
         $filtered = foreach ($w in $allWords) {
             $key = $w.ToLower()
@@ -245,7 +245,7 @@ function New-SmartFileName {
         # Reconstruction
         $baseName = ($filtered -join "_").Trim("_")
 
-        # Limite de longueur
+        # Length limit
         $maxLenWithoutExt = $Config.MaxNameLen - $Config.RenameMarker.Length - $Extension.Length
         if ($baseName.Length -gt $maxLenWithoutExt) {
             $baseName = $baseName.Substring(0, $maxLenWithoutExt).Trim("_")
@@ -254,7 +254,7 @@ function New-SmartFileName {
         return ($baseName + $Config.RenameMarker + $Extension)
     }
     catch {
-        Write-Log "Échec New-SmartFileName: $_" "Erreur"
+        Write-Log "New-SmartFileName failure: $_" "ERROR"
     }
 } # New-SmartFileName
 
@@ -262,57 +262,57 @@ function New-SmartFileName {
 function Resolve-FileRouting {
     <#
     .SYNOPSIS
-        Résout la stratégie de routing (Stay / Move) et la racine cible selon le chemin source et le type de média.
+        Resout la strategie de routing (Stay / Move) et la racine cible selon le Path source et le type de media.
 
     .DESCRIPTION
-        Cette fonction applique un moteur de règles déterministe, dans un ordre de priorité strict :
+        Cette fonction applique un moteur de regles deterministe, dans un ordre de priorite strict :
 
-        RÈGLE 1 — FINANCES (Stay STRICT)
-            Condition :
-                - Le chemin source commence par /drive/root:/Finances
+        RÃˆGLE 1 - FINANCES (Stay STRICT)
+            Condition:
+                - Le Path source commence par /drive/root:/Finances
             Intention :
-                - Stay strict : aucun déplacement, on garde le chemin exact, on renomme seulement.
-            Exemple :
-                /drive/root:/Finances/Maison et Logement/95 ... → /Finances/Maison_et_Logement/95_.../<NewName>
+                - Stay strict : aucun deplacement, on garde le Path exact, on renomme seulement.
+            Example:
+                /drive/root:/Finances/Maison et Logement/95 ... => /Finances/Maison_et_Logement/95_.../<NewName>
 
-        RÈGLE 2 — COFFRE-FORT (Stay + mediaType) — SANS EXCEPTION
-            Condition :
-                - Le chemin source contient (insensible à la casse) :
+        RÃˆGLE 2 - COFFRE-FORT (Stay + mediaType) - SANS EXCEPTION
+            Condition:
+                - Le Path source contient (insensible a la casse) :
                     "confidential", "confidential", "pour confidential", "confidential", "privatevault"
             Intention :
                 - Stay dans la racine Confidential
                 - Conserver le 2e niveau (Michelle, relations, archives, etc.)
-                - Organiser par type média (images / videos)
-                - Classer par année / mois
-            Destination :
-                /<racine_confidential>/<sous_dossier>/<images|videos>/<YYYY>/<MM>/<NewName>
-            Exemple :
-                /drive/root:/Confidential/relations/... → /Confidential/relations/videos/YYYY/MM/<NewName>
-                /drive/root:/VersConfidentialVault/relations/... → /VersConfidentialVault/relations/images/YYYY/MM/<NewName>
-                /drive/root:/VersConfidentialVault/archives/... → /VersConfidentialVault/archives/videos/YYYY/MM/<NewName>
+                - Organiser par Media type (images / videos)
+                - Classer par annee / mois
+            Destination:
+                /<confidential_root>/<sub_folder>/<images|videos>/<YYYY>/<MM>/<NewName>
+            Example:
+                /drive/root:/Confidential/relations/... => /Confidential/relations/videos/YYYY/MM/<NewName>
+                /drive/root:/VersConfidentialVault/relations/... => /VersConfidentialVault/relations/images/YYYY/MM/<NewName>
+                /drive/root:/VersConfidentialVault/archives/... => /VersConfidentialVault/archives/videos/YYYY/MM/<NewName>
 
-        RÈGLE 3 — APPS (WhatsApp, Messenger, DCIM, etc.)
-            Condition :
-                - Le chemin contient : WhatsApp, Messenger, Facebook, Instagram, Camera Roll, DCIM, Android, iOS
+        RÃˆGLE 3 - APPS (WhatsApp, Messenger, DCIM, etc.)
+            Condition:
+                - Le Path contient : WhatsApp, Messenger, Facebook, Instagram, Camera Roll, DCIM, Android, iOS
             Intention :
-                - Utiliser la même logique que la règle par défaut (Move Pellicule / Videos)
-            Destination :
+                - Utiliser la meme logique que la regle par defaut (Move Pellicule / Videos)
+            Destination:
                 /Images/Pellicule/YYYY/MM/<NewName> ou /Videos/YYYY/MM/<NewName>
 
-        RÈGLE 4 — ADMINISTRATIF NON FINANCES (Stay simplifié)
-            Condition :
-                - Le chemin contient : Documents, Légal, Syndicat, Vie des enfants, Cuisine, Livres, JPM, etc.
+        RÃˆGLE 4 - ADMINISTRATIF NON FINANCES (Stay simplifie)
+            Condition:
+                - Le Path contient : Documents, Legal, Syndicat, Vie des enfants, Cuisine, Livres, JPM, etc.
             Intention :
-                - Stay simplifié : on garde la racine, mais on limite à 3 niveaux maximum.
-            Exemple :
-                /Documents/Travail/ProjetA/Phase1/Notes → /Documents/Travail/ProjetA/<NewName>
+                - Simplified Stay: keep root, but limit to 3 levels max.
+            Example:
+                /Documents/Work/ProjectA/Phase1/Notes => /Documents/Work/ProjectA/<NewName>
 
-        RÈGLE 5 — DEFAULT (Move Pellicule / Videos)
-            Condition :
-                - Aucune des règles précédentes ne s’applique.
+        RÃˆGLE 5 - DEFAULT (Move Pellicule / Videos)
+            Condition:
+                - Aucune des regles precedentes ne sâ€™applique.
             Intention :
-                - Move selon type média.
-            Destination :
+                - Move selon Media type.
+            Destination:
                 /Images/Pellicule/YYYY/MM/<NewName> ou /Videos/YYYY/MM/<NewName>
 
     .OUTPUTS
@@ -330,7 +330,7 @@ function Resolve-FileRouting {
         $srcDirClean = $FileMeta.p -replace "^/drive/root:", ""
         #$ext = $Extension.ToLower()
 
-        # RÈGLE 1 — FINANCES (Stay STRICT)
+        # RÃˆGLE 1 - FINANCES (Stay STRICT)
         if ($srcDirClean -match $Global:Rules.routingRules.financeRegex) {
             return @{
                 Mode = "StayStrict"
@@ -338,7 +338,7 @@ function Resolve-FileRouting {
             }
         }
 
-        # RÈGLE 2 — COFFRE-FORT (Stay + mediaType) — SANS EXCEPTION
+        # RÃˆGLE 2 - COFFRE-FORT (Stay + mediaType) - SANS EXCEPTION
         $confidentialRegexList = @($Global:Rules.routingRules.confidentialRegexList)
         $isConfidential = $false
         foreach ($regex in $confidentialRegexList) {
@@ -374,7 +374,7 @@ function Resolve-FileRouting {
             }
         }
 
-        # RÈGLE 3 — APPS (WhatsApp, Messenger, DCIM, etc.) → même logique que Default
+        # RÃˆGLE 3 - APPS (WhatsApp, Messenger, DCIM, etc.) => meme logique que Default
         $appsPatterns = @($Global:Rules.routingRules.appsPatterns)
         foreach ($p in $appsPatterns) {
             if ($srcDirClean -match [Regex]::Escape($p)) {
@@ -385,7 +385,7 @@ function Resolve-FileRouting {
             }
         }
 
-        # RÈGLE 4 — ADMINISTRATIF NON FINANCES (Stay simplifié)
+        # RÃˆGLE 4 - ADMINISTRATIF NON FINANCES (Stay simplifie)
         $adminPatterns = @($Global:Rules.routingRules.adminPatterns)
         foreach ($p in $adminPatterns) {
             if ($srcDirClean -match "(?i)$p") {
@@ -396,14 +396,14 @@ function Resolve-FileRouting {
             }
         }
 
-        # RÈGLE 5 — DEFAULT (Move Pellicule / Videos)
+        # RÃˆGLE 5 - DEFAULT (Move Pellicule / Videos)
         return @{
             Mode = "AppsOrDefaultMove"
             Root = $null
         }
     }
     catch {
-        Write-Log "Échec Resolve-FileRouting: $_" "Erreur"
+        Write-Log "Resolve-FileRouting failure: $_" "ERROR"
     }
 } # Resolve-FileRouting
 
@@ -411,76 +411,76 @@ function Resolve-FileRouting {
 function Get-DestinationPath {
     <#
     .SYNOPSIS
-        Détermine le chemin de destination final d’un fichier (dossier cible + nouveau nom).
+        Determines the final destination path for a file (target folder + new name).
 
     .DESCRIPTION
-        Cette fonction applique les règles de routing suivantes, via Resolve-FileRouting :
+        This function applies the following routing rules, via Resolve-FileRouting:
 
-        PRIORITÉ 1 — FINANCES (Stay STRICT)
-            - Condition :
-                Le chemin source commence par /drive/root:/Finances
-            - Comportement :
-                Aucun déplacement, on garde le chemin exact (nettoyé ASCII), on renomme seulement.
-            - Exemple :
-                /drive/root:/Finances/Maison ... → /Finances/Maison_.../<NewName>
+        PRIORITE 1 - FINANCES (Stay STRICT)
+            - Condition:
+                Le Path source commence par /drive/root:/Finances
+            - Behavior:
+                Aucun deplacement, on garde le Path exact (nettoye ASCII), on renomme seulement.
+            - Example:
+                /drive/root:/Finances/House ... => /Finances/House_.../<NewName>
 
-        PRIORITÉ 2 — COFFRE-FORT (Stay + mediaType) — SANS EXCEPTION
-            - Condition :
-                Le chemin source contient "confidential", "confidential", "pour confidential", "confidential", "privatevault"
-            - Comportement :
-                On reste dans la racine Confidential, on conserve le 2e niveau (Michelle, relations, archives, etc.),
-                on crée un sous-dossier images/ ou videos/ selon le type média, puis on classe par année / mois.
-            - Destination :
-                /<racine_confidential>/<sous_dossier>/<images|videos>/<YYYY>/<MM>/<NewName>
+        PRIORITE 2 - COFFRE-FORT (Stay + mediaType) - SANS EXCEPTION
+            - Condition:
+                Le Path source contient "confidential", "confidential", "pour confidential", "confidential", "privatevault"
+            - Behavior:
+                Stay in Confidential root, keep 2nd level (Michelle, relations, archives, etc.),
+                create subfolder images/ or videos/ based on media type, then sort by year / month.
+            - Destination:
+                /<confidential_root>/<sub_folder>/<images|videos>/<YYYY>/<MM>/<NewName>
 
-        PRIORITÉ 3 — APPS (WhatsApp, Messenger, DCIM, etc.)
-            - Condition :
-                Le chemin contient : WhatsApp, Messenger, Facebook, Instagram, Camera Roll, DCIM, Android, iOS
-            - Comportement :
-                Utilise la même logique que la règle par défaut (Move Pellicule / Videos).
+        PRIORITE 3 - APPS (WhatsApp, Messenger, DCIM, etc.)
+            - Condition:
+                Le Path contient : WhatsApp, Messenger, Facebook, Instagram, Camera Roll, DCIM, Android, iOS
+            - Behavior:
+                Use same logic as default rule (Move Pellicule / Videos).
 
-        PRIORITÉ 4 — ADMINISTRATIF NON FINANCES (Stay simplifié)
-            - Condition :
-                Le chemin contient : Documents, Légal, Syndicat, Vie des enfants, Cuisine, Livres, JPM, etc.
-            - Comportement :
-                Stay simplifié : on garde la racine, mais on limite à 3 niveaux maximum.
-            - Exemple :
-                /Documents/Travail/ProjetA/Phase1/Notes → /Documents/Travail/ProjetA/<NewName>
+        PRIORITE 4 - ADMINISTRATIF NON FINANCES (Stay simplifie)
+            - Condition:
+                Le Path contient : Documents, Legal, Syndicat, Vie des enfants, Cuisine, Livres, JPM, etc.
+            - Behavior:
+                Simplified Stay: keep root, but limit to 3 levels max.
+            - Example:
+                /Documents/Work/ProjectA/Phase1/Notes => /Documents/Work/ProjectA/<NewName>
 
-        PRIORITÉ 5 — DEFAULT (Move Pellicule / Videos)
-            - Condition :
-                Aucune des règles précédentes ne s’applique.
-            - Comportement :
-                Move selon type média :
-                    - Images → /Images/Pellicule/YYYY/MM/<NewName>
-                    - Videos → /Videos/YYYY/MM/<NewName>
-                    - Autres → /Images/Pellicule/YYYY/MM/<NewName> (par défaut)
+        PRIORITE 5 - DEFAULT (Move Pellicule / Videos)
+            - Condition:
+                Aucune des regles precedentes ne sâ€™applique.
+            - Behavior:
+                Move based on media type:
+                    - Images => /Images/Pellicule/YYYY/MM/<NewName>
+                    - Videos => /Videos/YYYY/MM/<NewName>
+                    - Others => /Images/Pellicule/YYYY/MM/<NewName> (default)
 
     .PARAMETER Category
-        Catégorie logique (Images, Videos, Stay, Confidential, etc.). Utilisée pour certains cas historiques,
-        mais la logique principale repose sur Resolve-FileRouting et le type média.
+        logical category (Images, Videos, Stay, Confidential, etc.). Utilisee pour certains cas historiques,
+        but main logic relies on Resolve-FileRouting and media type.
 
     .PARAMETER FileMeta
-        Hashtable retournée par Read-AzureFileInfo, contenant notamment :
-            - p : chemin parent (/drive/root:/...).
+        Hashtable returned by Read-AzureFileInfo, containing notably:
+            - p : Path parent (/drive/root:/...).
 
     .PARAMETER Extension
-        Extension du fichier, incluant le point (.jpg, .mp4, etc.).
+        File extension, including dot (.jpg, .mp4, etc.).
 
     .PARAMETER ExtensionMap
-        Hashtable de mapping extension → type média (Images, Videos, Autres, etc.).
+        Hashtable mapping extension => media type (Images, Videos, Others, etc.).
 
     .PARAMETER NewName
-        Nouveau nom de fichier généré par New-SmartFileName.
+        New filename generated by New-SmartFileName.
 
     .PARAMETER FileDate
-        Date de référence (EXIF ou fallback) utilisée pour YYYY/MM.
+        Reference date (EXIF or fallback) used for YYYY/MM.
 
     .OUTPUTS
-        PSCustomObject avec :
-            - RawDestination   : chemin logique brut (avant normalisation ASCII)
-            - CleanDestination : chemin normalisé ASCII
-            - FullDestination  : chemin complet incluant le nouveau nom
+        PSCustomObject with:
+            - RawDestination   : Path logique brut (avant ASCII normalization)
+            - CleanDestination: Path normalise ASCII
+            - FullDestination  : Path complet incluant le nouveau nom
     #>
     [CmdletBinding()]
     param(
@@ -493,10 +493,10 @@ function Get-DestinationPath {
     )
 
     try {
-        # Nettoyage du chemin source
+        # Clean source path
         $srcDirClean = $FileMeta.p -replace "^/drive/root:", ""
 
-        # Type média
+        # Media type
         $mediaType = if ($ExtensionMap.ContainsKey($Extension)) {
             $ExtensionMap[$Extension]
         }
@@ -504,7 +504,7 @@ function Get-DestinationPath {
             "Autres"
         }
 
-        # Résolution de la stratégie de routing
+        # Routing strategy resolution
         $routing = Resolve-FileRouting -FileMeta $FileMeta -Extension $Extension
         $mode = $routing.Mode
         $root = $routing.Root
@@ -517,12 +517,12 @@ function Get-DestinationPath {
         switch ($mode) {
 
             "StayStrict" {
-                # FINANCES : aucun déplacement, on garde le chemin exact
+                # FINANCES : aucun deplacement, on garde le Path exact
                 $rawDestination = $srcDirClean
             }
 
             "ConfidentialVault" {
-                # COFFRE-FORT : racine + 2e niveau + images/videos + YYYY/MM
+                # SAFE: root + 2nd level + images/videos + YYYY/MM
                 $baseRoot = $root
                 $mediaFolder = switch ($mediaType) {
                     "Videos" { "videos" }
@@ -533,7 +533,7 @@ function Get-DestinationPath {
             }
 
             "StaySimplified" {
-                # ADMIN NON FINANCES : Stay simplifié (3 niveaux max)
+                # NON-FINANCIAL ADMIN: Simplified Stay (3 levels max)
                 $parts = $srcDirClean.Trim('/').Split('/')
                 if ($parts.Count -gt 3) {
                     $basePath = ($parts[0..2] -join '/')
@@ -545,7 +545,7 @@ function Get-DestinationPath {
             }
 
             "AppsOrDefaultMove" {
-                # APPS + DEFAULT : Move Pellicule / Videos
+                # APPS + DEFAULT: Move Pellicule / Videos
                 if ($mediaType -eq "Videos") {
                     $rawDestination = "/Videos/$year/$month"
                 }
@@ -555,7 +555,7 @@ function Get-DestinationPath {
             }
 
             default {
-                # Fallback ultime : même logique que Default
+                # Ultimate fallback: same logic as Default
                 if ($mediaType -eq "Videos") {
                     $rawDestination = "/Videos/$year/$month"
                 }
@@ -565,10 +565,10 @@ function Get-DestinationPath {
             }
         }
 
-        # Nettoyage ASCII
+        # ASCII cleaning
         $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
 
-        # Destination finale
+        # Final destination
         $fullDestination = "/$($cleanDestination.Trim('/'))/$NewName"
 
         return [PSCustomObject]@{
@@ -578,9 +578,10 @@ function Get-DestinationPath {
         }
     }
     catch {
-        Write-Log "Échec Get-DestinationPath: $_" "Erreur"
+        Write-Log "Get-DestinationPath failure: $_" "ERROR"
     }
 } # Get-DestinationPath
 
 
 Export-ModuleMember -Function * 
+
