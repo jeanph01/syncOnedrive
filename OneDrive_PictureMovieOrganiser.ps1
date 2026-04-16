@@ -10,12 +10,7 @@
 param (
     [bool]$Execute = $true,                          # Exécute réellement les déplacements
     [bool]$ResetCache = $false,                          # Réinitialise les fichiers internes sauf GPS et cache OneDrive
-    [string]$IndexFile = ".\_cache\onedrive_cache.json",  # Cache OneDrive (fichier source)
-    [string]$LogFile = ".\_cache\organisation_log.txt", # Log des opérations
-    [string]$ProcessedLog = ".\_cache\processed_ids.log", # IDs déjà traités
-    [string]$ExecutionReport = ".\_cache\azure_sync_report.csv", # Rapport CSV des opérations
-    [string]$GpsCacheFile = ".\_cache\gps_cache.json",   # Cache GPS
-    [bool]$VerboseMode = $true,                            # Active les logs DEBUG
+    [string]$ConfigFile = ".\config.ini",               # Configuration applicative
         # === NOUVEAUX PARAMÈTRES ===
     [bool]$Analyze = $false,          # Analyse du plan.json
     [bool]$DryRun = $false,           # Mode dry-run détaillé
@@ -32,23 +27,36 @@ $ProgressPreference = 'Continue'
 # CONFIGURATION GLOBALE (PLACÉE AVANT LES MODULES)
 # =====================================================================
 
+Import-Module "$PSScriptRoot\modules\AppConfig.psm1" -Force
+$app = Get-AppConfiguration -ConfigFile $ConfigFile
+
+$IndexFile = $app.IndexFile
+$TokenFile = $app.TokenFile
+$LogFile = $app.OrganizerLogFile
+$ProcessedLog = $app.ProcessedLog
+$ExecutionReport = $app.ExecutionReport
+$GpsCacheFile = $app.GpsCacheFile
+$VerboseMode = $app.VerboseMode
+
+$Global:Rules = $app.Rules
+
 $Config = [PSCustomObject]@{
-    RenameMarker = "--odr--"      # Marqueur de renommage
-    MaxNameLen   = 80             # Longueur max des noms de fichiers
-    ClientId     = "176fc7bc-42c9-4a25-82b5-0ad584d3c061" # ClientId Graph
-    ExtensionMap = $ExtensionMap  # Table de mapping des extensions
+    RenameMarker = $app.RenameMarker
+    MaxNameLen   = $app.MaxNameLen
+    ClientId     = $app.ClientId
+    ExtensionMap = $app.ExtensionMap
 }
 
 # =====================================================================
 # MODULES EXTERNES
 # =====================================================================
 
-Import-Module "$PSScriptRoot\modules\OneDriveTools.psm1" -ArgumentList $Config.ClientId, $TokenFile, $LogFile, $VerboseMode -Force
+Import-Module "$PSScriptRoot\modules\OneDriveTools.psm1" -ArgumentList $Config.ClientId, $TokenFile, $LogFile -Force
 Import-Module "$PSScriptRoot\modules\OneDriveOrganize.psm1" -Force
 Import-Module "$PSScriptRoot\modules\OneDriveCacheUtils.psm1" -Force -DisableNameChecking
 Import-Module "$PSScriptRoot\modules\GpsTools.psm1" -ArgumentList $GpsCacheFile -Force
 # =====================================================================
-# CRÉATION DU DOSSIER _cache SI NÉCESSAIRE
+# CRÉATION DU DOSSIER CACHE SI NÉCESSAIRE
 # =====================================================================
 try {
     $cacheFolder = Split-Path $IndexFile -Parent
@@ -392,7 +400,7 @@ function Start-OneDriveOrganizer {
         if (-not $Execute) {
             Write-Log "----------------------------------------------------------------" "WARN"
             Write-Log "MODE APERÇU (DRY-RUN) : Aucune modification n'a été faite sur le Cloud." "WARN"
-            Write-Log "Vérifiez le fichier 'plan.json' dans le dossier _cache." "INFO"
+            Write-Log "Vérifiez le fichier 'plan.json' dans le dossier cache configuré." "INFO"
             Write-Log "Relancez le script avec le paramètre -Execute `$true pour appliquer." "INFO"
             Write-Log "----------------------------------------------------------------" "WARN"
             return

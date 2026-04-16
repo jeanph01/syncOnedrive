@@ -7,17 +7,23 @@ param (
     [string]$Mode = "Online",                     # Mode de scan OneDrive
     [switch]$ForceNewScan,   # Force uniquement le scan OneDrive (Index Cloud)
     [switch]$ResetCache,     # Reset TOTAL (Cloud + Hash Locaux + Logs)
-    [string]$LocalFolder = "D:\recup",            # Dossier local à analyser
-    [string]$TokenFile = ".\_cache\graph_token.json", # Token Graph
-    [string]$ClientId = "176fc7bc-42c9-4a25-82b5-0ad584d3c061", # ClientId Graph
-    [bool]$VerboseMode = $true                    # Active les logs DEBUG
+    [string]$ConfigFile = ".\config.ini"         # Configuration applicative
 )
 
 $ProgressPreference = 'SilentlyContinue'
 Clear-Host
 
+Import-Module "$PSScriptRoot\modules\AppConfig.psm1" -Force
+$app = Get-AppConfiguration -ConfigFile $ConfigFile
+$Global:Rules = $app.Rules
+
+$LocalFolder = $app.LocalFolder
+$TokenFile = $app.TokenFile
+$ClientId = $app.ClientId
+$VerboseMode = $app.VerboseMode
+
 # --- LOG FILE ---
-$global:LogFile = ".\_cache\onedrive_indexer_log.txt"
+$global:LogFile = $app.SyncLogFile
 
 # ---------------- EN-TÊTE & CONFIG ----------------
 function enteteConfig {
@@ -25,22 +31,21 @@ function enteteConfig {
     # todo déplacer les extensions dans un fichier externe
     $script:TimeStart = Get-Date
 
-    $cache = ".\_cache"
+    $cache = $app.CacheDir
     if (!(Test-Path $cache)) { New-Item -ItemType Directory -Path $cache | Out-Null }
-    $global:IndexFile          = "$cache\onedrive_cache.json"
-    $global:ReportFile         = "$cache\onedrive_doublons_rapport.txt"
-    $global:LocalHashCacheFile = "$cache\local_hash_cache.json"
-    $global:LogFile            = "$cache\onedrive_indexer_log.txt"
+    $global:IndexFile          = $app.IndexFile
+    $global:ReportFile         = $app.SyncReportFile
+    $global:LocalHashCacheFile = $app.LocalHashCacheFile
+    $global:LogFile            = $app.SyncLogFile
     $global:DupFolder = Join-Path $LocalFolder "_Doublons"
 
     # Extensions autorisées
-    $global:AllowedExt = @(
-        ".avi", ".mov", ".mp4", ".mpg", ".mpeg", ".mkv", ".wmv", ".flv", ".webm", ".m4v", ".3gp",
-        ".bmp", ".gif", ".jpg", ".jpeg", ".png", ".svg", ".tiff", ".tif", ".webp", ".heic", ".heif", ".psd", ".ai", ".xcf", ".ico", ".thm",
-        ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".rtf", ".txt", ".odt", ".wpd", ".epub", ".pages",
-        ".msg", ".eml", ".mp3", ".wav", ".m4a", ".flac", ".amr", ".opus",
-        ".html", ".htm", ".zip", ".7z", ".rar", ".csv", ".json", ".xml"
-    )
+    $global:AllowedExt = if ($app.AllowedExt -and $app.AllowedExt.Count -gt 0) {
+        $app.AllowedExt
+    }
+    else {
+        @()
+    }
 
     $global:AllowedExtSet = [System.Collections.Generic.HashSet[string]]::new()
     foreach ($ext in $global:AllowedExt) { $null = $global:AllowedExtSet.Add($ext) }
@@ -52,23 +57,6 @@ function enteteConfig {
         Remove-Item $global:LogFile -Force
     }
 } # enteteConfig
-# =====================================================================
-# RESET CACHE
-# =====================================================================
-if ($ResetCache) {
-    Write-Log "Reset du cache interne..." "WARN"
-    $files = @(
-        $global:IndexFile,
-        $global:ReportFile,
-        $global:LocalHashCacheFile,
-        $global:LogFile
-    )
-    foreach ($f in $files) {
-        if (Test-Path $f) { Remove-Item $f -Force }
-    }
-    Write-Log "Reset terminé." "SUCCESS"
-}
-
 # =====================================================================
 # MODULES EXTERNES
 # =====================================================================
@@ -423,12 +411,27 @@ function main {
     try {
         Write-Log "=== LANCEMENT DU SCRIPT V15.1 ==="
 
-    enteteConfig
-    ChargementScan
-    DoublonsOneDrive
-    NettoyageLocal
-    DossiersVides
-    Bilan
+        enteteConfig
+
+        if ($ResetCache) {
+            Write-Log "Reset du cache interne..." "WARN"
+            $files = @(
+                $global:IndexFile,
+                $global:ReportFile,
+                $global:LocalHashCacheFile,
+                $global:LogFile
+            )
+            foreach ($f in $files) {
+                if (Test-Path $f) { Remove-Item $f -Force }
+            }
+            Write-Log "Reset terminé." "SUCCESS"
+        }
+
+        ChargementScan
+        DoublonsOneDrive
+        NettoyageLocal
+        DossiersVides
+        Bilan
 }
     catch {
         Write-Log "Erreur main : $($_.Exception.Message)" "ERROR"
