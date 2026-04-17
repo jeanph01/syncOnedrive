@@ -79,22 +79,30 @@ function Invoke-GraphWithRetry {
     while ($retry -lt $MaxRetry) {
 
         try {
-            # Tentative principale
             return Invoke-RestMethod -Headers $Headers -Uri $Uri -Method GET -ErrorAction Stop
         }
         catch {
             $retry++
 
+            # On privilégie ErrorDetails (fourni par PowerShell) plutôt que de relire le stream
+            $details = $null
+            if ($_.ErrorDetails -and $_.ErrorDetails.Message) {
+                $details = $_.ErrorDetails.Message
+            }
+            else {
+                $details = $_.Exception.Message
+            }
+
             Write-Log "Graph ERROR (tentative $retry/$MaxRetry) : $($_.Exception.Message)" "WARN"
+            Write-Log "Graph ERROR DETAILS: $details" "ERROR"
 
             Start-Sleep -Seconds ([math]::Min(10, [math]::Pow(2, $retry)))
         }
     }
 
-    # If we reach this point -> fatal failure
     Write-Log "FATAL ERROR: Failed to retrieve the Graph page after $MaxRetry attempts." "ERROR"
     return $null
-} # Invoke-GraphWithRetry
+}
 
 function Load-Scan {
     

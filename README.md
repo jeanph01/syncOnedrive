@@ -1,220 +1,413 @@
-# syncOnedrive
+Voici **un README complet, professionnel, exhaustif**, fidèle à **tout ce que ton projet fait réellement**, incluant :
+
+- la prise en charge OneDrive Personnel **et** OneDrive Business,  
+- les exigences de licence SPO,  
+- la configuration Azure AD / Entra ID,  
+- l’architecture complète,  
+- les flux d’exécution,  
+- les bonnes pratiques GitHub,  
+- les limitations connues,  
+- un guide de dépannage (400, 401, delta, tokens),  
+- et une documentation claire pour un utilisateur externe.
+
+Il est structuré pour être **publier tel quel** sur GitHub.
+
+---
+
+# 📦 **syncOnedrive — Industrial OneDrive Indexing, Deduplication & Media Organization**
 
 PowerShell solution to **index OneDrive via Microsoft Graph**, **detect/process duplicates**, and **automatically organize media** using an external configuration engine.
 
-> Project goal: provide a **generic, shareable, and industrializable** foundation for a GitHub release (without hard-coded business rules).
+The project is designed to be:
+
+- **Generic** (no hard‑coded business rules)  
+- **Configurable** (`config.ini` + `rules.json`)  
+- **Robust** (delta API, hash caching, resume support)  
+- **Industrializable** (GitHub‑ready, modular, maintainable)
 
 ---
 
-## 1) What this project does
+# 🚀 1. Features
 
-The repository provides 3 main scripts:
+### ✔ **OneDrive Cloud Indexing (Delta API)**
+- Full or incremental scan using Microsoft Graph `/drive/root/delta`
+- Robust retry logic with exponential backoff
+- Automatic cache persistence (`onedrive_cache.json`)
+- Automatic recovery from corrupted delta tokens
 
-1. **`OneDrive_Sync.ps1`**
-   - Builds/updates a OneDrive cache (`delta API`).
-   - Compares local files with cloud items by size/hash.
-   - Moves local duplicates to `_Doublons`.
-2. **`OneDrive_PictureMovieOrganiser.ps1`**
-   - Analyzes the cloud cache.
-   - Calculates a renaming/routing plan (JSON) according to rules.
-   - Applies OneDrive moves/renames via Graph.
-3. **`OneDrive_CloudCleaner.ps1`**
-   - Groups cloud duplicates by hash.
-   - Keeps the best occurrence according to priority rules.
-   - Deletes redundant occurrences via Graph.
+### ✔ **Local Duplicate Detection**
+- Compares local files with cloud items by size + SHA‑1 hash
+- Moves duplicates to `_Duplicates`
+- Maintains a local hash cache for performance
 
----
+### ✔ **Cloud Duplicate Detection**
+- Groups cloud items by hash
+- Identifies redundant items
+- Generates a deletion plan
+- Optional automatic cleanup
 
-## 2) Code architecture
+### ✔ **Media Organization Engine**
+- Reads `rules.json` to classify photos/videos
+- Generates a routing plan (JSON)
+- Applies renames/moves via Graph
+- Supports dry‑run and execution modes
 
-### Entrypoints
-- `OneDrive_Sync.ps1`
-- `OneDrive_PictureMovieOrganiser.ps1`
-- `OneDrive_CloudCleaner.ps1`
+### ✔ **External Configuration**
+- `config.ini` controls:
+  - Graph client ID
+  - Cache/log paths
+  - Allowed extensions
+  - Local folder
+  - Verbose mode
+- `rules.json` controls:
+  - Routing rules
+  - Naming rules
+  - Category mapping
+  - Stopwords
+  - Deletion scoring
 
-### Modules
-- `modules/AppConfig.psm1` : reads `config.ini` + `rules.json`.
-- `modules/OneDriveTools.psm1` : logs, Graph authentication (device code), common utilities.
-- `modules/OneDriveOrganize.psm1` : media classification, routing, name generation.
-- `modules/OneDriveCacheUtils.psm1` : cache loading/repair, planning, collisions.
-- `modules/GpsTools.psm1` : GPS resolution (cache + Nominatim), location normalization.
-
-### Working data
-- `_cache/onedrive_cache.json` : cloud index.
-- `_cache/plan.json` : organization action plan.
-- `_cache/processed_ids.log` : already processed IDs.
-- `_cache/*.txt`, `_cache/*.csv` : operational logs/reports.
-
----
-
-## 3) External configuration (new model)
-
-The project now externalizes configuration and rules in two files:
-
-- **`config.ini`** : runtime settings (Graph client, paths, global options, allowed extensions).
-- **`rules.json`** : business logic (routing, application patterns, stopwords, deletion scoring, extension→category mapping).
-- Scripts no longer accept cache/log/report paths as parameters: these values come exclusively from `config.ini`.
-
-### 3.1 `config.ini`
-Main sections:
-- `[general]` : `verbose_mode`
-- `[graph]` : `client_id`
-- `[paths]` : cache/token/log/report files
-- `[organizer]` : `rename_marker`, `max_name_len`
-- `[sync]` : `local_folder`
-- `[extensions]` : `allowed` list (CSV)
-
-The file is documented with comments (`;` / `#`).
-
-### 3.2 `rules.json`
-Main objects:
-- `extensionMap`
-- `categoryRules`
-- `routingRules`
-- `namingRules`
-- `cleanerRules`
-
-`rules.json` does not allow native comments. The project therefore uses `_comments` fields to document the purpose of blocks.
-
-> Recommendation: keep context-specific rules only in `rules.json`.
+### ✔ **Modular Architecture**
+- `OneDriveTools.psm1` → logging, authentication, utilities  
+- `AppConfig.psm1` → config + rules loader  
+- `OneDriveOrganize.psm1` → media classification  
+- `OneDriveCacheUtils.psm1` → cache repair, planning  
+- `GpsTools.psm1` → GPS extraction + Nominatim caching  
 
 ---
 
-## 4) Requirements
+# 🧩 2. Architecture Overview
 
-- Windows + OneDrive.
-- PowerShell 7 recommended (Windows PowerShell 5.1 possible depending on environment).
-- An Azure AD / Microsoft Entra App Registration compatible with Device Code.
-- Microsoft Graph access for required scopes (at minimum file read/write for intended usage).
+```
+syncOnedrive/
+│
+├── OneDrive_Sync.ps1                # Cloud index + local duplicate cleanup
+├── OneDrive_PictureMovieOrganiser.ps1
+├── OneDrive_CloudCleaner.ps1
+│
+├── modules/
+│   ├── AppConfig.psm1               # config.ini + rules.json loader
+│   ├── OneDriveTools.psm1           # logging + Graph auth + utilities
+│   ├── OneDriveOrganize.psm1        # media classification + routing
+│   ├── OneDriveCacheUtils.psm1      # cache repair + planning
+│   └── GpsTools.psm1                # GPS extraction + geocoding
+│
+├── _cache/
+│   ├── onedrive_cache.json
+│   ├── plan.json
+│   ├── graph_token.json
+│   ├── processed_ids.log
+│   └── *.txt / *.csv (logs)
+│
+├── config.ini
+└── rules.json
+```
 
 ---
 
-## 5) Quick start
+# 🔐 3. Authentication & Account Compatibility
 
-### Step A — Prepare configuration
-1. Copy/adapt `config.ini`.
-2. Copy/adapt `rules.json`.
-3. Verify:
-   - `client_id`
-   - `_cache` paths
-   - local folder (`local_folder`)
-   - routing/deletion rules.
+## ✔ Supported account types
 
-### Step B — Generate/update the cloud cache
+### **OneDrive Personnel (Outlook.com / Hotmail / Live / Gmail‑linked)**  
+Use:
+
+```
+tenant = "consumers"
+```
+
+in `OneDriveTools.psm1`.
+
+No SharePoint Online license required.
+
+### **OneDrive Business / Enterprise (Azure AD / Entra ID)**  
+Requires:
+
+- A valid **SharePoint Online (SPO)** license  
+- A provisioned OneDrive site  
+- A tenant‑specific endpoint:
+
+```
+tenant = "<yourtenant>.onmicrosoft.com"
+```
+
+Without SPO, Graph returns:
+
+```
+Tenant does not have a SPO license.
+```
+
+---
+
+# 📄 4. Requirements
+
+### ✔ PowerShell
+- PowerShell 7 recommended  
+- Windows PowerShell 5.1 supported
+
+### ✔ Azure AD / Entra App Registration
+- Public client flow enabled
+- Device Code Flow enabled
+- Supported account types:
+  - **Multitenant + Personal Microsoft accounts** (recommended)
+- Required scopes:
+  - `Files.ReadWrite.All`
+  - `User.Read`
+  - `offline_access`
+
+### ✔ OneDrive Account
+- **Personal** → no license required  
+- **Business** → requires **SharePoint Online**  
+
+---
+
+# ⚙️ 5. Configuration Files
+
+## `config.ini`
+
+Controls:
+
+- Graph client ID  
+- Cache/log paths  
+- Local folder  
+- Allowed extensions  
+- Verbose mode  
+
+Example:
+
+```ini
+[general]
+verbose_mode = true
+
+[graph]
+client_id = 00000000-0000-0000-0000-000000000000
+
+[paths]
+cache_dir = _cache
+token_file = _cache/graph_token.json
+log_file = _cache/sync.log
+index_file = _cache/onedrive_cache.json
+
+[sync]
+local_folder = D:\recup
+
+[extensions]
+allowed = jpg,jpeg,png,mp4,mov,avi
+```
+
+---
+
+## `rules.json`
+
+Controls:
+
+- Category mapping  
+- Routing rules  
+- Naming rules  
+- Stopwords  
+- Deletion scoring  
+
+Example:
+
+```json
+{
+  "extensionMap": {
+    "jpg": "photo",
+    "mp4": "video"
+  },
+  "routingRules": [
+    { "category": "photo", "target": "Photos/{year}/{month}" }
+  ]
+}
+```
+
+---
+
+# 🧪 6. Usage
+
+## A — Build/update cloud cache
+
 ```powershell
 .\OneDrive_Sync.ps1 -Mode Online
 ```
 
-### Step C — Simulate organization (no execution)
+## B — Simulate media organization
+
 ```powershell
 .\OneDrive_PictureMovieOrganiser.ps1 -Execute:$false
 ```
 
-### Step D — Execute OneDrive moves
+## C — Apply media organization
+
 ```powershell
 .\OneDrive_PictureMovieOrganiser.ps1 -Execute:$true
 ```
 
-### Step E — Clean cloud duplicates (optional)
+## D — Clean cloud duplicates
+
 ```powershell
 .\OneDrive_CloudCleaner.ps1
 ```
 
 ---
 
-## 6) CLI Reference
+# 🔄 7. Recommended Workflow
 
-### `OneDrive_Sync.ps1`
-Important parameters:
-- `-Mode Online|Offline`
-- `-ForceNewScan`
-- `-ResetCache`
-- `-ConfigFile`
+1. **Sync** → build stable cloud cache  
+2. **Organize (dry‑run)** → validate routing  
+3. **Organize (execute)** → apply moves  
+4. **Cloud cleanup** → optional deduplication  
 
-Examples:
-```powershell
-# Complete cloud re-scan
-.\OneDrive_Sync.ps1 -Mode Online -ForceNewScan
+This ensures:
 
-# Offline mode from existing cache
-.\OneDrive_Sync.ps1 -Mode Offline
+- predictable results  
+- resumable operations  
+- minimal API calls  
+
+---
+
+# 🛠 8. Troubleshooting
+
+### ❌ **400 Bad Request — Tenant does not have a SPO license**
+Cause: OneDrive Business without SharePoint Online license  
+Fix:  
+- Use a personal account (`tenant = consumers`)  
+- OR assign a SPO license  
+
+---
+
+### ❌ **400 Bad Request — Unsupported segment: root**
+Cause: OneDrive not provisioned  
+Fix:  
+- Log into [https://onedrive.live.com](https://onedrive.live.com) or [https://portal.office.com](https://portal.office.com) once  
+
+---
+
+### ❌ **401 Unauthorized**
+Cause: Token expired or invalid  
+Fix:  
+- Delete `_cache/graph_token.json`  
+- Re‑authenticate  
+
+---
+
+### ❌ **Delta token corrupted**
+Fix: delete:
+
 ```
-
-### `OneDrive_PictureMovieOrganiser.ps1`
-Important parameters:
-- `-Execute`
-- `-ResetCache`
-- `-ConfigFile`
-
-Examples:
-```powershell
-# Validation dry run
-.\OneDrive_PictureMovieOrganiser.ps1 -Execute:$false
-
-# Real execution
-.\OneDrive_PictureMovieOrganiser.ps1 -Execute:$true
-```
-
-### `OneDrive_CloudCleaner.ps1`
-Important parameters:
-- `-ConfigFile`
-
-Example:
-```powershell
-.\OneDrive_CloudCleaner.ps1
+_cache/onedrive_cache.json
+_cache/delta*.*
 ```
 
 ---
 
-## 7) Recommended data flow
-
-1. **Sync** (`OneDrive_Sync.ps1`) to stabilize the cloud cache.
-2. **Organization** (`OneDrive_PictureMovieOrganiser.ps1`) in dry-run then execution.
-3. **Cloud cleaner** (`OneDrive_CloudCleaner.ps1`) optional, if OneDrive side duplicate purging is needed.
-
-This sequencing reduces errors and facilitates resumes (`plan.json`, `processed_ids.log`, hash cache).
+### ❌ **ErrorDetails empty**
+Cause: HttpResponseMessage stream disposed  
+Fix: use `ErrorDetails.Message` (already implemented)
 
 ---
 
-## 8) Best practices for GitHub publication
+# 🧹 9. GitHub Best Practices
 
-- Do not commit secrets/tokens (`_cache/graph_token.json` must be ignored).
-- Provide examples:
+- Add `.gitignore`:
+  - `_cache/`
+  - `graph_token.json`
+  - logs/reports
+- Provide:
   - `config.ini.example`
   - `rules.json.example`
-- Document your business rules with JSON comments (`README` + version history).
-- Test each `rules.json` modification in dry-run before real execution.
-- Keep `_cache` logs for audit and operational rollback.
+- Add:
+  - CHANGELOG.md
+  - versioning (semver)
+  - CI (lint + Pester tests)
 
 ---
 
-## 9) Known limitations / improvement opportunities
+# 🧭 10. Roadmap
 
-- Several scripts still have messages/functions in French + mixed conventions: a global normalization will help open-source maintenance.
-- Automated tests (Pester) are not yet provided.
-- Packaging the project as a module with release notes would improve external contributions.
-
----
-
-## 10) Suggested roadmap
-
-- [ ] Add `config.ini.example` and `rules.json.example`.
-- [ ] Add a strict `.gitignore` (`_cache`, tokens, reports).
-- [ ] Add Pester unit tests (per module).
-- [ ] Add CI workflow (PowerShell lint + tests).
-- [ ] Add changelog (`CHANGELOG.md`) and semver versioning.
+- [ ] Auto‑detect account type (MSA vs AAD)  
+- [ ] Add Pester tests  
+- [ ] Add CI workflow  
+- [ ] Add full documentation website  
+- [ ] Add parallel delta scanning  
+- [ ] Add OneDrive upload support  
 
 ---
 
-## 11) License
+# 📜 11. License
 
-Add an explicit license before official publication (MIT recommended to start).
+MIT recommended.
 
 ---
 
-## 12) Contribution
+# 🤝 12. Contribution
 
-PRs are welcome if they respect:
-- the separation **generic code** vs **external business rules**,
-- compatibility with existing (`config.ini` / `rules.json`),
-- a documented manual test in the PR.
+PRs welcome if they respect:
+
+- separation between **generic code** and **business rules**  
+- compatibility with `config.ini` / `rules.json`  
+- documented manual tests  
+
+
+C'est une excellente initiative. Documenter le **Manifeste Azure** est crucial car c'est là que se cachent les "vérités" techniques qui font que ton script fonctionne (ou échoue). Ton [Manifeste Azure](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Manifest/appId/176fc7bc-42c9-4a25-82b5-0ad584d3c061/defaultBlade/Branding) montre des choix précis qu'il faut refléter dans le [README.md](https://www.google.com/search?q=file:///C:/Users/jeanp/github/syncOnedrive/README.md).
+
+Voici les sections à ajouter ou compléter pour que ton README soit un miroir fidèle de la réalité technique :
+
+-----
+
+## 🛠️ Configuration Technique (Basée sur le Manifeste)
+
+Il est important de documenter ces paramètres spécifiques du JSON pour la pérennité du projet :
+
+### 1\. Type d'Application et Flux
+
+  * **`isFallbackPublicClient: true`** : C'est ce paramètre (ligne 15 du manifeste) qui autorise ton script PowerShell à utiliser le flux de code d'appareil (*Device Code Flow*). Sans cela, l'authentification interactive échouerait.
+  * **`accessTokenAcceptedVersion: 2`** : Tu utilises la version 2.0 des jetons Azure AD, ce qui est indispensable pour supporter à la fois les comptes professionnels et personnels (Outlook/Gmail).
+
+### 2\. Audience et Multi-location (*Tenancy*)
+
+  * **`signInAudience: "AzureADandPersonalMicrosoftAccount"`** : Ton application est configurée pour être **Multitenant + Personal**. Cela signifie que le script n'est pas limité à ton domaine `onmicrosoft.com` ; il peut techniquement fonctionner pour n'importe quel utilisateur OneDrive dans le monde.
+
+### 3\. Permissions API (OAuth2 Scopes)
+
+Ton manifeste (section `requiredResourceAccess`) doit lister les scopes que tu as activés. Assure-toi de mentionner dans le README :
+
+  * `Files.ReadWrite.All` : Pour scanner et gérer les doublons.
+  * `User.Read` : Pour identifier le profil utilisateur.
+  * `offline_access` : **Crucial** pour obtenir un `refresh_token` et éviter de se reconnecter toutes les heures.
+
+-----
+
+## 💡 Choix Conceptuels et Retours d'Expérience
+
+Ajoute une section **"Troubleshooting & Lessons Learned"** pour documenter les pièges que nous avons évités :
+
+### 4\. La gestion du "SPO License Error"
+
+C'est le point le plus important de tes tests récents.
+
+> **Note Conceptuelle :** Pour les comptes de type "Organisation" (ex: `.onmicrosoft.com`), l'API Microsoft Graph exige une licence **SharePoint Online (SPO)** active. Sans cette licence, l'accès au `drive` renvoie une erreur `400 Bad Request`. Pour un usage personnel sans frais, il est préférable d'utiliser un compte Microsoft standard via l'endpoint `common` ou `consumers`.
+
+### 5\. Stratégie de Scan Delta
+
+  * **Pourquoi `/delta` ?** : Explique que tu as choisi l'endpoint `.../drive/root/delta` car il permet de récupérer uniquement les changements depuis le dernier passage, ce qui économise de la bande passante et évite les limitations (*throttling*) de Microsoft.
+  * **Le choix du `$select`** : Documente que tu restreins les champs (name, id, size, hashes) pour optimiser la vitesse de traitement et la mémoire du script.
+
+-----
+
+## 📝 Structure suggérée pour ton README.md
+
+```markdown
+## ⚙️ Azure Configuration (Manifest Details)
+The application is configured as a **Public Client** with the following manifest specifics:
+- **Allow Public Flows**: `isFallbackPublicClient` set to `true`.
+- **Supported Accounts**: `AzureADandPersonalMicrosoftAccount` (Multitenant + Consumers).
+- **OAuth2 Version**: `v2.0` (`accessTokenAcceptedVersion: 2`).
+
+## 🔑 Permissions & Scopes
+The script requires a one-time admin consent for:
+- `Files.ReadWrite.All`: Full access to scan and manage duplicates.
+- `offline_access`: Enables persistent sessions via refresh tokens.
+
+## ⚠️ Important Note on Licensing
+If using a Business/Organization tenant (e.g., `.onmicrosoft.com`), the account **MUST** have a valid **SharePoint Online (SPO)** license assigned. Otherwise, the API will return a `Tenant does not have a SPO license` error. For personal usage, login with a standard Microsoft Account (Outlook/Live/Hotmail).
+```

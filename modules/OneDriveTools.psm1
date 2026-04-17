@@ -143,11 +143,13 @@ function Get-GraphToken {
 
         if ($existing -and $existing.access_token) {
 
+            # Vérification expiration locale
             if ($existing.expires_on -gt (Get-Date).ToUniversalTime().ToFileTimeUtc()) {
                 Write-Log "Valid token loaded from cache"
                 return $existing
             }
 
+            # Vérification côté Graph
             if (Test-GraphToken $existing.access_token) {
                 Write-Log "Token still valid (Graph OK)"
                 return $existing
@@ -158,21 +160,27 @@ function Get-GraphToken {
 
         Assert-ValidParam -Name "ClientId" -Value $ClientId
 
+        # === MODE ONEDRIVE PERSONNEL (MSA) ===
+        # Le tenant 'consumers' est OBLIGATOIRE pour Outlook.com / Gmail lié à Microsoft
+        $tenant = "consumers"
+
+        # === DEVICE CODE FLOW ===
         $DeviceCode = Invoke-RestMethod -Method POST `
-            -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/devicecode" `
+            -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/devicecode" `
             -Body @{
                 client_id = $ClientId
-                scope     = "Files.ReadWrite.All"
+                scope     = "Files.ReadWrite.All offline_access User.Read"
             }
 
         Write-Log $DeviceCode.message
 
+        # === POLLING TOKEN ===
         $Auth = $null
-        while (!$Auth) {
+        while (-not $Auth) {
             Start-Sleep 5
             try {
                 $Auth = Invoke-RestMethod -Method POST `
-                    -Uri "https://login.microsoftonline.com/common/oauth2/v2.0/token" `
+                    -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/token" `
                     -Body @{
                         grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
                         client_id   = $ClientId
@@ -184,6 +192,7 @@ function Get-GraphToken {
             }
         }
 
+        # Ajout expiration locale
         $Auth | Add-Member -NotePropertyName expires_on -NotePropertyValue (
             (Get-Date).AddSeconds($Auth.expires_in).ToUniversalTime().ToFileTimeUtc()
         )
@@ -194,11 +203,9 @@ function Get-GraphToken {
         return $Auth
     }
     catch {
-        Write-Log "Get-GraphToken failed: $_" "ERROR"
+        Write-Log "Get-GraphToken failed: $($_.Exception.Message)" "ERROR"
     }
 }
-
-
 
 # =====================================================================
 # CACHE HASH
@@ -223,20 +230,27 @@ function Get-CacheHash {
 # Return the details of an HTTP error
 function Get-ErrorDetails {
     param(
-        $Exception  # Exception to analyze
+        $Exception
     )
+
     try {
-        if ($Exception.Response) {
+        # Cas PowerShell 5 : WebException
+        if ($Exception.Response -and $Exception.Response.GetType().Name -eq "HttpWebResponse") {
             $reader = New-Object System.IO.StreamReader($Exception.Response.GetResponseStream())
             return $reader.ReadToEnd()
+        }
+
+        # Cas PowerShell 7 : HttpResponseMessage
+        if ($Exception.Response -and $Exception.Response.Content) {
+            return $Exception.Response.Content.ReadAsStringAsync().Result
         }
     }
     catch {
         Write-Log "Failed to read error details: $($_.Exception.Message)" "ERROR"
     }
-    return $Exception.Message
-} # Get-ErrorDetails
 
+    return $Exception.Message
+}
 
 # Convert a string to ASCII-safe form for file names/paths
 function Convert-ToAscii {
