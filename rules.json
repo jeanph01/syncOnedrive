@@ -2,11 +2,12 @@
   "_comments": {
     "purpose": "Externalized business rules. JSON does not support native comments, this block describes the sections.",
     "extensionMap": "Maps extension -> media category used by routing.",
-    "categoryRules": "Initial logical categorization (e.g. standard zones, confidential zones).",
     "routingRules": "Destination rules for files.",
+    "folderRules": "Folder-based action overrides.",
     "namingRules": "Word cleaning rules for name generation.",
     "cleanerRules": "Scoring rules to keep/remove cloud duplicates."
   },
+
   "extensionMap": {
     ".jpg": "Images",
     ".jpeg": "Images",
@@ -19,6 +20,11 @@
     ".tif": "Images",
     ".tiff": "Images",
     ".svg": "Images",
+    ".psd": "Images",
+    ".ai": "Images",
+    ".xcf": "Images",
+    ".ico": "Images",
+    ".thm": "Images",
     ".mp4": "Videos",
     ".mov": "Videos",
     ".avi": "Videos",
@@ -29,73 +35,83 @@
     ".3gp": "Videos",
     ".mpg": "Videos",
     ".mpeg": "Videos",
+    ".flv": "Videos",
     ".mp3": "Audio",
     ".wav": "Audio",
     ".m4a": "Audio",
     ".flac": "Audio",
     ".amr": "Audio",
-    ".opus": "Audio",
-    ".pdf": "Documents",
-    ".doc": "Documents",
-    ".docx": "Documents",
-    ".xls": "Documents",
-    ".xlsx": "Documents",
-    ".ppt": "Documents",
-    ".pptx": "Documents",
-    ".txt": "Documents",
-    ".rtf": "Documents",
-    ".csv": "Documents",
-    ".json": "Documents",
-    ".xml": "Documents"
+    ".opus": "Audio"
   },
-  "categoryRules": {
-    "stayPatterns": [
-      "Finances",
-      "Légal",
-      "Documents",
-      "Vie des enfants",
-      "JPM",
-      "Loisirs",
-      "Livres",
-      "Cuisine",
-      "Syndicat",
-      "Apps"
-    ],
-    "confidentialRegex": "(?i)confidential|privatevault|securevault"
-  },
+
   "routingRules": {
-    "financeRegex": "^/Finances(/|$)",
+    "actionPriority": [
+      "confidential",
+      "administrative",
+      "no_action",
+      "only_rename",
+      "default"
+    ],
+
+    "actions": {
+      "confidential": {
+    "description": "Keep first 2 levels, then move and rename. Parent folder names are NOT included in final filename.",
+        "destination": "<level1>/<level2>/<media>/<year>/<month>/name.ext"
+      },
+      "administrative": {
+    "description": "Keep first 2 levels (instead of 3), then move and rename. Parent folder names are NOT included in final filename.",
+    "destination": "<level1>/<level2>/name.ext"
+      },
+      "no_action": {
+        "description": "Do nothing.",
+        "destination": null
+      },
+      "default": {
+    "description": "Move and rename into media/year/month. Parent folder names are NOT included in final filename.",
+        "destination": "<media>/<year>/<month>/name.ext"
+      },
+      "only_rename": {
+        "description": "Rename only, do not move.",
+        "destination": "same_directory/name.ext"
+      }
+    },
+
     "confidentialRegexList": [
       "(?i)confidential",
       "(?i)privatevault",
-      "(?i)securevault"
-    ],
-    "appsPatterns": [
-      "WhatsApp",
-      "Messenger",
-      "Facebook",
-      "Instagram",
-      "Screenshots",
-      "Camera Roll",
-      "DCIM",
-      "Android",
-      "iOS"
-    ],
-    "adminPatterns": [
-      "Documents",
-      "Légal",
-      "Syndicat",
-      "Vie des enfants",
-      "Cuisine",
-      "Livres",
-      "JPM"
-    ],
-    "sourceHints": [
-      "WhatsApp",
-      "Messenger",
-      "Instagram"
+      "(?i)securevault",
+      "(?i)coffre.*fort",
+      "(?i)verscoffrefort"
     ]
   },
+
+  "folderRules": {
+    "*.*": "default",
+    "bureau": "default",
+    "Cuisine": "administrative",
+    "Documents": "default",
+    "Fichiers Microsoft Copilot Chat": "default",
+    "Fichiers transcrits": "no_action",
+    "films": "no_action",
+    "Finances": "only_rename",
+    "Images": "default",
+    "Importations": "no_action",
+    "jp": "default",
+    "JPM": "default",
+    "Livres": "no_action",
+    "Loisirs": "administrative",
+    "Légal": "administrative",
+    "Music": "default",
+    "packages informatique": "no_action",
+    "Pièces jointes": "no_action",
+    "scan": "only_rename",
+    "CoffreFort": "confidential",
+    "VersCoffreFort": "confidential",
+    "Videos": "default",
+    "Vidéos": "default",
+    "Vie_des_enfants": "administrative"
+  },
+
   "namingRules": {
     "stopWords": [
       "de",
@@ -115,6 +131,7 @@
       "aux"
     ]
   },
+
   "cleanerRules": {
     "priorityRules": [
       {

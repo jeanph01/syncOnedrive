@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$ClientId,
     [string]$TokenFile,
     [string]$LogFile
@@ -95,32 +95,60 @@ function Read-AzureFileInfo {
     }
 } # Read-AzureFileInfo
 
-
-# Determine the logical category of a file based on its path and extension
 function Get-SmartCategory {
-    param ([string]$Path, [string]$Extension)
+    <#
+        1. Only media files (extensions defined in rules.json) are processed.
+        2. Non-media files immediately return "no_action".
+        3. Media files use folderRules to determine the action
+          (confidential, administrative, default, etc.).
+    #>
+
+    param (
+        [string]$Path,
+        [string]$Extension
+    )
 
     try {
-        # STAY rules (logical category, not final routing)
-        $stayPatterns = @($Global:Rules.categoryRules.stayPatterns)
-        foreach ($p in $stayPatterns) {
-            if ($Path -match "(?i)$p") {
-                return "Stay"
-            }
+        # Validate input
+        if (-not $Path) {
+            Write-Log "Get-SmartCategory: Invalid path" "ERROR"
+            return "no_action"
         }
 
-        # Confidential (logical category)
-        if ($Path -match $Global:Rules.categoryRules.confidentialRegex) {
-            return "Confidential"
-        }
-
-        # Standards
+        # 1. Determine media type from extension
         $ext = $Extension.ToLower()
-        if ($Config.ExtensionMap.ContainsKey($ext)) {
-            return $Config.ExtensionMap[$ext]
+        # Determine media type (Images / Videos / Audio)
+        if ($global:Config.ExtensionMap.ContainsKey($ext)) {
+            $mediaType = $global:Config.ExtensionMap[$ext]
         }
 
-        return "Stay"
+        # If mediaType was not assigned → not a media file
+        if (-not $mediaType) {
+            return "no_action"
+        }
+
+        # 2. Extract top-level folder name
+        $cleanPath = $Path -replace "^/drive/root:/", ""
+        if (-not $cleanPath) {
+            Write-Log "Get-SmartCategory: Empty clean path" "ERROR"
+            return "no_action"
+        }
+        $parts = $cleanPath.Trim("/").Split("/")
+        if (-not $parts -or $parts.Count -eq 0) {
+            Write-Log "Get-SmartCategory: Invalid path structure" "ERROR"
+            return "no_action"
+        }
+        $rootFolder = $parts[0]
+
+        # 3. Folder-based rule lookup
+        $folderRules = $global:Rules.folderRules
+
+        if ($folderRules.ContainsKey($rootFolder)) {
+            return $folderRules[$rootFolder]   # confidential / administrative / no_action / only_rename / default
+        }
+
+        # 4. Fallback: default rule for media files
+        return "default"
     }
     catch {
         Write-Log "Get-SmartCategory failure: $_" "ERROR"
@@ -131,8 +159,8 @@ function Get-SmartCategory {
 # Extract useful tags from the source path
 function Get-PathTags($fullPath) {
     try {
-        $parts = $fullPath -replace "^/drive/root:/?", "" -split "/" |
-        Where-Object { $_ -and $_ -notmatch "Documents|Images|Videos|Musique|Pellicule|JPM" }
+        $parts = $fullPath -replace "^/drive/root:/?", "" -split "/"
+        #| Where-Object { $_ -and $_ -notmatch "Documents|Images|Videos|Musique|Pellicule|JPM" }
 
         return ($parts -join "_")
     }
@@ -157,22 +185,22 @@ function New-SmartFileName {
 
     try {
         # FIX: If original name is empty or just extension, use 'unnamed'
-        $cleanOriginal = if ([string]::IsNullOrWhiteSpace($OriginalName) -or $OriginalName -eq $Extension) { 
-            "unnamed" 
-        } else { 
-            Convert-ToAscii $OriginalName 
+        $cleanOriginal = if ([string]::IsNullOrWhiteSpace($OriginalName) -or $OriginalName -eq $Extension) {
+            "unnamed"
+        }
+        else {
+            Convert-ToAscii $OriginalName
         }
         $timestamp = $DateRef.ToString("yyyyMMdd_HHmmss")
-        $year      = $DateRef.ToString("yyyy")
+        $year = $DateRef.ToString("yyyy")
         $yearMonth = $DateRef.ToString("yyyy_MM")
-        $dateRaw   = $DateRef.ToString("yyyyMMdd")
+        $dateRaw = $DateRef.ToString("yyyyMMdd")
 
-        # ASCII normalization
-        $cleanOriginal = Convert-ToAscii $OriginalName
-        $cleanTags     = Convert-ToAscii $PathTags
-        $cleanGPS      = Convert-ToAscii $GPSLocation
-        $cleanCam      = Convert-ToAscii $Camera
-        $cleanSource   = Convert-ToAscii $SourceHint
+        # ASCII normalization of other fields
+        $cleanTags = Convert-ToAscii $PathTags
+        $cleanGPS = Convert-ToAscii $GPSLocation
+        $cleanCam = Convert-ToAscii $Camera
+        $cleanSource = Convert-ToAscii $SourceHint
 
         # Splitting
         function Split-Words($txt) {
@@ -180,11 +208,11 @@ function New-SmartFileName {
             return ($txt -split "[ _\-]" | Where-Object { $_ -and $_.Trim().Length -gt 0 })
         }
 
-        $GPSWords  = Split-Words $cleanGPS
-        $tagWords  = Split-Words $cleanTags
+        $GPSWords = Split-Words $cleanGPS
+        $tagWords = Split-Words $cleanTags
         $origWords = Split-Words $cleanOriginal
-        $camWords  = Split-Words $cleanCam
-        $srcWords  = Split-Words $cleanSource
+        $camWords = Split-Words $cleanCam
+        $srcWords = Split-Words $cleanSource
 
         # Stopwords
         $Stopwords = @($Global:Rules.namingRules.Stopwords)
@@ -194,8 +222,8 @@ function New-SmartFileName {
             return $list | Where-Object { $Stopwords -notcontains $_.ToLower() }
         }
 
-        $GPSWords  = Remove-Stopwords $GPSWords
-        $tagWords  = Remove-Stopwords $tagWords
+        $GPSWords = Remove-Stopwords $GPSWords
+        $tagWords = Remove-Stopwords $tagWords
         $origWords = Remove-Stopwords $origWords
 
         # Remove words already present in GPS
@@ -207,30 +235,29 @@ function New-SmartFileName {
             return $list | Where-Object { -not $GPSSet.ContainsKey($_.ToLower()) }
         }
 
-        $tagWords  = Remove-GPSRedundancy $tagWords
+        $tagWords = Remove-GPSRedundancy $tagWords
         $origWords = Remove-GPSRedundancy $origWords
 
-        # Remove date redundancies
-        function Remove-DateRedundancy($list) {
+        function Remove-DateRedundancy($list, $year, $yearMonth, $dateRaw, $timestamp) {
             if (-not $list) { return @() }
             return $list | Where-Object {
-                $_ -notmatch $year      -and
+                $_ -notmatch $year -and
                 $_ -notmatch $yearMonth -and
-                $_ -notmatch $dateRaw   -and
+                $_ -notmatch $dateRaw -and
                 $_ -notmatch $timestamp
             }
         }
-        $tagWords  = Remove-DateRedundancy $tagWords
-        $origWords = Remove-DateRedundancy $origWords
+        $tagWords  = Remove-DateRedundancy $tagWords  $year $yearMonth $dateRaw $timestamp
+        $origWords = Remove-DateRedundancy $origWords $year $yearMonth $dateRaw $timestamp
 
         # Global assembly
         $allWords = New-Object System.Collections.Generic.List[string]
         $allWords.Add($timestamp)
-        $GPSWords  | ForEach-Object { $allWords.Add($_) }
-        $tagWords  | ForEach-Object { $allWords.Add($_) }
+        $GPSWords | ForEach-Object { $allWords.Add($_) }
+        $tagWords | ForEach-Object { $allWords.Add($_) }
         $origWords | ForEach-Object { $allWords.Add($_) }
-        $camWords  | ForEach-Object { $allWords.Add($_) }
-        $srcWords  | ForEach-Object { $allWords.Add($_) }
+        $camWords | ForEach-Object { $allWords.Add($_) }
+        $srcWords | ForEach-Object { $allWords.Add($_) }
 
         # Global anti-duplicate
         $seen = @{}
@@ -258,318 +285,163 @@ function New-SmartFileName {
     }
 } # New-SmartFileName
 
+function Get-MediaType {
+    param([string]$Extension)
 
-function Resolve-FileRouting {
-    <#
-    .SYNOPSIS
-        Resout la strategie de routing (Stay / Move) et la racine cible selon le Path source et le type de media.
+    $ext = $Extension.ToLower()
+    if ($Global:Config.ExtensionMap.ContainsKey($ext)) {
+        return $Global:Config.ExtensionMap[$ext]   # Images / Videos / Audio
+    }
 
-    .DESCRIPTION
-        Cette fonction applique un moteur de regles deterministe, dans un ordre de priorite strict :
+    return $null
+} # Get-MediaType
 
-        RÃˆGLE 1 - FINANCES (Stay STRICT)
-            Condition:
-                - Le Path source commence par /drive/root:/Finances
-            Intention :
-                - Stay strict : aucun deplacement, on garde le Path exact, on renomme seulement.
-            Example:
-                /drive/root:/Finances/Maison et Logement/95 ... => /Finances/Maison_et_Logement/95_.../<NewName>
-
-        RÃˆGLE 2 - COFFRE-FORT (Stay + mediaType) - SANS EXCEPTION
-            Condition:
-                - Le Path source contient (insensible a la casse) :
-                    "confidential", "confidential", "pour confidential", "confidential", "privatevault"
-            Intention :
-                - Stay dans la racine Confidential
-                - Conserver le 2e niveau (Michelle, relations, archives, etc.)
-                - Organiser par Media type (images / videos)
-                - Classer par annee / mois
-            Destination:
-                /<confidential_root>/<sub_folder>/<images|videos>/<YYYY>/<MM>/<NewName>
-            Example:
-                /drive/root:/Confidential/relations/... => /Confidential/relations/videos/YYYY/MM/<NewName>
-                /drive/root:/VersConfidentialVault/relations/... => /VersConfidentialVault/relations/images/YYYY/MM/<NewName>
-                /drive/root:/VersConfidentialVault/archives/... => /VersConfidentialVault/archives/videos/YYYY/MM/<NewName>
-
-        RÃˆGLE 3 - APPS (WhatsApp, Messenger, DCIM, etc.)
-            Condition:
-                - Le Path contient : WhatsApp, Messenger, Facebook, Instagram, Camera Roll, DCIM, Android, iOS
-            Intention :
-                - Utiliser la meme logique que la regle par defaut (Move Pellicule / Videos)
-            Destination:
-                /Images/Pellicule/YYYY/MM/<NewName> ou /Videos/YYYY/MM/<NewName>
-
-        RÃˆGLE 4 - ADMINISTRATIF NON FINANCES (Stay simplifie)
-            Condition:
-                - Le Path contient : Documents, Legal, Syndicat, Vie des enfants, Cuisine, Livres, JPM, etc.
-            Intention :
-                - Simplified Stay: keep root, but limit to 3 levels max.
-            Example:
-                /Documents/Work/ProjectA/Phase1/Notes => /Documents/Work/ProjectA/<NewName>
-
-        RÃˆGLE 5 - DEFAULT (Move Pellicule / Videos)
-            Condition:
-                - Aucune des regles precedentes ne sâ€™applique.
-            Intention :
-                - Move selon Media type.
-            Destination:
-                /Images/Pellicule/YYYY/MM/<NewName> ou /Videos/YYYY/MM/<NewName>
-
-    .OUTPUTS
-        Hashtable avec :
-            Mode  = "StayStrict" | "ConfidentialVault" | "AppsOrDefaultMove" | "StaySimplified"
-            Root  = racine logique (pour ConfidentialVault) ou $null pour les autres
-    #>
-    [CmdletBinding()]
+function Resolve-RoutingAction {
     param(
-        [Parameter(Mandatory)][hashtable]$FileMeta,
-        [Parameter(Mandatory)][string]$Extension
+        [hashtable]$FileMeta,
+        [string]$MediaType
     )
 
     try {
-        $srcDirClean = $FileMeta.p -replace "^/drive/root:", ""
-        #$ext = $Extension.ToLower()
+        $path  = $FileMeta.p -replace "^/drive/root:", ""
+        $parts = $path.Trim('/').Split('/')
 
-        # RÃˆGLE 1 - FINANCES (Stay STRICT)
-        if ($srcDirClean -match $Global:Rules.routingRules.financeRegex) {
-            return @{
-                Mode = "StayStrict"
-                Root = $srcDirClean
-            }
-        }
-
-        # RÃˆGLE 2 - COFFRE-FORT (Stay + mediaType) - SANS EXCEPTION
-        $confidentialRegexList = @($Global:Rules.routingRules.confidentialRegexList)
-        $isConfidential = $false
-        foreach ($regex in $confidentialRegexList) {
-            if ($srcDirClean -match $regex) {
-                $isConfidential = $true
-                break
-            }
-        }
-        if ($isConfidential) {
-            $parts = $srcDirClean.Trim('/').Split('/')
-            $idx = -1
-            for ($i = 0; $i -lt $parts.Count; $i++) {
-                foreach ($regex in $confidentialRegexList) {
-                    if ($parts[$i] -match $regex) {
-                        $idx = $i
-                        break
-                    }
+        # 1. Confidential (regex)
+        foreach ($regex in $Global:Rules.routingRules.confidentialRegexList) {
+            if ($path -match $regex) {
+                # root = first 2 levels (if available)
+                if ($parts.Count -ge 2) {
+                    $root = "/" + ($parts[0..1] -join "/")
                 }
-                if ($idx -ge 0) { break }
-            }
-            if ($idx -lt 0) { $idx = 0 }
+                else {
+                    $root = "/" + $parts[0]
+                }
 
-            $rootParts = @()
-            $rootParts += $parts[$idx]
-            if ($parts.Count -gt ($idx + 1)) {
-                $rootParts += $parts[$idx + 1]
+                return @{
+                    Action = "confidential"
+                    Root   = $root
+                }
             }
-            $baseRoot = "/" + ($rootParts -join "/")
+        }
+
+        # 2. FolderRules
+        $rootFolder  = $parts[0]
+        $folderRules = $Global:Rules.folderRules
+
+        if ($folderRules.ContainsKey($rootFolder)) {
+            $action = $folderRules[$rootFolder]
 
             return @{
-                Mode = "ConfidentialVault"
-                Root = $baseRoot
+                Action = $action
+                Root   = "/" + $path.Trim("/")
             }
         }
 
-        # RÃˆGLE 3 - APPS (WhatsApp, Messenger, DCIM, etc.) => meme logique que Default
-        $appsPatterns = @($Global:Rules.routingRules.appsPatterns)
-        foreach ($p in $appsPatterns) {
-            if ($srcDirClean -match [Regex]::Escape($p)) {
-                return @{
-                    Mode = "AppsOrDefaultMove"
-                    Root = $null
-                }
-            }
-        }
-
-        # RÃˆGLE 4 - ADMINISTRATIF NON FINANCES (Stay simplifie)
-        $adminPatterns = @($Global:Rules.routingRules.adminPatterns)
-        foreach ($p in $adminPatterns) {
-            if ($srcDirClean -match "(?i)$p") {
-                return @{
-                    Mode = "StaySimplified"
-                    Root = $srcDirClean
-                }
-            }
-        }
-
-        # RÃˆGLE 5 - DEFAULT (Move Pellicule / Videos)
+        # 3. Default
         return @{
-            Mode = "AppsOrDefaultMove"
-            Root = $null
+            Action = "default"
+            Root   = $null
         }
     }
     catch {
-        Write-Log "Resolve-FileRouting failure: $_" "ERROR"
+        Write-Log "Resolve-RoutingAction failure: $_" "ERROR"
+        return @{
+            Action = "default"
+            Root   = $null
+        }
     }
-} # Resolve-FileRouting
-
+} # Resolve-RoutingAction
 
 function Get-DestinationPath {
     <#
-    .SYNOPSIS
-        Determines the final destination path for a file (target folder + new name).
+        Construit le chemin final (dossier + nom) selon les règles JSON :
 
-    .DESCRIPTION
-        This function applies the following routing rules, via Resolve-FileRouting:
-
-        PRIORITE 1 - FINANCES (Stay STRICT)
-            - Condition:
-                Le Path source commence par /drive/root:/Finances
-            - Behavior:
-                Aucun deplacement, on garde le Path exact (nettoye ASCII), on renomme seulement.
-            - Example:
-                /drive/root:/Finances/House ... => /Finances/House_.../<NewName>
-
-        PRIORITE 2 - COFFRE-FORT (Stay + mediaType) - SANS EXCEPTION
-            - Condition:
-                Le Path source contient "confidential", "confidential", "pour confidential", "confidential", "privatevault"
-            - Behavior:
-                Stay in Confidential root, keep 2nd level (Michelle, relations, archives, etc.),
-                create subfolder images/ or videos/ based on media type, then sort by year / month.
-            - Destination:
-                /<confidential_root>/<sub_folder>/<images|videos>/<YYYY>/<MM>/<NewName>
-
-        PRIORITE 3 - APPS (WhatsApp, Messenger, DCIM, etc.)
-            - Condition:
-                Le Path contient : WhatsApp, Messenger, Facebook, Instagram, Camera Roll, DCIM, Android, iOS
-            - Behavior:
-                Use same logic as default rule (Move Pellicule / Videos).
-
-        PRIORITE 4 - ADMINISTRATIF NON FINANCES (Stay simplifie)
-            - Condition:
-                Le Path contient : Documents, Legal, Syndicat, Vie des enfants, Cuisine, Livres, JPM, etc.
-            - Behavior:
-                Simplified Stay: keep root, but limit to 3 levels max.
-            - Example:
-                /Documents/Work/ProjectA/Phase1/Notes => /Documents/Work/ProjectA/<NewName>
-
-        PRIORITE 5 - DEFAULT (Move Pellicule / Videos)
-            - Condition:
-                Aucune des regles precedentes ne sâ€™applique.
-            - Behavior:
-                Move based on media type:
-                    - Images => /Images/Pellicule/YYYY/MM/<NewName>
-                    - Videos => /Videos/YYYY/MM/<NewName>
-                    - Others => /Images/Pellicule/YYYY/MM/<NewName> (default)
-
-    .PARAMETER Category
-        logical category (Images, Videos, Stay, Confidential, etc.). Utilisee pour certains cas historiques,
-        but main logic relies on Resolve-FileRouting and media type.
-
-    .PARAMETER FileMeta
-        Hashtable returned by Read-AzureFileInfo, containing notably:
-            - p : Path parent (/drive/root:/...).
-
-    .PARAMETER Extension
-        File extension, including dot (.jpg, .mp4, etc.).
-
-    .PARAMETER ExtensionMap
-        Hashtable mapping extension => media type (Images, Videos, Others, etc.).
-
-    .PARAMETER NewName
-        New filename generated by New-SmartFileName.
-
-    .PARAMETER FileDate
-        Reference date (EXIF or fallback) used for YYYY/MM.
-
-    .OUTPUTS
-        PSCustomObject with:
-            - RawDestination   : Path logique brut (avant ASCII normalization)
-            - CleanDestination: Path normalise ASCII
-            - FullDestination  : Path complet incluant le nouveau nom
+        routingRules.actions:
+          - confidential   : <level1>/<level2>/<media>/<year>/<month>/name.ext
+          - administrative : <level1>/[<level2>/<level3>]/name.ext
+          - no_action      : null
+          - only_rename    : same_directory/name.ext
+          - default        : <media>/<year>/<month>/name.ext
     #>
+
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][string]$Category,
         [Parameter(Mandatory)][hashtable]$FileMeta,
         [Parameter(Mandatory)][string]$Extension,
-        [Parameter(Mandatory)][hashtable]$ExtensionMap,
         [Parameter(Mandatory)][string]$NewName,
         [Parameter(Mandatory)][datetime]$FileDate
     )
 
     try {
-        # Clean source path
+        $mediaType = Get-MediaType $Extension
+        if (-not $mediaType) {
+            return $null
+        }
+
+        $year  = $FileDate.ToString("yyyy")
+        $month = $FileDate.ToString("MM")
+
+        $routing = Resolve-RoutingAction -FileMeta $FileMeta -MediaType $mediaType
+        $action  = $routing.Action
+        $root    = $routing.Root
+
         $srcDirClean = $FileMeta.p -replace "^/drive/root:", ""
-
-        # Media type
-        $mediaType = if ($ExtensionMap.ContainsKey($Extension)) {
-            $ExtensionMap[$Extension]
-        }
-        else {
-            "Autres"
-        }
-
-        # Routing strategy resolution
-        $routing = Resolve-FileRouting -FileMeta $FileMeta -Extension $Extension
-        $mode = $routing.Mode
-        $root = $routing.Root
-
-        $year  = $FileDate.Year
-        $month = $FileDate.ToString('MM')
-
         $rawDestination = $null
 
-        switch ($mode) {
+        switch ($action) {
 
-            "StayStrict" {
-                # FINANCES : aucun deplacement, on garde le Path exact
-                $rawDestination = $srcDirClean
+            "no_action" {
+                return $null
             }
 
-            "ConfidentialVault" {
-                # SAFE: root + 2nd level + images/videos + YYYY/MM
-                $baseRoot = $root
-                $mediaFolder = switch ($mediaType) {
-                    "Videos" { "videos" }
-                    "Images" { "images" }
-                    default  { "autres" }
-                }
-                $rawDestination = "$baseRoot/$mediaFolder/$year/$month"
+            "only_rename" {
+                $rawDestination = "/$($srcDirClean.Trim('/'))"
             }
 
-            "StaySimplified" {
-                # NON-FINANCIAL ADMIN: Simplified Stay (3 levels max)
+            "administrative" {
                 $parts = $srcDirClean.Trim('/').Split('/')
                 if ($parts.Count -gt 3) {
-                    $basePath = ($parts[0..2] -join '/')
+                    $base = $parts[0..2] -join "/"
                 }
                 else {
-                    $basePath = $srcDirClean.Trim('/')
+                    $base = $parts -join "/"
                 }
-                $rawDestination = "/$basePath"
+                $rawDestination = "/$base"
             }
 
-            "AppsOrDefaultMove" {
-                # APPS + DEFAULT: Move Pellicule / Videos
-                if ($mediaType -eq "Videos") {
-                    $rawDestination = "/Videos/$year/$month"
+            "confidential" {
+                $mediaFolder = switch ($mediaType) {
+                    "Images" { "images" }
+                    "Videos" { "videos" }
+                    "Audio"  { "audios" }
+                    default  { "autres" }
                 }
-                else {
-                    $rawDestination = "/Images/Pellicule/$year/$month"
+                $rawDestination = "$root/$mediaFolder/$year/$month"
+            }
+
+            "default" {
+                $mediaFolder = switch ($mediaType) {
+                    "Images" { "Images" }
+                    "Videos" { "Videos" }
+                    "Audio"  { "Audio" }
+                    default  { "Images" }
                 }
+                $rawDestination = "/$mediaFolder/$year/$month"
             }
 
             default {
-                # Ultimate fallback: same logic as Default
-                if ($mediaType -eq "Videos") {
-                    $rawDestination = "/Videos/$year/$month"
+                $mediaFolder = switch ($mediaType) {
+                    "Images" { "Images" }
+                    "Videos" { "Videos" }
+                    "Audio"  { "Audio" }
+                    default  { "Images" }
                 }
-                else {
-                    $rawDestination = "/Images/Pellicule/$year/$month"
-                }
+                $rawDestination = "/$mediaFolder/$year/$month"
             }
         }
 
-        # ASCII cleaning
         $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
-
-        # Final destination
-        $fullDestination = "/$($cleanDestination.Trim('/'))/$NewName"
+        $fullDestination  = "/$($cleanDestination.Trim('/'))/$NewName"
 
         return [PSCustomObject]@{
             RawDestination   = $rawDestination
@@ -583,5 +455,4 @@ function Get-DestinationPath {
 } # Get-DestinationPath
 
 
-Export-ModuleMember -Function * 
-
+Export-ModuleMember -Function *

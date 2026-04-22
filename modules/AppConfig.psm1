@@ -33,6 +33,17 @@ function Read-IniFile {
     return $result
 }
 
+# PS7+ optimized JSON parsing
+function ConvertFrom-JsonOptimized {
+    param([string]$JsonString, [switch]$AsHashtable)
+    
+    if ($PSVersionTable.PSVersion.Major -ge 7 -and $AsHashtable) {
+        return $JsonString | ConvertFrom-Json -AsHashtable
+    } else {
+        return $JsonString | ConvertFrom-Json
+    }
+}
+
 function Get-IniValue {
     param(
         [Parameter(Mandatory)][hashtable]$Ini,
@@ -51,8 +62,10 @@ function Get-IniValue {
 function Convert-ToBoolean {
     param([object]$Value, [bool]$Default = $false)
 
-    if ($null -eq $Value) { return $Default }
-    $txt = "$Value".Trim().ToLowerInvariant()
+    # Handle null values (PS7 null-coalescing equivalent)
+    $txt = if ($null -eq $Value) { "" } else { "$Value" }
+    $txt = $txt.Trim().ToLowerInvariant()
+    
     switch ($txt) {
         '1' { return $true }
         'true' { return $true }
@@ -118,7 +131,7 @@ function Get-AppConfiguration {
     if (-not (Test-Path $rulesFile)) {
         throw "Rules file not found: $rulesFile"
     }
-    $rules = Get-Content -Path $rulesFile -Raw | ConvertFrom-Json -AsHashtable
+    $rules = ConvertFrom-JsonOptimized -JsonString (Get-Content -Path $rulesFile -Raw) -AsHashtable
 
     $allowedExt = @()
     $allowedExtRaw = Get-IniValue -Ini $ini -Section 'extensions' -Key 'allowed' -Default ''
@@ -127,9 +140,17 @@ function Get-AppConfiguration {
     }
 
     $extensionMap = @{}
-    if ($rules.ContainsKey('extensionMap')) {
-        foreach ($k in $rules.extensionMap.Keys) {
-            $extensionMap[$k.ToLowerInvariant()] = $rules.extensionMap[$k]
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        if ($rules.ContainsKey('extensionMap')) {
+            foreach ($k in $rules['extensionMap'].Keys) {
+                $extensionMap[$k.ToLowerInvariant()] = $rules['extensionMap'][$k]
+            }
+        }
+    } else {
+        if ($rules.PSObject.Properties.Name -contains 'extensionMap') {
+            foreach ($k in $rules.extensionMap.PSObject.Properties.Name) {
+                $extensionMap[$k.ToLowerInvariant()] = $rules.extensionMap.$k
+            }
         }
     }
 
@@ -139,6 +160,7 @@ function Get-AppConfiguration {
         CacheDir           = $cacheDir
         ClientId           = Get-IniValue -Ini $ini -Section 'graph' -Key 'client_id' -Default ''
         TokenFile          = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'token_file' -Default 'graph_token.json')
+        LogFile            = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'log_file' -Default 'sync.log')
         IndexFile          = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'index_file' -Default 'onedrive_cache.json')
         ProcessedLog       = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'processed_log_file' -Default 'processed_ids.log')
         ExecutionReport    = Resolve-CacheFilePath -CacheDir $cacheDir -FileName (Get-IniValue -Ini $ini -Section 'paths' -Key 'execution_report_file' -Default 'azure_sync_report.csv')
@@ -151,11 +173,11 @@ function Get-AppConfiguration {
         LocalFolder        = Get-IniValue -Ini $ini -Section 'sync' -Key 'local_folder' -Default 'D:\recup'
         RenameMarker       = Get-IniValue -Ini $ini -Section 'organizer' -Key 'rename_marker' -Default '--odr--'
         MaxNameLen         = [int](Get-IniValue -Ini $ini -Section 'organizer' -Key 'max_name_len' -Default '80')
-        VerboseMode        = Convert-ToBoolean (Get-IniValue -Ini $ini -Section 'general' -Key 'verbose_mode' -Default 'true') $true
+        VerboseMode        = Convert-ToBoolean (Get-IniValue -Ini $ini -Section 'general' -Key 'verbose_mode' -Default 'true')
         AllowedExt         = $allowedExt
         ExtensionMap       = $extensionMap
         Rules              = $rules
     }
 }
 
-Export-ModuleMember -Function Read-IniFile, Get-IniValue, Convert-ToBoolean, Resolve-ConfigPath, Resolve-CacheFilePath, Get-AppConfiguration
+Export-ModuleMember -Function Read-IniFile, Get-IniValue, Convert-ToBoolean, Resolve-ConfigPath, Resolve-CacheFilePath, Get-AppConfiguration, ConvertFrom-JsonOptimized

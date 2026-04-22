@@ -121,7 +121,7 @@ function Load-Scan {
     if ($Mode -ne "Online") {
         Write-Log "Offline mode -> loading existing cache"
         if (Test-Path $global:IndexFile) {
-            $script:Cache = Get-Content $global:IndexFile -Raw | ConvertFrom-Json -AsHashtable
+            $script:Cache = ConvertFrom-JsonOptimized -JsonString (Get-Content $global:IndexFile -Raw) -AsHashtable
             if (-not $script:Cache.Files) { $script:Cache.Files = @{} }
             Write-Log "Cache loaded ($($script:Cache.Files.Count) files)"
         }
@@ -136,7 +136,7 @@ function Load-Scan {
     # Load existing cache if present
     if ((-not $ForceNewScan) -and (Test-Path $global:IndexFile)) {
         try {
-            $script:Cache = Get-Content $global:IndexFile -Raw | ConvertFrom-Json -AsHashtable
+            $script:Cache = ConvertFrom-JsonOptimized -JsonString (Get-Content $global:IndexFile -Raw) -AsHashtable
             if (-not $script:Cache.Files) { $script:Cache.Files = @{} }
             Write-Log "Existing cache loaded ($($script:Cache.Files.Count) files)"
         }
@@ -274,7 +274,7 @@ function Analyze-LocalFiles {
     $script:LocalHashCache = @{}
     if (Test-Path $global:LocalHashCacheFile) {
         try {
-            $script:LocalHashCache = Get-Content $global:LocalHashCacheFile -Raw | ConvertFrom-Json -AsHashtable
+            $script:LocalHashCache = ConvertFrom-JsonOptimized -JsonString (Get-Content $global:LocalHashCacheFile -Raw) -AsHashtable
         }
         catch { $script:LocalHashCache = @{} }
     }
@@ -379,13 +379,13 @@ function Remove-EmptyFolders {
 
     Get-ChildItem -Path $LocalFolder -Directory -Recurse |
     Sort-Object { $_.FullName.Length } -Descending |
-    ForEach-Object {
+    ForEach-Object -Parallel {
         if ((Get-ChildItem -LiteralPath $_.FullName -ErrorAction SilentlyContinue).Count -eq 0) {
             if ($_.FullName -notlike "*_Duplicates*") {
                 Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
             }
         }
-    }
+    } -ThrottleLimit 4
 }
     catch {
         Write-Log "Error Remove-EmptyFolders : $($_.Exception.Message)" "ERROR"

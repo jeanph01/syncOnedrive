@@ -9,7 +9,7 @@ $TargetID = "440B3E9A717E6203!130354"
 
 # --- LOAD EXISTING INDEX ---
 if (Test-Path $IndexFile) {
-    $script:Cache = Get-Content $IndexFile | ConvertFrom-Json -AsHashtable
+    $script:Cache = ConvertFrom-JsonOptimized -JsonString (Get-Content $IndexFile) -AsHashtable
     Write-Host "Existing index loaded: $($script:Cache.Files.Count) files." -ForegroundColor Cyan
 } else {
     $script:Cache = @{ Files = @{} }

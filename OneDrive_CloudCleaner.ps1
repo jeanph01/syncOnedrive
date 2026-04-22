@@ -27,7 +27,7 @@ if (!(Test-Path $IndexFile)) {
     exit 1
 }
 
-$Cache = Get-Content $IndexFile -Raw | ConvertFrom-Json -AsHashtable
+$Cache = ConvertFrom-JsonOptimized -JsonString (Get-Content $IndexFile -Raw) -AsHashtable
 Write-Log "Cache loaded: $($Cache.Files.Count) files"
 
 # Authenticate

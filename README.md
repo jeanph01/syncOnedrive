@@ -248,6 +248,25 @@ Example:
 .\OneDrive_CloudCleaner.ps1
 ```
 
+## E — Advanced Parameters
+
+### Process Range Filtering (Debugging)
+
+To process only a subset of files during organization (useful for debugging):
+
+```powershell
+# Process only the first file
+.\OneDrive_PictureMovieOrganiser.ps1 -ProcessRange "1"
+
+# Process files 1 to 10
+.\OneDrive_PictureMovieOrganiser.ps1 -ProcessRange "1..10"
+
+# Process from file 10 to the end
+.\OneDrive_PictureMovieOrganiser.ps1 -ProcessRange "10+"
+```
+
+**Note:** File numbering starts at 1, not 0. Invalid ranges will process all files with a warning.
+
 ---
 
 # 🔄 7. Recommended Workflow

@@ -8,15 +8,16 @@
 # =====================================================================
 
 param (
-    [bool]$Execute = $true,                          # Actually performs the moves
-    [bool]$ResetCache = $false,                      # Resets internal files except GPS and OneDrive cache
+    [bool]$Execute = $false,                          # Actually performs the moves
+    [bool]$ResetCache = $true,                      # Resets internal files except GPS and OneDrive cache
     [string]$ConfigFile = ".\config.ini",          # Application configuration
-        # === NEW PARAMETERS ===
+    # === NEW PARAMETERS ===
     [bool]$Analyze = $false,          # Analyze plan.json
     [bool]$DryRun = $false,           # Detailed dry-run mode
     [bool]$Validate = $false,         # Validate OneDrive cache
     [string]$DebugId = "",            # Debug a specific file
-    [bool]$ReportIgnored = $false     # Generate ignored files report
+    [bool]$ReportIgnored = $false,    # Generate ignored files report
+    [string]$ProcessRange = "1+"        # Process only a subset of files (e.g., "1", "1..10", "10+")
 )
 
 # --- Force Write-Progress display in case another script disabled it
@@ -30,13 +31,15 @@ $ProgressPreference = 'Continue'
 Import-Module "$PSScriptRoot\modules\AppConfig.psm1" -Force
 $app = Get-AppConfiguration -ConfigFile $ConfigFile
 
-$IndexFile = $app.IndexFile
-$TokenFile = $app.TokenFile
-$LogFile = $app.OrganizerLogFile
-$ProcessedLog = $app.ProcessedLog
-$ExecutionReport = $app.ExecutionReport
+$global:IndexFile = $app.IndexFile
+$global:TokenFile = $app.TokenFile
+$global:LogFile = $app.OrganizerLogFile
+$global:ProcessedLog = $app.ProcessedLog
+$global:ExecutionReport = $app.ExecutionReport
 $GpsCacheFile = $app.GpsCacheFile
 $VerboseMode = $app.VerboseMode
+
+$global:ProcessRange = $ProcessRange
 
 $Global:Rules = $app.Rules
 
@@ -47,6 +50,8 @@ $Config = [PSCustomObject]@{
     ExtensionMap = $app.ExtensionMap
 }
 
+$global:Config = $Config
+
 # =====================================================================
 # EXTERNAL MODULES
 # =====================================================================
@@ -55,18 +60,6 @@ Import-Module "$PSScriptRoot\modules\OneDriveTools.psm1" -ArgumentList $Config.C
 Import-Module "$PSScriptRoot\modules\OneDriveOrganize.psm1" -Force
 Import-Module "$PSScriptRoot\modules\OneDriveCacheUtils.psm1" -Force -DisableNameChecking
 Import-Module "$PSScriptRoot\modules\GpsTools.psm1" -ArgumentList $GpsCacheFile -Force
-# =====================================================================
-# CREATE CACHE FOLDER IF NEEDED
-# =====================================================================
-try {
-    $cacheFolder = Split-Path $IndexFile -Parent
-    if ($cacheFolder -and -not (Test-Path $cacheFolder)) {
-        New-Item -ItemType Directory -Path $cacheFolder -Force | Out-Null
-    }
-}
-catch {
-    Write-Log "Error creating cache folder: $($_.Exception.Message)" "ERROR"
-}
 
 # =====================================================================
 # GLOBAL STATE
@@ -88,7 +81,7 @@ $Global:State = @{
 
 if ($ResetCache) {
     try {
-        Write-Log "Resetting internal cache..." "WARN"
+        Write-Log "Resetting internal OneDrive_PictureMovieOrganiser cache..." "WARN"
 
         $cacheFolder = Split-Path $IndexFile -Parent
         $planFile = Join-Path $cacheFolder "plan.json"
@@ -116,16 +109,12 @@ if ($ResetCache) {
 
 
 # =====================================================================
-# PRE-CREATE FOLDERS
-# =====================================================================
-
-# =====================================================================
 # FUNCTION : Test-OneDrivePath
 # ROLE      : Verify and create a folder tree on OneDrive recursively
 # =====================================================================
 function Test-OneDrivePath {
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$RelativePath
     )
 
@@ -149,12 +138,13 @@ function Test-OneDrivePath {
 
             $parentPathEncoded = $currentPathEncoded
             $encodedPart = [Uri]::EscapeDataString($part)
-            
+
             # Build the paths
             if ($currentPathRaw -eq "") {
                 $currentPathRaw = $part
                 $currentPathEncoded = $encodedPart
-            } else {
+            }
+            else {
                 $currentPathRaw += "/$part"
                 $currentPathEncoded += "/$encodedPart"
             }
@@ -172,19 +162,20 @@ function Test-OneDrivePath {
                 if ($parentPathEncoded -eq "") {
                     # Folder at root
                     $uriPost = "https://graph.microsoft.com/v1.0/me/drive/root/children"
-                } else {
+                }
+                else {
                     # Folder under a parent (note the ':' around the parent path)
                     $uriPost = "https://graph.microsoft.com/v1.0/me/drive/root:/$($parentPathEncoded):/children"
                 }
 
-                $body = @{ 
-                    name = $part
-                    folder = @{} 
-                    "@microsoft.graph.conflictBehavior" = "ignore" 
+                $body = @{
+                    name                                = $part
+                    folder                              = @{}
+                    "@microsoft.graph.conflictBehavior" = "ignore"
                 } | ConvertTo-Json -Compress
 
                 Invoke-RestMethod -Headers $Global:State.Headers -Uri $uriPost -Method POST -Body $body -ContentType "application/json" -ErrorAction Stop > $null
-                
+
                 Write-Log "Folder created: /$currentPathRaw" "DEBUG"
                 $uriPost = "Not generated" # Reset after success
             }
@@ -201,7 +192,8 @@ function Test-OneDrivePath {
                 $stream = $_.Exception.InnerException.Response.GetResponseStream()
                 $reader = New-Object System.IO.StreamReader($stream)
                 $graphError = $reader.ReadToEnd()
-            } catch { $graphError = "Unable to read response" }
+            }
+            catch { $graphError = "Unable to read response" }
         }
 
         Write-Log "!!! FATAL ERROR IN TEST-ONEDRIVEPATH !!!" "ERROR"
@@ -210,7 +202,7 @@ function Test-OneDrivePath {
         Write-Log "Used URI      : $(if ($uriPost -ne 'Not generated') { $uriPost } else { $uriGet })" "ERROR"
         Write-Log "PS message    : $errorMsg" "ERROR"
         Write-Log "Graph response: $graphError" "ERROR"
-        
+
         throw $_ # Stop the script cleanly
     }
 }
@@ -220,7 +212,7 @@ function Test-OneDrivePath {
 
 # Apply planned moves via Graph
 function Invoke-Moves {
-Write-Log "Starting move execution..." "WARN"
+    Write-Log "Starting move execution..." "WARN"
 
     try {
         $total = $Global:State.PlannedActions.Count
@@ -342,28 +334,32 @@ function Start-OneDriveOrganizer {
         Main entry point of the OneDrive organizer.
         Manages lifecycle: cleanup -> planning -> correction -> execution.
     #>
-    
+
     # 1. LOG CLEANUP (single run at startup)
-    if (Test-Path $LogFile) { 
+    if (Test-Path $LogFile) {
         try {
             Remove-Item $LogFile -Force -ErrorAction SilentlyContinue
             # Recreate an empty log file so Write-Log can write immediately
             New-Item -Path $LogFile -ItemType File -Force | Out-Null
-        } catch {
-            Write-Host "Unable to reset the log: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+        catch {
+            Write-Log "Unable to reset the log: $($_.Exception.Message)" -ForegroundColor Yellow
         }
     }
 
     Write-Log "=== SESSION START: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ===" "INFO"
 
     try {
+        # 1b. PRE-REQUISITE CHECK: Validate Sync cache before proceeding
+        Test-SyncPrerequisites -IndexFile $IndexFile -ProcessedLog $ProcessedLog -ConfigFile $ConfigFile -PSScriptRoot $PSScriptRoot
+
         # 2. LOAD AND REPAIR IN-MEMORY DATA
         # Note: Import-Set-Cache is called ONLY ONCE.
         Import-Set-Cache
-        
+
         # Repair in-memory cache (remove invalid entries, etc.)
-        Repair-Cache       
-        
+        Repair-Cache
+
         # Normalize metadata (paths, names, GPS)
         Repair-Paths
         Repair-Names
@@ -377,13 +373,13 @@ function Start-OneDriveOrganizer {
         if ($null -eq $plan) {
             Write-Log "No valid plan found. Starting full analysis..." "INFO"
             New-Plan
-            
+
             # After New-Plan, save the current hash for next time
-            if ($hash) { 
+            if ($hash) {
                 $hashFile = Join-Path (Split-Path $IndexFile -Parent) "cache_hash.txt"
-                $hash | Set-Content $hashFile 
+                $hash | Set-Content $hashFile
             }
-        } 
+        }
         else {
             Write-Log "Existing plan resume detected (identical SHA256 hash)." "SUCCESS"
             $Global:State.PlannedActions = [System.Collections.Generic.List[PSCustomObject]]$plan
@@ -392,34 +388,30 @@ function Start-OneDriveOrganizer {
         # 4. CONFLICT RESOLUTION AND VALIDATION
         # Check for name collisions in target destinations
         Repair-Collisions
-        
+
         # Final plan analysis (remaining duplicates, too-long paths)
         Test-Plan
 
         # 5. EXECUTION MODE CHECK
         if (-not $Execute) {
-            Write-Log "----------------------------------------------------------------" "WARN"
-            Write-Log "DRY-RUN MODE: No changes were made to the Cloud." "WARN"
-            Write-Log "Check the 'plan.json' file in the configured cache folder." "INFO"
-            Write-Log "Rerun the script with -Execute `$true to apply changes." "INFO"
-            Write-Log "----------------------------------------------------------------" "WARN"
+            Write-Log "DRY-RUN MODE: Rerun the script with -Execute `$true to apply changes." "INFO"
             return
         }
 
         # 6. REAL EXECUTION (GRAPH API)
         Write-Log "SWITCHING TO REAL EXECUTION MODE..." "WARN"
         Connect-AzureGraph
-        
+
         # Proactively create destination folders to avoid 404 errors
         Write-Log "Checking OneDrive folder hierarchy..." "INFO"
         $uniqueDirs = $Global:State.PlannedActions.DstDir | Select-Object -Unique
-        foreach ($dir in $uniqueDirs) { 
-            Test-OneDrivePath $dir 
+        foreach ($dir in $uniqueDirs) {
+            Test-OneDrivePath $dir
         }
 
         # Actual file move execution
         Invoke-Moves
-        
+
         Write-Log "Organization process completed successfully." "SUCCESS"
     }
     catch {

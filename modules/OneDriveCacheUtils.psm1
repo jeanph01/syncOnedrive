@@ -1,4 +1,52 @@
-﻿function Test-Cache {
+﻿
+# =====================================================================
+# HELPER FUNCTION: Ensure Sync cache exists
+# =====================================================================
+
+function Test-SyncPrerequisites {
+    param(
+        [string]$IndexFile,
+        [string]$ProcessedLog,
+        [string]$ConfigFile,
+        [string]$PSScriptRoot
+    )
+
+    $requiredFiles = @(
+        $IndexFile
+        #,$ProcessedLog
+    )
+
+    $missingFiles = @()
+    foreach ($file in $requiredFiles) {
+        if ($file -and -not (Test-Path $file)) {
+            $missingFiles += $file
+        }
+    }
+
+    if ($missingFiles.Count -gt 0) {
+        Write-Log "WARNING: Required cache files from OneDrive_Sync.ps1 are missing:" "WARN"
+        foreach ($f in $missingFiles) {
+            Write-Log "  - $f" "WARN"
+        }
+
+        Write-Log "Launching OneDrive_Sync.ps1 first..." "INFO"
+        $syncScript = Join-Path $PSScriptRoot "OneDrive_Sync.ps1"
+        if (Test-Path $syncScript) {
+            & $syncScript -ConfigFile $ConfigFile
+            Write-Log "Sync completed. Continuing with organization..." "SUCCESS"
+        }
+        else {
+            Write-Log "ERROR: OneDrive_Sync.ps1 not found at $syncScript" "ERROR"
+            exit 1
+        }
+    }
+    else {
+        Write-Log "All required cache files from OneDrive_Sync.ps1 are present." "SUCCESS"
+    }
+}
+
+
+function Test-Cache {
     try {
         Write-Log "=== CACHE VALIDATION ===" "INFO"
 
@@ -25,13 +73,8 @@
         Write-Log "Invoke-Moves error: $($_.Exception.Message)" "ERROR"
         throw
     }
-    
+
 } # Test-Cache
-
-
-# =====================================================================
-# REPRISE AUTOMATIQUE
-# =====================================================================
 
 # Load existing plan if cache hash matches
 function Get-ExistingPlan {
@@ -75,13 +118,13 @@ function Import-Set-Cache {
         # Write-Log "Cleaning old log $LogFile"
         # if (Test-Path $LogFile) { Remove-Item $LogFile -Force }
 
-        Write-Log "Loading OneDrive cache $IndexFile ..."
+        Write-Log "Loading OneDrive cache $IndexFile ..." "INFO"
         if (!(Test-Path $IndexFile)) {
             Write-Log "Cache not found: $IndexFile" "ERROR"
             exit 1
         }
 
-        $Global:State.Cache = Get-Content $IndexFile -Raw | ConvertFrom-Json -AsHashtable
+        $Global:State.Cache = ConvertFrom-JsonOptimized -JsonString (Get-Content $IndexFile -Raw) -AsHashtable
 
         if (-not $Global:State.Cache.Files) {
             Write-Log "No files in cache." "ERROR"
@@ -145,6 +188,55 @@ function Import-Set-Cache {
 # MERGED PIPELINE: ANALYSIS + PROGRESS BAR + PLAN
 # =====================================================================
 
+function Get-FilteredFileIds {
+    param([string]$Range, [array]$AllIds)
+
+    if ([string]::IsNullOrWhiteSpace($Range)) {
+        return $AllIds
+    }
+
+    $total = $AllIds.Count
+
+    # Parse range patterns
+    if ($Range -match '^(\d+)$') {
+        # Single number: "1" -> first file only
+        $index = [int]$Matches[1] - 1
+        if ($index -ge 0 -and $index -lt $total) {
+            return @($AllIds[$index])
+        }
+        elseif ($total -eq 0) {
+            return @()
+        }
+    }
+    elseif ($Range -match '^(\d+)\.\.(\d+)$') {
+        # Range: "1..10" -> files 1 to 10
+        $start = [int]$Matches[1] - 1
+        $end = [int]$Matches[2] - 1
+        if ($start -le $end -and $start -ge 0 -and $end -lt $total) {
+            return $AllIds[$start..$end]
+        }
+        elseif ($total -eq 0) {
+            return @()
+        }
+    }
+    elseif ($Range -match '^(\d+)\+$') {
+        # From index to end: "10+" -> from 10th to last
+        $start = [int]$Matches[1] - 1
+        if ($start -ge 0 -and $start -lt $total) {
+            return $AllIds[$start..($total - 1)]
+        }
+        elseif ($total -eq 0) {
+            return @()
+        }
+    }
+
+    # Invalid range or no files in range, return all
+    if ($total -gt 0) {
+        Write-Log "Invalid ProcessRange '$Range', processing all files" "WARN"
+    }
+    return $AllIds
+}
+
 # Analyze files and build relocation plan
 function New-Plan {
     Write-Log "Scanning files (merged pipeline)..."
@@ -152,8 +244,21 @@ function New-Plan {
     try {
         $FileIds = $Global:State.FilesToProcess.Keys
         $TotalFiles = $FileIds.Count
+
+        # Apply range filtering if specified
+        if ($global:ProcessRange) {
+            $FileIds = Get-FilteredFileIds -Range $global:ProcessRange -AllIds $FileIds
+            Write-Log "Range filter applied: $($global:ProcessRange) -> processing $($FileIds.Count) files" "INFO"
+        }
+
+        $FilteredTotal = $FileIds.Count
         $StartTime = Get-Date
         $count = 0
+
+        # delete log2
+        $log2 = Join-Path (Split-Path $IndexFile -Parent) "log2.txt"
+        if (Test-Path $log2) { Remove-Item ($log2) -Force }
+
 
         foreach ($fileId in $FileIds) {
 
@@ -161,27 +266,17 @@ function New-Plan {
             $fileMeta = $Global:State.Cache.Files[$fileId]
             $extension = [System.IO.Path]::GetExtension($fileMeta.n).ToLower()
 
-            if ($count % 2000 -eq 0) {
+            # ---------------------------------------------------------
+            # PROGRESS BAR — mise à jour à CHAQUE itération
+            # ---------------------------------------------------------
+            $elapsed = (Get-Date) - $StartTime
+            $avgTime = $elapsed.TotalSeconds / [math]::Max($count, 1)
+            $remainingStr = "{0:hh\:mm\:ss}" -f [TimeSpan]::FromSeconds($avgTime * ($FilteredTotal - $count))
 
-                $elapsed = (Get-Date) - $StartTime
-                $avgTime = $elapsed.TotalSeconds / [math]::Max($count, 1)
-                $remainingStr = "{0:hh\:mm\:ss}" -f [TimeSpan]::FromSeconds($avgTime * ($TotalFiles - $count))
-
-                Write-Progress -Activity "Analyse OneDrive" `
-                    -Status "$count / $TotalFiles | Restant: $remainingStr" `
-                    -PercentComplete (($count / $TotalFiles) * 100)
-
-                try {
-                    $cacheFolder = Split-Path $IndexFile -Parent
-                    $planFile = Join-Path $cacheFolder "plan.json"
-                    $Global:State.PlannedActions |
-                    ConvertTo-Json -Depth 10 |
-                    Set-Content $planFile
-                }
-                catch {
-                    Write-Log "Progress save error : $($_.Exception.Message)" "ERROR"
-                }
-            }
+            Write-Progress -Activity "Analyse OneDrive" `
+                -Status "$count / $FilteredTotal | Restant: $remainingStr" `
+                -PercentComplete (($count / $FilteredTotal) * 100)
+            # ---------------------------------------------------------
 
             Write-Log "----------------------------------------------" "DEBUG"
             Write-Log "Analyzing file" "DEBUG"
@@ -243,20 +338,29 @@ function New-Plan {
                 -SourceHint   $sourceHint
 
             Write-Log "Generated new name: $newName" "DEBUG"
+
             # Destination
             $dest = Get-DestinationPath `
-                -Category     $category `
-                -FileMeta     $fileMeta `
-                -Extension    $extension `
-                -ExtensionMap $Config.ExtensionMap `
-                -NewName      $newName `
-                -FileDate     $fileDate
+                -FileMeta  $fileMeta `
+                -Extension $extension `
+                -NewName   $newName `
+                -FileDate  $fileDate
+
+            # log to a separate file
+            $logFile = Join-Path (Split-Path $IndexFile -Parent) "log2.txt"
+            "[$category] $($fileMeta.p)/$($fileMeta.n) --> $($dest.FullDestination)" | Add-Content -Path $logFile
+
+
+            if ($null -eq $dest) {
+                Write-Log "File ignored (no_action category): $($fileMeta.n)" "DEBUG"
+                continue
+            }
 
             Write-Log "Destination path = ($($dest.CleanDestination))" "DEBUG"
             $cleanDestination = $dest.CleanDestination
             $fullDestination = $dest.FullDestination
 
-            # Verification si deja a la bonne place
+            # Déjà à la bonne place ?
             $srcDirClean = $fileMeta.p -replace "^/drive/root:", ""
             $currentPath = "$($srcDirClean.Trim('/'))/$($fileMeta.n)"
 
@@ -275,9 +379,17 @@ function New-Plan {
                     FullDst = $fullDestination
                 })
         }
+        # a la fin du traitement tri le contenu de $logfile
+        if (Test-Path $logFile) {
+            Get-Content $logFile | Sort-Object | Set-Content $logFile
+        }
+
+        # Fin de la progress bar
+        Write-Progress -Activity "Analyse OneDrive" -Completed
 
         Write-Log "Plan generated: $($Global:State.PlannedActions.Count) files." "SUCCESS"
-        # Save JSON plan
+
+        # Save JSON plan final
         try {
             $cacheFolder = Split-Path $IndexFile -Parent
             $planFile = Join-Path $cacheFolder "plan.json"
@@ -292,8 +404,7 @@ function New-Plan {
         Write-Log "New-Plan error : $($_.Exception.Message)" "ERROR"
         throw
     }
-} # New-Plan
-
+}
 
 
 function Test-Plan {
@@ -383,52 +494,47 @@ function Start-DryRun {
 } # Start-DryRun
 
 function Repair-Cache {
-    try {
-        Write-Log "=== FIX CACHE: Automatic OneDrive cache cleanup ===" "WARN"
+    Write-Log "=== FIX CACHE: Automatic OneDrive cache cleanup ===" "WARN"
 
-        $cache = $Global:State.Cache.Files
+    try {
         $removed = 0
         $fixedExt = 0
 
-        # Extract keys into fixed array to avoid enumeration error
-        $keys = @($cache.Keys)
+        foreach ($id in $Global:State.Cache.Files.Keys) {
+            $f = $Global:State.Cache.Files[$id]
 
-        foreach ($id in $keys) {
-            $f = $cache[$id]
-
-            # Supprimer les entrees sans Path ou nom
-            if (-not $f.p -or -not $f.n) {
-                $cache.Remove($id)
+            # Remove invalid entries
+            if (-not $f.n -or -not $f.p) {
+                $Global:State.Cache.Files.Remove($id)
                 $removed++
                 continue
             }
 
-            # Supprimer les Paths invalides
-            if ($f.p -notmatch "^/drive/root:") {
-                $cache.Remove($id)
-                $removed++
-                continue
-            }
+            # Fix extension mismatch (case-insensitive)
+            $ext = [System.IO.Path]::GetExtension($f.n).ToLower()
 
-            # Corriger les extensions polluees (ex: .jpg?width=...)
-            $ext = [IO.Path]::GetExtension($f.n).ToLower()
-            $cleanExt = $ext -replace '\?.*$','' -replace '\&.*$',''
-
-            if ($ext -ne $cleanExt) {
-                $f.n = $f.n.Replace($ext, $cleanExt)
+            # Only fix if extension is KNOWN and different
+            if ($Config.ExtensionMap.ContainsKey($ext) -and $ext -ne $f.ext) {
+                $f.ext = $ext
                 $fixedExt++
-            }
-
-            # Remove unknown extensions
-            if (-not $Config.ExtensionMap.ContainsKey($cleanExt)) {
-                $cache.Remove($id)
-                $removed++
-                continue
             }
         }
 
         Write-Log "Fix complete: $removed entries removed, $fixedExt extensions corrected." "SUCCESS"
-        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
+
+        # SAFE WRITE
+        try {
+            $tmp = "$IndexFile.tmp"
+
+            $Global:State.Cache |
+            ConvertTo-Json -Depth 10 |
+            Set-Content $tmp -ErrorAction Stop
+
+            Move-Item -Force $tmp $IndexFile
+        }
+        catch {
+            Write-Log "Repair-Cache write error: $($_.Exception.Message)" "ERROR"
+        }
     }
     catch {
         Write-Log "Repair-Cache error : $($_.Exception.Message)" "ERROR"
@@ -438,7 +544,7 @@ function Repair-Cache {
 function Repair-Collisions {
     try {
         Write-Log "=== FIX COLLISIONS: Proactive resolution ===" "WARN"
-        
+
         # On travaille directement sur la liste en memoire
         $groups = $Global:State.PlannedActions | Group-Object FullDst | Where-Object { $_.Count -gt 1 }
 
@@ -453,7 +559,7 @@ function Repair-Collisions {
                 $item = $g.Group[$i]
                 $ext = [System.IO.Path]::GetExtension($item.DstName)
                 $nameOnly = [System.IO.Path]::GetFileNameWithoutExtension($item.DstName)
-                
+
                 # Mise a jour du nom et du Path complet de destination
                 $item.DstName = "$nameOnly`_$i$ext"
                 $item.FullDst = "$($item.DstDir.TrimEnd('/'))/$($item.DstName)"
@@ -551,7 +657,7 @@ function Repair-GPS {
 # INITIALISATION
 # ============================================================
 function main {
-    try {      
+    try {
         if ($script:ModuleLoaded) {
             Write-Log "OneDriveCacheUtils.psm1 already loaded -> import ignored" "DEBUG"
             return
@@ -572,4 +678,3 @@ main
 # EXPORT
 # ============================================================
 Export-ModuleMember -Function *
-

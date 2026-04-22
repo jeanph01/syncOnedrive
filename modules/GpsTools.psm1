@@ -32,7 +32,7 @@ function Import-GpsCache {
         if ($GpsCacheFile -and (Test-Path $GpsCacheFile)) {
             $json = Get-Content $GpsCacheFile -Raw
             if ($json -and $json.Trim() -ne "") {
-                $script:GpsCache = $json | ConvertFrom-Json -AsHashtable
+                $script:GpsCache = ConvertFrom-JsonOptimized -JsonString $json -AsHashtable
                 Write-Log "GPS cache loaded: $($script:GpsCache.Count) entries" "DEBUG"
                 return
             }
