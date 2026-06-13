@@ -95,65 +95,6 @@ function Read-AzureFileInfo {
     }
 } # Read-AzureFileInfo
 
-function Get-SmartCategory {
-    <#
-        1. Only media files (extensions defined in rules.json) are processed.
-        2. Non-media files immediately return "no_action".
-        3. Media files use folderRules to determine the action
-          (confidential, administrative, default, etc.).
-    #>
-
-    param (
-        [string]$Path,
-        [string]$Extension
-    )
-
-    try {
-        # Validate input
-        if (-not $Path) {
-            Write-Log "Get-SmartCategory: Invalid path" "ERROR"
-            return "no_action"
-        }
-
-        # 1. Determine media type from extension
-        $ext = $Extension.ToLower()
-        # Determine media type (Images / Videos / Audio)
-        if ($global:Config.ExtensionMap.ContainsKey($ext)) {
-            $mediaType = $global:Config.ExtensionMap[$ext]
-        }
-
-        # If mediaType was not assigned → not a media file
-        if (-not $mediaType) {
-            return "no_action"
-        }
-
-        # 2. Extract top-level folder name
-        $cleanPath = $Path -replace "^/drive/root:/", ""
-        if (-not $cleanPath) {
-            Write-Log "Get-SmartCategory: Empty clean path" "ERROR"
-            return "no_action"
-        }
-        $parts = $cleanPath.Trim("/").Split("/")
-        if (-not $parts -or $parts.Count -eq 0) {
-            Write-Log "Get-SmartCategory: Invalid path structure" "ERROR"
-            return "no_action"
-        }
-        $rootFolder = $parts[0]
-
-        # 3. Folder-based rule lookup
-        $folderRules = $global:Rules.folderRules
-
-        if ($folderRules.ContainsKey($rootFolder)) {
-            return $folderRules[$rootFolder]   # confidential / administrative / no_action / only_rename / default
-        }
-
-        # 4. Fallback: default rule for media files
-        return "default"
-    }
-    catch {
-        Write-Log "Get-SmartCategory failure: $_" "ERROR"
-    }
-} # Get-SmartCategory
 
 
 # Extract useful tags from the source path
@@ -172,118 +113,41 @@ function Get-PathTags($fullPath) {
 
 # Generate structured, clean, deterministic filename (Style 3)
 function New-SmartFileName {
-    [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][DateTime]$DateRef,
-        [Parameter(Mandatory)][string]$OriginalName,
-        [Parameter(Mandatory)][string]$Extension,
+        [datetime]$DateRef,
+        [string]$OriginalName,
+        [string]$Extension,
         [string]$GPSLocation,
-        [string]$PathTags,
         [string]$Camera,
         [string]$SourceHint
     )
 
-    try {
-        # FIX: If original name is empty or just extension, use 'unnamed'
-        $cleanOriginal = if ([string]::IsNullOrWhiteSpace($OriginalName) -or $OriginalName -eq $Extension) {
-            "unnamed"
-        }
-        else {
-            Convert-ToAscii $OriginalName
-        }
-        $timestamp = $DateRef.ToString("yyyyMMdd_HHmmss")
-        $year = $DateRef.ToString("yyyy")
-        $yearMonth = $DateRef.ToString("yyyy_MM")
-        $dateRaw = $DateRef.ToString("yyyyMMdd")
+    # 1) Base = date
+    $base = $DateRef.ToString("yyyyMMdd_HHmmss")
 
-        # ASCII normalization of other fields
-        $cleanTags = Convert-ToAscii $PathTags
-        $cleanGPS = Convert-ToAscii $GPSLocation
-        $cleanCam = Convert-ToAscii $Camera
-        $cleanSource = Convert-ToAscii $SourceHint
-
-        # Splitting
-        function Split-Words($txt) {
-            if (-not $txt) { return @() }
-            return ($txt -split "[ _\-]" | Where-Object { $_ -and $_.Trim().Length -gt 0 })
-        }
-
-        $GPSWords = Split-Words $cleanGPS
-        $tagWords = Split-Words $cleanTags
-        $origWords = Split-Words $cleanOriginal
-        $camWords = Split-Words $cleanCam
-        $srcWords = Split-Words $cleanSource
-
-        # Stopwords
-        $Stopwords = @($Global:Rules.namingRules.Stopwords)
-
-        function Remove-Stopwords($list) {
-            if (-not $list) { return @() }
-            return $list | Where-Object { $Stopwords -notcontains $_.ToLower() }
-        }
-
-        $GPSWords = Remove-Stopwords $GPSWords
-        $tagWords = Remove-Stopwords $tagWords
-        $origWords = Remove-Stopwords $origWords
-
-        # Remove words already present in GPS
-        $GPSSet = @{}
-        foreach ($w in $GPSWords) { $GPSSet[$w.ToLower()] = $true }
-
-        function Remove-GPSRedundancy($list) {
-            if (-not $list) { return @() }
-            return $list | Where-Object { -not $GPSSet.ContainsKey($_.ToLower()) }
-        }
-
-        $tagWords = Remove-GPSRedundancy $tagWords
-        $origWords = Remove-GPSRedundancy $origWords
-
-        function Remove-DateRedundancy($list, $year, $yearMonth, $dateRaw, $timestamp) {
-            if (-not $list) { return @() }
-            return $list | Where-Object {
-                $_ -notmatch $year -and
-                $_ -notmatch $yearMonth -and
-                $_ -notmatch $dateRaw -and
-                $_ -notmatch $timestamp
-            }
-        }
-        $tagWords  = Remove-DateRedundancy $tagWords  $year $yearMonth $dateRaw $timestamp
-        $origWords = Remove-DateRedundancy $origWords $year $yearMonth $dateRaw $timestamp
-
-        # Global assembly
-        $allWords = New-Object System.Collections.Generic.List[string]
-        $allWords.Add($timestamp)
-        $GPSWords | ForEach-Object { $allWords.Add($_) }
-        $tagWords | ForEach-Object { $allWords.Add($_) }
-        $origWords | ForEach-Object { $allWords.Add($_) }
-        $camWords | ForEach-Object { $allWords.Add($_) }
-        $srcWords | ForEach-Object { $allWords.Add($_) }
-
-        # Global anti-duplicate
-        $seen = @{}
-        $filtered = foreach ($w in $allWords) {
-            $key = $w.ToLower()
-            if (-not $seen.ContainsKey($key)) {
-                $seen[$key] = $true
-                $w
-            }
-        }
-
-        # Reconstruction
-        $baseName = ($filtered -join "_").Trim("_")
-
-        # Length limit
-        $maxLenWithoutExt = $Config.MaxNameLen - $Config.RenameMarker.Length - $Extension.Length
-        if ($baseName.Length -gt $maxLenWithoutExt) {
-            $baseName = $baseName.Substring(0, $maxLenWithoutExt).Trim("_")
-        }
-
-        return ($baseName + $Config.RenameMarker + $Extension)
+    # 2) GPS (optionnel)
+    if ($GPSLocation) {
+        $gpsClean = ($GPSLocation -replace '[^\w]', '_').Trim('_')
+        if ($gpsClean) { $base += "_$gpsClean" }
     }
-    catch {
-        Write-Log "New-SmartFileName failure: $_" "ERROR"
+
+    # 3) Camera (optionnel)
+    if ($Camera) {
+        $camClean = ($Camera -replace '[^\w]', '_').Trim('_')
+        if ($camClean) { $base += "_$camClean" }
     }
-} # New-SmartFileName
+
+    # 4) Source hint (optionnel)
+    if ($SourceHint) {
+        $hintClean = ($SourceHint -replace '[^\w]', '_').Trim('_')
+        if ($hintClean) { $base += "_$hintClean" }
+    }
+
+    # 5) Final marker
+    $base += "--odr--"
+
+    return "$base$Extension"
+}
 
 function Get-MediaType {
     param([string]$Extension)
@@ -303,7 +167,7 @@ function Resolve-RoutingAction {
     )
 
     try {
-        $path  = $FileMeta.p -replace "^/drive/root:", ""
+        $path = $FileMeta.p -replace "^/drive/root:", ""
         $parts = $path.Trim('/').Split('/')
 
         # 1. Confidential (regex)
@@ -325,7 +189,7 @@ function Resolve-RoutingAction {
         }
 
         # 2. FolderRules
-        $rootFolder  = $parts[0]
+        $rootFolder = $parts[0]
         $folderRules = $Global:Rules.folderRules
 
         if ($folderRules.ContainsKey($rootFolder)) {
@@ -352,107 +216,199 @@ function Resolve-RoutingAction {
     }
 } # Resolve-RoutingAction
 
-function Get-DestinationPath {
-    <#
-        Construit le chemin final (dossier + nom) selon les règles JSON :
 
-        routingRules.actions:
-          - confidential   : <level1>/<level2>/<media>/<year>/<month>/name.ext
-          - administrative : <level1>/[<level2>/<level3>]/name.ext
-          - no_action      : null
-          - only_rename    : same_directory/name.ext
-          - default        : <media>/<year>/<month>/name.ext
-    #>
+# =====================================================================
+# ROUTING BASÉ SUR rules.json
+# - Utilise Global:Rules.routingRules, folderRules, extensionMap
+# - Respecte les modèles destination de rules.json
+# - Ne met JAMAIS les noms de dossiers parents dans le nom final
+# =====================================================================
 
-    [CmdletBinding()]
+function Get-RoutingAction {
     param(
-        [Parameter(Mandatory)][hashtable]$FileMeta,
-        [Parameter(Mandatory)][string]$Extension,
-        [Parameter(Mandatory)][string]$NewName,
-        [Parameter(Mandatory)][datetime]$FileDate
+        [string]$Path,
+        [string]$Extension
     )
 
-    try {
-        $mediaType = Get-MediaType $Extension
-        if (-not $mediaType) {
-            return $null
+    $rules = $Global:Rules.routingRules
+    $folderRules = $Global:Rules.folderRules
+
+    $candidates = @()
+
+    # 1) Règles "confidential" par regex sur le path complet
+    foreach ($regex in $rules.confidentialRegexList) {
+        if ($Path -match $regex) {
+            $candidates += 'confidential'
+            break
         }
+    }
 
-        $year  = $FileDate.ToString("yyyy")
-        $month = $FileDate.ToString("MM")
-
-        $routing = Resolve-RoutingAction -FileMeta $FileMeta -MediaType $mediaType
-        $action  = $routing.Action
-        $root    = $routing.Root
-
-        $srcDirClean = $FileMeta.p -replace "^/drive/root:", ""
-        $rawDestination = $null
-
-        switch ($action) {
-
-            "no_action" {
-                return $null
-            }
-
-            "only_rename" {
-                $rawDestination = "/$($srcDirClean.Trim('/'))"
-            }
-
-            "administrative" {
-                $parts = $srcDirClean.Trim('/').Split('/')
-                if ($parts.Count -gt 3) {
-                    $base = $parts[0..2] -join "/"
-                }
-                else {
-                    $base = $parts -join "/"
-                }
-                $rawDestination = "/$base"
-            }
-
-            "confidential" {
-                $mediaFolder = switch ($mediaType) {
-                    "Images" { "images" }
-                    "Videos" { "videos" }
-                    "Audio"  { "audios" }
-                    default  { "autres" }
-                }
-                $rawDestination = "$root/$mediaFolder/$year/$month"
-            }
-
-            "default" {
-                $mediaFolder = switch ($mediaType) {
-                    "Images" { "Images" }
-                    "Videos" { "Videos" }
-                    "Audio"  { "Audio" }
-                    default  { "Images" }
-                }
-                $rawDestination = "/$mediaFolder/$year/$month"
-            }
-
-            default {
-                $mediaFolder = switch ($mediaType) {
-                    "Images" { "Images" }
-                    "Videos" { "Videos" }
-                    "Audio"  { "Audio" }
-                    default  { "Images" }
-                }
-                $rawDestination = "/$mediaFolder/$year/$month"
-            }
+    # 2) Règles basées sur les dossiers (folderRules)
+    $relativePath = $Path -replace '^/drive/root:', ''
+    $segments = $relativePath.Trim('/') -split '/'
+    foreach ($seg in $segments) {
+        if ([string]::IsNullOrWhiteSpace($seg)) { continue }
+        if ($folderRules.ContainsKey($seg)) {
+            $candidates += $folderRules[$seg]
         }
+    }
 
-        $cleanDestination = Convert-ToAscii $rawDestination -IsPath $true
-        $fullDestination  = "/$($cleanDestination.Trim('/'))/$NewName"
+    # 3) Règle globale "*.*" si rien trouvé
+    if (-not $candidates -and $folderRules.ContainsKey('*.*')) {
+        $candidates += $folderRules['*.*']
+    }
 
+    # 4) Si toujours rien, fallback "default"
+    if (-not $candidates) {
+        $candidates += 'default'
+    }
+
+    # 5) Appliquer la priorité définie dans rules.json
+    foreach ($prio in $rules.actionPriority) {
+        if ($candidates -contains $prio) {
+            return $prio
+        }
+    }
+
+    return 'default'
+}
+
+function Resolve-RoutingTemplate {
+    param(
+        [string]$Template,
+        [hashtable]$Values
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Template)) {
+        return $null
+    }
+
+    $result = $Template
+
+    # 1) Gérer les blocs optionnels [ ... ]
+    $result = [regex]::Replace($result, '\[(.*?)\]', {
+            param($m)
+            $block = $m.Groups[1].Value
+            $blockResolved = $block
+            foreach ($key in $Values.Keys) {
+                $blockResolved = $blockResolved -replace [regex]::Escape($key), [string]$Values[$key]
+            }
+            # Si des tokens restent non résolus -> on supprime le bloc
+            if ($blockResolved -match '<[^>]+>') {
+                return ''
+            }
+            return $blockResolved
+        })
+
+    # 2) Remplacer les tokens simples
+    foreach ($key in $Values.Keys) {
+        $result = $result -replace [regex]::Escape($key), [string]$Values[$key]
+    }
+
+    # 3) Nettoyage des tokens restants et des doubles slash
+    $result = $result -replace '<[^>]+>', ''
+    $result = $result -replace '//+', '/'
+    return $result.Trim('/')
+}
+
+function Get-DestinationPath {
+    param(
+        [hashtable]$FileMeta,
+        [string]$Extension,
+        [string]$NewName,
+        [datetime]$FileDate
+    )
+
+    $rules = $Global:Rules.routingRules
+    $extMap = $Config.ExtensionMap
+
+    # 1) Catégorie media (Images / Videos / Audio, etc.)
+    $media = $null
+    if ($extMap.ContainsKey($Extension)) {
+        $media = $extMap[$Extension]
+    }
+    else {
+        $media = "Other"
+    }
+
+    # 2) Analyse du path source
+    $srcPath = $FileMeta.p
+    $relativePath = $srcPath -replace '^/drive/root:', ''
+    $segments = @()
+    if (-not [string]::IsNullOrWhiteSpace($relativePath)) {
+        $segments = $relativePath.Trim('/') -split '/'
+    }
+
+    $level1 = if ($segments.Count -ge 1) { $segments[0] } else { "" }
+    $level2 = if ($segments.Count -ge 2) { $segments[1] } else { "" }
+    $level3 = if ($segments.Count -ge 3) { $segments[2] } else { "" }
+
+    # 3) Déterminer l'action (confidential, administrative, default, only_rename, no_action)
+    $actionName = Get-RoutingAction -Path $srcPath -Extension $Extension
+
+    if (-not $rules.actions.ContainsKey($actionName)) {
+        $actionName = 'default'
+    }
+
+    $action = $rules.actions[$actionName]
+
+    # 4) Cas no_action -> ignorer le fichier
+    if ($actionName -eq 'no_action' -or -not $action.destination) {
+        return $null
+    }
+
+    # 5) Préparation des valeurs pour le template
+    $values = @{
+        '<media>'  = $media
+        '<year>'   = $FileDate.ToString('yyyy')
+        '<month>'  = $FileDate.ToString('MM')
+        '<level1>' = $level1
+        '<level2>' = $level2
+        '<level3>' = $level3
+    }
+
+    $template = $action.destination
+
+    # 6) Cas spécial only_rename : même dossier, nouveau nom
+    if ($actionName -eq 'only_rename' -or $template -like 'same_directory*') {
+        $cleanDest = $relativePath.Trim('/')
+        $fullDest = "/$($cleanDest.Trim('/'))/$NewName"
         return [PSCustomObject]@{
-            RawDestination   = $rawDestination
-            CleanDestination = $cleanDestination
-            FullDestination  = $fullDestination
+            Action           = $actionName
+            CleanDestination = $cleanDest
+            FullDestination  = $fullDest
         }
     }
-    catch {
-        Write-Log "Get-DestinationPath failure: $_" "ERROR"
-    }
-} # Get-DestinationPath
 
+    # 7) Résolution du template rules.json (sans le nom de fichier)
+    #    On enlève la partie "name.ext" du template, le nom final vient EXCLUSIVEMENT de $NewName
+    $templatePath = $template -replace 'name\.ext', ''
+    $templatePath = $templatePath.Trim('/')
+
+    $resolvedPath = Resolve-RoutingTemplate -Template $templatePath -Values $values
+    if ([string]::IsNullOrWhiteSpace($resolvedPath)) {
+        # Fallback : media/year/month
+        $resolvedPath = "$media/$($FileDate.ToString('yyyy'))/$($FileDate.ToString('MM'))"
+    }
+
+    $cleanDestination = $resolvedPath.Trim('/')
+    $fullDestination = "/$($cleanDestination.Trim('/'))/$NewName"
+
+    return [PSCustomObject]@{
+        Action           = $actionName
+        CleanDestination = $cleanDestination
+        FullDestination  = $fullDestination
+    }
+}
+
+function Get-SmartCategory {
+    param(
+        [string]$Path,
+        [string]$Extension
+    )
+
+    # Optionnel : pour logging uniquement
+    return (Get-RoutingAction -Path $Path -Extension $Extension)
+}
 
 Export-ModuleMember -Function *

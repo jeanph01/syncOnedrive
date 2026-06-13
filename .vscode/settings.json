@@ -1,4 +1,61 @@
 {
   "editor.inlineSuggest.enabled": true,
-  "editor.quickSuggestionsDelay": 50
+  "editor.quickSuggestionsDelay": 50,
+
+  // ---------- PERSISTENT "ALWAYS ALLOW" SESSION CONFIG ----------
+
+  // TODO-TREE RIPGREP EXECUTABLE
+  "todo-tree.ripgrep": "C:\\Users\\jeanp\\AppData\\Local\\Programs\\rg.exe",
+
+  // SUPPRESS NOTIFICATIONS & ERRORS
+  "notifications.logLevel": "off",
+
+  // SECURITY - NO PROMPTS
+  "security.workspace.trust.enabled": false,
+  "security.workspace.trust.startupPrompt": "never",
+  "security.workspace.trust.untrustedFiles": "open",
+
+  // CHAT & COPILOT AUTO-APPROVAL
+  "chat.tools.terminal.autoApprove": {
+    "*": true
+  },
+  "chat.editing.confirmEditRequest": false,
+  "github.copilot.chat.terminal.autoExecute": true,
+
+  // TASK & DEBUG AUTO-EXECUTE
+  "task.allowAutomaticTasks": "on",
+  "task.runTasks": "always",
+  "debug.enableAllHovers": true,
+  "debug.dangerouslyAttachInsteadOfLaunch": true,
+  "task.showDecorations": false,
+  "problems.decorations.enabled": false,
+
+  // FILE EXPLORER CONFIRMATIONS - DISABLED
+  "explorer.confirmDelete": false,
+  "explorer.confirmPasteOnDrag": false,
+  "explorer.confirmDragAndDrop": false,
+
+  // EXTENSION HANDLING
+  "extensions.ignoreRecommendations": true,
+  "extensions.showRecommendationsOnlyOnDemand": true,
+  "extensions.autoCheckUpdates": false,
+  "extensions.autoUpdate": false,
+
+  // TODO-TREE SETTINGS
+  "todo-tree.general.enableFileWatcher": true,
+  "todo-tree.general.debug": false,
+  "todo-tree.general.statusBar": "total",
+  "todo-tree.general.tags": [
+    "BUG",
+    "HACK",
+    "FIXME",
+    "TODO",
+    "NOTE",
+    "INFO"
+  ],
+
+  // TERMINAL SETTINGS
+  "terminal.integrated.allowCharsAfterCursor": true,
+  "terminal.integrated.allowMnemonics": true,
+  "terminal.explorerKind": "external"
 }
