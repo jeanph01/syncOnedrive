@@ -17,7 +17,7 @@ param (
     [bool]$Validate = $false,         # Validate OneDrive cache
     [string]$DebugId = "",            # Debug a specific file
     [bool]$ReportIgnored = $false,    # Generate ignored files report
-    [string]$ProcessRange = "1..1000",       # Process only a subset of files (e.g., "1", "1..10", "10+")
+    [string]$ProcessRange = "1+",       # Process only a subset of files (e.g., "1", "1..10", "10+")
     [bool]$StepByStep = $false         # Interactive step-by-step mode with confirmation
 )
 
@@ -590,8 +590,8 @@ function Start-OneDriveOrganizer {
         Repair-Cache
 
         # Normalize metadata (paths, names, GPS)
-        #Repair-Paths
-        #Repair-Names
+        Repair-Paths
+        Repair-Names
         Repair-GPS
 
         # 3. PLAN MANAGEMENT (Resume or New)
@@ -631,7 +631,7 @@ function Start-OneDriveOrganizer {
 
         # 4. CONFLICT RESOLUTION AND VALIDATION
         # Check for name collisions in target destinations
-        #Repair-Collisions
+        Repair-Collisions
 
         # Final plan analysis (remaining duplicates, too-long paths)
         Test-Plan
