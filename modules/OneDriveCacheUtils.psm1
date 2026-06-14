@@ -237,6 +237,35 @@ function Get-FilteredFileIds {
     return $AllIds
 }
 
+# Helper: Resolve duplicate destination by appending _1, _2, etc.
+function Resolve-DuplicateName {
+    param(
+        [string]$DstName,
+        [string]$DstDir,
+        [array]$ExistingDsts
+    )
+
+    $ext = [System.IO.Path]::GetExtension($DstName)
+    $nameOnly = [System.IO.Path]::GetFileNameWithoutExtension($DstName)
+    $baseFullDst = "$($DstDir.TrimEnd('/'))/$DstName"
+
+    # If no collisions, return as-is
+    if ($ExistingDsts -notcontains $baseFullDst) {
+        return @{ DstName = $DstName; FullDst = $baseFullDst }
+    }
+
+    # Collision detected: append _1, _2, etc.
+    $i = 1
+    while ($true) {
+        $newName = "$nameOnly`_$i$ext"
+        $newFullDst = "$($DstDir.TrimEnd('/'))/$newName"
+        if ($ExistingDsts -notcontains $newFullDst) {
+            return @{ DstName = $newName; FullDst = $newFullDst }
+        }
+        $i++
+    }
+}
+
 # Analyze files and build relocation plan
 function New-Plan {
     Write-Log "Scanning files (merged pipeline)..."
@@ -312,15 +341,6 @@ function New-Plan {
             # Camera
             $camera = $fileMeta.cam
 
-            # Source hint
-            $sourceHint = ""
-            foreach ($hint in $Global:Rules.routingRules.sourceHints) {
-                if ($fileMeta.p -match [Regex]::Escape($hint)) {
-                    $sourceHint = $hint
-                    break
-                }
-            }
-
             # Nouveau nom
             $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($fileMeta.n)
             if ([string]::IsNullOrWhiteSpace($originalNameNoExt)) {
@@ -328,14 +348,12 @@ function New-Plan {
                 continue
             }
 
-            $newName = New-SmartFileName `
-                -DateRef      $fileDate `
-                -OriginalName $originalNameNoExt `
+            $newName = Resolve-FinalName `
+                -FileMeta     $fileMeta `
                 -Extension    $extension `
                 -GPSLocation  $GPSLocation `
                 -PathTags     $pathTags `
-                -Camera       $camera `
-                -SourceHint   $sourceHint
+                -Camera       $camera
 
             Write-Log "Generated new name: $newName" "DEBUG"
 
@@ -369,14 +387,22 @@ function New-Plan {
                 continue
             }
 
+            # Resolve duplicates before adding to plan
+            $existingDsts = $Global:State.PlannedActions | ForEach-Object { $_.FullDst }
+            $resolved = Resolve-DuplicateName -DstName $newName -DstDir $cleanDestination -ExistingDsts $existingDsts
+
+            if ($resolved.DstName -ne $newName) {
+                Write-Log "Duplicate detected: renaming $newName → $($resolved.DstName)" "INFO"
+            }
+
             # Ajout au plan
             $Global:State.PlannedActions.Add([PSCustomObject]@{
                     Id       = $fileId
                     SrcPath  = $fileMeta.p
                     SrcName  = $fileMeta.n
                     DstDir   = "/$($cleanDestination.Trim('/'))"
-                    DstName  = $newName
-                    FullDst  = $fullDestination
+                    DstName  = $resolved.DstName
+                    FullDst  = $resolved.FullDst
                     Category = $category
                 })
         }
@@ -542,91 +568,6 @@ function Repair-Cache {
     }
 }
 
-function Repair-Collisions {
-    try {
-        Write-Log "=== FIX COLLISIONS: Proactive resolution ===" "WARN"
-
-        # On travaille directement sur la liste en memoire
-        $groups = $Global:State.PlannedActions | Group-Object FullDst | Where-Object { $_.Count -gt 1 }
-
-        if (-not $groups) {
-            Write-Log "No collisions detected." "SUCCESS"
-            return
-        }
-
-        foreach ($g in $groups) {
-            # The first file keeps its name, the following ones are indexed
-            for ($i = 1; $i -lt $g.Count; $i++) {
-                $item = $g.Group[$i]
-                $ext = [System.IO.Path]::GetExtension($item.DstName)
-                $nameOnly = [System.IO.Path]::GetFileNameWithoutExtension($item.DstName)
-
-                # Mise a jour du nom et du Path complet de destination
-                $item.DstName = "$nameOnly`_$i$ext"
-                $item.FullDst = "$($item.DstDir.TrimEnd('/'))/$($item.DstName)"
-            }
-        }
-
-        # Save the modified plan to disk immediately
-        $planFile = Join-Path (Split-Path $IndexFile -Parent) "plan.json"
-        $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content $planFile
-
-        Write-Log "Collisions resolved and plan synced to disk." "SUCCESS"
-    }
-    catch {
-        Write-Log "Repair-Collisions error : $($_.Exception.Message)" "ERROR"
-    }
-}
-
-
-function Repair-Paths {
-    # Normalise les Paths OneDrive (double slash, espaces, caracteres invalides).
-    try {
-        Write-Log "=== FIX PATHS : Normalize paths ===" "WARN"
-
-        foreach ($entry in $Global:State.Cache.Files.GetEnumerator()) {
-            $f = $entry.Value
-
-            if ($f.p) {
-                $clean = $f.p -replace "//+", "/" -replace "\s+", "_"
-                if ($clean -ne $f.p) {
-                    $f.p = $clean
-                }
-            }
-        }
-
-        Write-Log "Path normalization complete." "SUCCESS"
-    }
-    catch {
-        Write-Log "Repair-Paths error : $($_.Exception.Message)" "ERROR"
-    }
-} # Repair-Paths
-
-function Repair-Names {
-    # Corrige les noms invalides (espaces, caracteres interdits, noms trop longs).
-    try {
-        Write-Log "=== FIX NAMES : Normalize names ===" "WARN"
-
-        foreach ($entry in $Global:State.Cache.Files.GetEnumerator()) {
-            $f = $entry.Value
-
-            if ($f.n) {
-                $clean = $f.n -replace "[^\w\.\-]", "_" -replace "_+", "_"
-
-                if ($clean.Length -gt $Config.MaxNameLen) {
-                    $clean = $clean.Substring(0, $Config.MaxNameLen)
-                }
-
-                $f.n = $clean
-            }
-        }
-
-        Write-Log "Name normalization complete." "SUCCESS"
-    }
-    catch {
-        Write-Log "Repair-Names error : $($_.Exception.Message)" "ERROR"
-    }
-} # Repair-Names
 
 
 function Repair-GPS {

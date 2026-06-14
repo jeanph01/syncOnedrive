@@ -1,9 +1,11 @@
 {
   "_comments": {
-    "purpose": "Externalized business rules for OneDrive Organizer.",
-    "routingRules": "Defines action priority, folder overrides, and destination patterns.",
+    "purpose": "Unified routing + naming rules for OneDrive Organizer.",
+    "routingRules": "Defines action priority, folder overrides, and destination templates.",
     "namingRules": "Defines full naming logic: timestamp, gps, tags, original, media, dedup, ASCII normalization.",
     "gpsRules": "Defines GPS resolution, caching, fallback, and formatting.",
+    "tagRules": "Defines extraction and cleaning of path-based tags.",
+    "mediaRules": "Defines extraction and cleaning of camera/video metadata.",
     "cleanerRules": "Duplicate scoring rules."
   },
 
@@ -103,7 +105,7 @@
     ],
     "renameMarker": "--odr--",
     "maxNameLength": 180,
-    "finalPattern": "<timestamp>_<gps>_<tags>_<original>_<media>_<dup>--odr--<ext>"
+    "finalPattern": "<timestamp>_<gps>_<tags>_<original>_<media>_<dup>"
   },
 
   "gpsRules": {

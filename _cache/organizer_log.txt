@@ -1,67 +1,58 @@
-[02:33:59] [INFO] === SESSION START: 2026-06-14 02:33:59 ===
-[02:33:59] [SUCCESS] All required cache files from OneDrive_Sync.ps1 are present.
-[02:33:59] [INFO] Loading OneDrive cache C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cache.json ...
-[02:34:04] [INFO] Loading already processed IDs (C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log) ...
-[02:34:04] [INFO] No previously processed files (file C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log missing).
-[02:34:04] [INFO] Discovering already processed files containing marker '--odr--' ...
-[02:34:05] [INFO] Added to ProcessedIds (already renamed): /drive/root:/VersCoffreFort/archives/Images/2003/03/20030323_202722--odr--.jpg
-[02:34:05] [INFO] Indexing complete. Files to process: 115274
-[02:34:05] [WARN] === FIX CACHE: Automatic OneDrive cache cleanup ===
-[02:34:05] [SUCCESS] Fix complete: 0 entries removed, 0 extensions corrected.
-[02:34:07] [WARN] === FIX PATHS : Normalize paths ===
-[02:34:07] [SUCCESS] Path normalization complete.
-[02:34:07] [WARN] === FIX NAMES : Normalize names ===
-[02:34:07] [SUCCESS] Name normalization complete.
-[02:34:07] [WARN] === FIX GPS: Clean invalid GPS entries ===
-[02:34:07] [SUCCESS] GPS cleanup complete.
-[02:34:07] [INFO] No valid plan found. Starting full analysis...
-[02:34:07] [INFO] Scanning files (merged pipeline)...
-[02:34:08] [INFO] Range filter applied: 1..2 -> processing 2 files
-[02:34:08] [DEBUG] ----------------------------------------------
-[02:34:08] [DEBUG] Analyzing file
-[02:34:08] [DEBUG] ID             : 440B3E9A717E6203!sffbf1bc5f8054401a65bc96fa22b870c
-[02:34:08] [DEBUG] Original name   : Danielle_BlackCatsuit_05_001.jpg
-[02:34:08] [DEBUG] Source path     : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/danielle
-[02:34:08] [DEBUG] Extension      : .jpg
-[02:34:08] [DEBUG] File date      : 04/06/2012 10:17:06
-[02:34:08] [DEBUG] GPS            : 
-[02:34:08] [DEBUG] Smart classification = (confidential)
-[02:34:08] [DEBUG] Tags de Path : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_danielle
-[02:34:08] [DEBUG] Generated new name: 20120406_101706--odr--.jpg
-[02:34:08] [DEBUG] Destination path = (VersCoffreFort/archives/Images/2012/04)
-[02:34:08] [DEBUG] ----------------------------------------------
-[02:34:08] [DEBUG] Analyzing file
-[02:34:08] [DEBUG] ID             : 440B3E9A717E6203!sa0d32befdb13456cb9afa0f6ef085766
-[02:34:08] [DEBUG] Original name   : 7.mpg
-[02:34:08] [DEBUG] Source path     : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-video/blow/1_(25)
-[02:34:08] [DEBUG] Extension      : .mpg
-[02:34:08] [DEBUG] File date      : 11/23/2003 17:03:36
-[02:34:08] [DEBUG] GPS            : 
-[02:34:08] [DEBUG] Smart classification = (confidential)
-[02:34:08] [DEBUG] Tags de Path : VersCoffreFort_archives_xxx_XXX_tri-video_blow_1_(25)
-[02:34:08] [DEBUG] Generated new name: 20031123_170336--odr--.mpg
-[02:34:08] [DEBUG] Destination path = (VersCoffreFort/archives/Videos/2003/11)
-[02:34:08] [SUCCESS] Plan generated: 2 files.
-[02:34:08] [SUCCESS] Plan saved to C:\Users\jeanp\github\syncOnedrive\.\_cache\plan.json
-[02:34:08] [WARN] === FIX COLLISIONS: Proactive resolution ===
-[02:34:08] [SUCCESS] No collisions detected.
-[02:34:08] [INFO] === PLAN ANALYSIS ===
-[02:34:08] [INFO] Total actions : 2
-[02:34:08] [SUCCESS] No collisions detected.
-[02:34:08] [SUCCESS] Analysis complete.
-[02:34:08] [WARN] SWITCHING TO REAL EXECUTION MODE...
-[02:34:08] [INFO] Obtaining Graph token via module...
-[02:34:08] [INFO] Get-GraphToken: checking existing token
-[02:34:08] [INFO] [AUTH] New token required
-[02:34:08] [INFO] To sign in, use a web browser to open the page https://www.microsoft.com/link and enter the code SD5PQED6 to authenticate.
-[02:34:15] [DEBUG] Attempting to obtain token...
-[02:34:21] [DEBUG] Attempting to obtain token...
-[02:34:26] [DEBUG] Attempting to obtain token...
-[02:34:32] [DEBUG] Attempting to obtain token...
-[02:34:37] [DEBUG] Attempting to obtain token...
-[02:34:43] [DEBUG] Attempting to obtain token...
-[02:34:49] [DEBUG] Graph token saved
-[02:34:49] [INFO] Graph token acquired
-[02:34:49] [SUCCESS] Graph token loaded.
-[02:34:49] [INFO] Checking OneDrive folder hierarchy...
-[02:34:57] [WARN] Starting interactive move execution (step-by-step)...
+[03:43:56] [INFO] === SESSION START: 2026-06-14 03:43:56 ===
+[03:43:56] [SUCCESS] All required cache files from OneDrive_Sync.ps1 are present.
+[03:43:56] [INFO] Loading OneDrive cache C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cache.json ...
+[03:44:01] [INFO] Loading already processed IDs (C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log) ...
+[03:44:01] [INFO] No previously processed files (file C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log missing).
+[03:44:01] [INFO] Discovering already processed files containing marker '--odr--' ...
+[03:44:01] [INFO] Added to ProcessedIds (already renamed): /drive/root:/VersCoffreFort/archives/Images/2003/03/20030323_202722--odr--.jpg
+[03:44:02] [INFO] Indexing complete. Files to process: 115274
+[03:44:02] [WARN] === FIX CACHE: Automatic OneDrive cache cleanup ===
+[03:44:02] [SUCCESS] Fix complete: 0 entries removed, 0 extensions corrected.
+[03:44:03] [WARN] === FIX GPS: Clean invalid GPS entries ===
+[03:44:03] [SUCCESS] GPS cleanup complete.
+[03:44:03] [INFO] No valid plan found. Starting full analysis...
+[03:44:03] [INFO] Scanning files (merged pipeline)...
+[03:44:03] [INFO] Range filter applied: 1..2 -> processing 2 files
+[03:44:03] [DEBUG] ----------------------------------------------
+[03:44:03] [DEBUG] Analyzing file
+[03:44:03] [DEBUG] ID             : 440B3E9A717E6203!s128336d08bb54fc0a82f1b761236534d
+[03:44:03] [DEBUG] Original name   : DSC01479.jpg
+[03:44:03] [DEBUG] Source path     : /drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/!alicia_blonde/Alicia14
+[03:44:03] [DEBUG] Extension      : .jpg
+[03:44:03] [DEBUG] File date      : 03/17/2010 18:11:22
+[03:44:03] [DEBUG] GPS            : 
+[03:44:03] [DEBUG] Smart classification = (confidential)
+[03:44:03] [DEBUG] Tags de Path : VersCoffreFort_archives_xxx_XXX_LATEXOTICA_!alicia_blonde_Alicia14
+[03:44:03] [DEBUG] Generated new name: 20100317_181122_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia14_DSC01479--odr--.jpg
+[03:44:03] [DEBUG] Destination path = (VersCoffreFort/archives/Images/2010/03)
+[03:44:03] [DEBUG] ----------------------------------------------
+[03:44:03] [DEBUG] Analyzing file
+[03:44:03] [DEBUG] ID             : 440B3E9A717E6203!sa69fdbc4c8b24760bdd70a1d0a12deab
+[03:44:03] [DEBUG] Original name   : j_4_1.jpg
+[03:44:03] [DEBUG] Source path     : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/bottes
+[03:44:03] [DEBUG] Extension      : .jpg
+[03:44:03] [DEBUG] File date      : 10/31/2010 11:26:42
+[03:44:03] [DEBUG] GPS            : 
+[03:44:03] [DEBUG] Smart classification = (confidential)
+[03:44:03] [DEBUG] Tags de Path : VersCoffreFort_archives_xxx_XXX_tri-img_bottes
+[03:44:03] [DEBUG] Generated new name: 20101031_112642_VersCoffreFort_archives_xxx_tri_img_bottes_j_4_1--odr--.jpg
+[03:44:03] [DEBUG] Destination path = (VersCoffreFort/archives/Images/2010/10)
+[03:44:03] [SUCCESS] Plan generated: 2 files.
+[03:44:03] [SUCCESS] Plan saved to C:\Users\jeanp\github\syncOnedrive\.\_cache\plan.json
+[03:44:03] [INFO] === PLAN ANALYSIS ===
+[03:44:03] [INFO] Total actions : 2
+[03:44:03] [SUCCESS] No collisions detected.
+[03:44:03] [SUCCESS] Analysis complete.
+[03:44:03] [WARN] SWITCHING TO REAL EXECUTION MODE...
+[03:44:03] [INFO] Obtaining Graph token via module...
+[03:44:03] [INFO] Get-GraphToken: checking existing token
+[03:44:03] [INFO] Valid token loaded from cache
+[03:44:04] [SUCCESS] Graph token loaded.
+[03:44:04] [INFO] Checking OneDrive folder hierarchy...
+[03:44:15] [WARN] Starting interactive move execution (step-by-step)...
+[03:47:22] [ERROR] Invoke-MovesInteractive error: User aborted
+[03:47:22] [ERROR] FATAL ERROR in Start-OneDriveOrganizer: User aborted
+[03:47:22] [DEBUG] Details: at Invoke-MovesInteractive, C:\Users\jeanp\github\syncOnedrive\OneDrive_PictureMovieOrganiser.ps1: line 344
+at Start-OneDriveOrganizer, C:\Users\jeanp\github\syncOnedrive\OneDrive_PictureMovieOrganiser.ps1: line 661
+at <ScriptBlock>, C:\Users\jeanp\github\syncOnedrive\OneDrive_PictureMovieOrganiser.ps1: line 675
+at <ScriptBlock>, <No file>: line 1

@@ -24,7 +24,7 @@ param (
 # --- Force Write-Progress display in case another script disabled it
 $ProgressPreference = 'Continue'
 
-clear-host
+Clear-Host
 
 # =====================================================================
 # GLOBAL CONFIGURATION (PLACED BEFORE MODULES)
@@ -404,9 +404,9 @@ function Invoke-MovesInteractive {
 
                 Write-Host "  ✓ Move successful" -ForegroundColor Green
                 "$(Get-Date -Format 'HH:mm'),$($action.Id),SUCCESS,$($action.SrcPath),$($action.FullDst)," |
-                Add-Content $ExecutionReport
+                Add-Content $global:ExecutionReport
 
-                $action.Id | Add-Content $ProcessedLog
+                $action.Id | Add-Content $global:ProcessedLog
 
                 $dstPathCache = $action.DstDir.TrimStart('/')
                 $Global:State.Cache.Files[$action.Id].p = "/drive/root:/" + $dstPathCache
@@ -418,12 +418,12 @@ function Invoke-MovesInteractive {
                 $errorDetails = Get-ErrorDetails $_
                 Write-Host "  ✗ Error: $errorDetails" -ForegroundColor Red
                 "$(Get-Date -Format 'HH:mm'),$($action.Id),ERROR,$($action.SrcPath),$($action.FullDst),$errorDetails" |
-                Add-Content $ExecutionReport
+                Add-Content $global:ExecutionReport
                 $skippedCount++
             }
         }
 
-        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
+        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $global:IndexFile
         Write-Host "`n" -NoNewline
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host "Summary: $processedCount processed, $skippedCount skipped" -ForegroundColor Cyan
@@ -485,9 +485,9 @@ function Invoke-Moves {
                     -Method PATCH -Body $body -ErrorAction Stop > $null
 
                 "$(Get-Date -Format 'HH:mm'),$($action.Id),SUCCESS,$($action.SrcPath),$($action.FullDst)," |
-                Add-Content $ExecutionReport
+                Add-Content $global:ExecutionReport
 
-                $action.Id | Add-Content $ProcessedLog
+                $action.Id | Add-Content $global:ProcessedLog
 
                 $Global:State.Cache.Files[$action.Id].p = "/drive/root:/" + $dstPathCache
                 $Global:State.Cache.Files[$action.Id].n = $action.DstName
@@ -497,11 +497,11 @@ function Invoke-Moves {
                 Write-Log "Error on $($action.Id): $errorDetails" "ERROR"
 
                 "$(Get-Date -Format 'HH:mm'),$($action.Id),ERROR,$($action.SrcPath),$($action.FullDst),$errorDetails" |
-                Add-Content $ExecutionReport
+                Add-Content $global:ExecutionReport
             }
         }
 
-        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
+        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $global:IndexFile
         Write-Log "Move execution completed." "SUCCESS"
     }
     catch {
@@ -608,8 +608,8 @@ function Start-OneDriveOrganizer {
         Repair-Cache
 
         # Normalize metadata (paths, names, GPS)
-        Repair-Paths
-        Repair-Names
+        #Repair-Paths
+        #Repair-Names
         Repair-GPS
 
         # 3. PLAN MANAGEMENT (Resume or New)
@@ -634,7 +634,7 @@ function Start-OneDriveOrganizer {
 
         # 4. CONFLICT RESOLUTION AND VALIDATION
         # Check for name collisions in target destinations
-        Repair-Collisions
+        #Repair-Collisions
 
         # Final plan analysis (remaining duplicates, too-long paths)
         Test-Plan
