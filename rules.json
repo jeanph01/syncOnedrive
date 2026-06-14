@@ -12,16 +12,12 @@
   "extensionMap": {
     ".jpg": "Images", ".jpeg": "Images", ".png": "Images",
     ".bmp": "Images", ".heic": "Images", ".heif": "Images",
-    ".tif": "Images", ".tiff": "Images", ".svg": "Images", ".psd": "Images",
-    ".ai": "Images", ".xcf": "Images", ".ico": "Images", ".thm": "Images",
+    ".tif": "Images", ".tiff": "Images", ".svg": "Images", ".psd": "Images", ".ai": "Images", ".xcf": "Images", ".ico": "Images", ".thm": "Images",
     ".mp4": "Videos", ".mov": "Videos", ".avi": "Videos", ".mkv": "Videos",
-    ".wmv": "Videos", ".webm": "Videos", ".m4v": "Videos", ".3gp": "Videos",
-    ".mpg": "Videos", ".mpeg": "Videos", ".flv": "Videos",
-    ".mp3": "Audio", ".wav": "Audio", ".m4a": "Audio", ".flac": "Audio",
-    ".amr": "Audio", ".opus": "Audio"
+    ".wmv": "Videos", ".webm": "Videos", ".m4v": "Videos", ".3gp": "Videos", ".mpg": "Videos", ".mpeg": "Videos", ".flv": "Videos",
+    ".mp3": "Audio", ".wav": "Audio", ".m4a": "Audio", ".flac": "Audio", ".amr": "Audio", ".opus": "Audio",
+    ".gif": "Animated", ".webp": "Animated", ".apng": "Animated"
   },
-  // New: Animated image extensions
-  ".gif": "Animated", ".webp": "Animated", ".apng": "Animated"
 
   "routingRules": {
     "actionPriority": [
@@ -139,7 +135,7 @@
   "mediaRules": {
     "extractCameraModel": true,
     "extractVideoDuration": true,
-    "shortVideoMaxDurationMs": 60000, // Max duration in milliseconds for camera videos to be treated as images (e.g., 60 seconds)
+    "shortVideoMaxDurationMs": 60000, 
     "normalizeAscii": true,
     "splitPattern": "[ _-]"
   },
