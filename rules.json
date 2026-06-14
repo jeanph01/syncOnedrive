@@ -1,47 +1,22 @@
 {
   "_comments": {
-    "purpose": "Externalized business rules. JSON does not support native comments, this block describes the sections.",
-    "extensionMap": "Maps extension -> media category used by routing.",
-    "routingRules": "Destination rules for files.",
-    "folderRules": "Folder-based action overrides.",
-    "namingRules": "Word cleaning rules for name generation.",
-    "cleanerRules": "Scoring rules to keep/remove cloud duplicates."
+    "purpose": "Externalized business rules for OneDrive Organizer.",
+    "routingRules": "Defines action priority, folder overrides, and destination patterns.",
+    "namingRules": "Defines full naming logic: timestamp, gps, tags, original, media, dedup, ASCII normalization.",
+    "gpsRules": "Defines GPS resolution, caching, fallback, and formatting.",
+    "cleanerRules": "Duplicate scoring rules."
   },
 
   "extensionMap": {
-    ".jpg": "Images",
-    ".jpeg": "Images",
-    ".png": "Images",
-    ".gif": "Images",
-    ".bmp": "Images",
-    ".webp": "Images",
-    ".heic": "Images",
-    ".heif": "Images",
-    ".tif": "Images",
-    ".tiff": "Images",
-    ".svg": "Images",
-    ".psd": "Images",
-    ".ai": "Images",
-    ".xcf": "Images",
-    ".ico": "Images",
-    ".thm": "Images",
-    ".mp4": "Videos",
-    ".mov": "Videos",
-    ".avi": "Videos",
-    ".mkv": "Videos",
-    ".wmv": "Videos",
-    ".webm": "Videos",
-    ".m4v": "Videos",
-    ".3gp": "Videos",
-    ".mpg": "Videos",
-    ".mpeg": "Videos",
-    ".flv": "Videos",
-    ".mp3": "Audio",
-    ".wav": "Audio",
-    ".m4a": "Audio",
-    ".flac": "Audio",
-    ".amr": "Audio",
-    ".opus": "Audio"
+    ".jpg": "Images", ".jpeg": "Images", ".png": "Images", ".gif": "Images",
+    ".bmp": "Images", ".webp": "Images", ".heic": "Images", ".heif": "Images",
+    ".tif": "Images", ".tiff": "Images", ".svg": "Images", ".psd": "Images",
+    ".ai": "Images", ".xcf": "Images", ".ico": "Images", ".thm": "Images",
+    ".mp4": "Videos", ".mov": "Videos", ".avi": "Videos", ".mkv": "Videos",
+    ".wmv": "Videos", ".webm": "Videos", ".m4v": "Videos", ".3gp": "Videos",
+    ".mpg": "Videos", ".mpeg": "Videos", ".flv": "Videos",
+    ".mp3": "Audio", ".wav": "Audio", ".m4a": "Audio", ".flac": "Audio",
+    ".amr": "Audio", ".opus": "Audio"
   },
 
   "routingRules": {
@@ -49,41 +24,42 @@
       "confidential",
       "administrative",
       "no_action",
-      "only_rename",
-      "default"
+      "default",
+      "only_rename"
     ],
 
-"actions": {
-  "default": {
-    "destination": "<media>/<year>/<month>/",
-    "filename": "<date>_<parents>--odr--<ext>",
-    "parents": "<skip:1>"
-  },
+    "actions": {
+      "default": {
+        "destination": "<media>/<year>/<month>/",
+        "filename": "<finalName>",
+        "keepLevels": 0
+      },
 
-  "administrative": {
-    "destination": "<level1>/<level2>/<media>/<year>/<month>/",
-    "filename": "<date>_<parents>--odr--<ext>",
-    "parents": "<skip:2>"
-  },
+      "administrative": {
+        "destination": "<level1>/<level2>/",
+        "filename": "<finalName>",
+        "keepLevels": 2
+      },
 
-  "confidential": {
-    "destination": "<level1>/<level2>/<media>/<year>/<month>/",
-    "filename": "<date>_<parents>--odr--<ext>",
-    "parents": "<skip:3>"
-  },
+      "confidential": {
+        "destination": "<level1>/<level2>/<media>/<year>/<month>/",
+        "filename": "<finalName>",
+        "keepLevels": 2
+      },
 
-  "only_rename": {
-    "destination": "same_directory/",
-    "filename": "<original>--odr--<ext>",
-    "parents": "<skip:0>"
-  },
+      "only_rename": {
+        "destination": "<same_directory>/",
+        "filename": "<finalName>",
+        "keepLevels": 0
+      },
 
-  "no_action": {
-    "destination": null,
-    "filename": "<original><ext>",
-    "parents": "<skip:0>"
-  }
-},
+      "no_action": {
+        "destination": null,
+        "filename": "<original><ext>",
+        "keepLevels": 0
+      }
+    },
+
     "confidentialRegexList": [
       "(?i)confidential",
       "(?i)privatevault",
@@ -94,10 +70,9 @@
   },
 
   "folderRules": {
-    "*.*": "default",
     "bureau": "default",
     "Cuisine": "administrative",
-    "Documents": "default",
+    "Documents": "administrative",
     "Fichiers Microsoft Copilot Chat": "default",
     "Fichiers transcrits": "no_action",
     "films": "no_action",
@@ -117,56 +92,53 @@
     "VersCoffreFort": "confidential",
     "Videos": "default",
     "Vidéos": "default",
-    "Vie_des_enfants": "administrative"
+    "Vie des enfants": "administrative"
   },
 
   "namingRules": {
     "stopWords": [
-      "de",
-      "du",
-      "des",
-      "la",
-      "le",
-      "les",
-      "avec",
-      "pour",
-      "sur",
-      "dans",
-      "et",
-      "en",
-      "a",
-      "au",
-      "aux"
-    ]
+      "de", "du", "des", "la", "le", "les",
+      "avec", "pour", "sur", "dans", "et",
+      "en", "a", "au", "aux"
+    ],
+    "renameMarker": "--odr--",
+    "maxNameLength": 180,
+    "finalPattern": "<timestamp>_<gps>_<tags>_<original>_<media>_<dup>--odr--<ext>"
+  },
+
+  "gpsRules": {
+    "gridPrecision": 4,
+    "fallbackDelta": 0.01,
+    "cacheEnabled": true,
+    "fieldsPriority": [
+      "city", "town", "village", "hamlet",
+      "suburb", "municipality", "county",
+      "state", "country"
+    ],
+    "format": "<city>-<state>-<country>",
+    "normalizeAscii": true
+  },
+
+  "tagRules": {
+    "splitPattern": "[ _-]",
+    "removeStopWords": true,
+    "normalizeAscii": true
+  },
+
+  "mediaRules": {
+    "extractCameraModel": true,
+    "extractVideoDuration": true,
+    "normalizeAscii": true,
+    "splitPattern": "[ _-]"
   },
 
   "cleanerRules": {
     "priorityRules": [
-      {
-        "field": "name",
-        "pattern": "* - Copie*",
-        "score": 50
-      },
-      {
-        "field": "name",
-        "pattern": "* (1)*",
-        "score": 40
-      },
-      {
-        "field": "path",
-        "pattern": "*/Importations/*",
-        "score": 30
-      },
-      {
-        "field": "path",
-        "pattern": "*/Old/*",
-        "score": 20
-      },
-      {
-        "field": "path",
-        "pattern": "*/bureau/*",
-        "score": 10
-      }
+      { "field": "name", "pattern": "* - Copie*", "score": 50 },
+      { "field": "name", "pattern": "* (1)*", "score": 40 },
+      { "field": "path", "pattern": "*/Importations/*", "score": 30 },
+      { "field": "path", "pattern": "*/Old/*", "score": 20 },
+      { "field": "path", "pattern": "*/bureau/*", "score": 10 }
     ]
   }
 }

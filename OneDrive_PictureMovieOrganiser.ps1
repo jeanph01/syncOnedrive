@@ -24,6 +24,7 @@ param (
 # --- Force Write-Progress display in case another script disabled it
 $ProgressPreference = 'Continue'
 
+clear-host
 
 # =====================================================================
 # GLOBAL CONFIGURATION (PLACED BEFORE MODULES)
