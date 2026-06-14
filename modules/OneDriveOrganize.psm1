@@ -1,3 +1,4 @@
+
 param(
     [string]$ClientId,
     [string]$TokenFile,
@@ -511,7 +512,7 @@ function Get-DestinationPath {
     )
 
     $rules = $Global:Rules.routingRules
-    $extMap = $Config.ExtensionMap
+    $extMap = $Global:Config.ExtensionMap
 
     # 1) Catégorie media
     $media = if ($extMap.ContainsKey($Extension)) { $extMap[$Extension] } else { "Other" }
@@ -646,7 +647,6 @@ function New-Plan {
 
     try {
         $FileIds = $Global:State.FilesToProcess.Keys
-        $TotalFiles = $FileIds.Count
 
         if ($global:ProcessRange) {
             $FileIds = Get-FilteredFileIds -Range $global:ProcessRange -AllIds $FileIds
@@ -693,7 +693,7 @@ function New-Plan {
                 Write-Log "Ignored: unsupported extension ($extension)" "DEBUG"
 
                 $Global:State.ProcessedIds[$fileId] = $true
-                Save-ProcessedIds
+                Save-ProcessedIds -Id $fileId
 
                 continue
             }
@@ -746,7 +746,7 @@ function New-Plan {
                 Write-Log "File ignored (no_action category): $($fileMeta.n)" "DEBUG"
 
                 $Global:State.ProcessedIds[$fileId] = $true
-                Save-ProcessedIds
+                Save-ProcessedIds -Id $fileId
 
                 continue
             }
@@ -765,7 +765,7 @@ function New-Plan {
                 Write-Log "Already in correct place: $($fileMeta.n)" "DEBUG"
 
                 $Global:State.ProcessedIds[$fileId] = $true
-                Save-ProcessedIds
+                Save-ProcessedIds -Id $fileId
 
                 continue
             }
@@ -809,15 +809,22 @@ function New-Plan {
 }
 
 function Save-ProcessedIds {
+    param([string]$Id)
     try {
-        $cacheFolder = Split-Path $IndexFile -Parent
-        $processedFile = Join-Path $cacheFolder "processed_ids.log"
+        # Use the global path defined in the main script
+        $processedFile = $Global:ProcessedLog
+        if (-not $processedFile) {
+            $processedFile = Join-Path (Split-Path $Global:IndexFile -Parent) "processed_ids.log"
+        }
 
-        $Global:State.ProcessedIds |
-        ConvertTo-Json -Depth 5 |
-        Set-Content -Path $processedFile -Encoding UTF8
-
-        Write-Log "Processed IDs saved to $processedFile" "DEBUG"
+        if ($Id) {
+            # Performance optimization: Append only the new ID
+            $Id | Add-Content -Path $processedFile -Encoding UTF8
+        }
+        else {
+            # Fallback: rewrite full list as flat text if no specific ID provided
+            $Global:State.ProcessedIds.Keys | Set-Content -Path $processedFile -Encoding UTF8
+        }
     }
     catch {
         Write-Log "Error saving processed IDs: $($_.Exception.Message)" "ERROR"

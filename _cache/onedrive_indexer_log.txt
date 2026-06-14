@@ -1,68 +1,31 @@
-[10:57:27] [INFO] [1/4] Loading / scanning OneDrive (V15.1)
-[10:57:27] [INFO] Get-GraphToken: checking existing token
-[10:57:27] [INFO] [AUTH] New token required
-[10:57:28] [INFO] To sign in, use a web browser to open the page https://www.microsoft.com/link and enter the code 9VQ6KY2K to authenticate.
-[10:57:33] [DEBUG] Attempting to obtain token...
-[10:57:39] [DEBUG] Attempting to obtain token...
-[10:57:44] [DEBUG] Attempting to obtain token...
-[10:57:50] [DEBUG] Attempting to obtain token...
-[10:57:55] [DEBUG] Attempting to obtain token...
-[10:58:01] [DEBUG] Attempting to obtain token...
-[10:58:06] [DEBUG] Graph token saved
-[10:58:06] [INFO] Graph token acquired
-[10:58:13] [INFO] Existing cache loaded (114736 files)
-[10:58:13] [INFO] Incremental delta scan from last deltaToken
-[10:58:16] [INFO] Graph: 21 items → total 114741
-[10:58:17] [INFO] Graph: 36 items → total 114764
-[10:58:18] [INFO] Graph: 55 items → total 114788
-[10:58:20] [INFO] Graph: 181 items → total 114788
-[10:58:22] [INFO] Graph: 102 items → total 114805
-[10:58:23] [INFO] Graph: 71 items → total 114826
-[10:58:24] [INFO] Graph: 69 items → total 114847
-[10:58:26] [INFO] Graph: 106 items → total 114859
-[10:58:28] [INFO] Graph: 163 items → total 114864
-[10:58:31] [INFO] Graph: 194 items → total 114864
-[10:58:33] [INFO] Graph: 150 items → total 114871
-[10:58:36] [INFO] Graph: 275 items → total 114871
-[10:58:37] [INFO] Graph: 184 items → total 114881
-[10:58:39] [INFO] Graph: 137 items → total 114891
-[10:58:41] [INFO] Graph: 165 items → total 114902
-[10:58:43] [INFO] Graph: 94 items → total 114919
-[10:58:43] [INFO] Graph: 69 items → total 114940
-[10:58:45] [INFO] Graph: 143 items → total 114955
-[10:58:47] [INFO] Graph: 148 items → total 114961
-[10:58:47] [INFO] Graph: 81 items → total 115002
-[10:58:49] [INFO] Graph: 79 items → total 115064
-[10:58:51] [INFO] Graph: 90 items → total 115069
-[10:58:53] [INFO] Graph: 120 items → total 115071
-[10:58:54] [INFO] Graph: 93 items → total 115090
-[10:58:56] [INFO] Graph: 190 items → total 115096
-[10:58:59] [INFO] Graph: 274 items → total 115097
-[10:59:00] [INFO] Graph: 102 items → total 115111
-[10:59:02] [INFO] Graph: 96 items → total 115128
-[10:59:03] [INFO] Graph: 50 items → total 115155
-[10:59:05] [INFO] Graph: 75 items → total 115182
-[10:59:06] [INFO] Graph: 147 items → total 115193
-[10:59:08] [INFO] Graph: 142 items → total 115200
-[10:59:10] [INFO] Graph: 127 items → total 115211
-[10:59:12] [INFO] Graph: 201 items → total 115220
-[10:59:13] [INFO] Graph: 184 items → total 115231
-[10:59:14] [INFO] Graph: 65 items → total 115250
-[10:59:16] [INFO] Graph: 162 items → total 115262
-[10:59:17] [INFO] Graph: 189 items → total 115266
-[10:59:19] [INFO] Graph: 136 items → total 115275
-[10:59:20] [INFO] Graph: 50 items → total 115275
-[10:59:20] [INFO] Final deltaLink received -> end of scan
-[10:59:22] [INFO] OneDrive cache saved
-[10:59:22] [INFO] [2/4] Analyzing OneDrive duplicates
-[10:59:58] [INFO] Cloud duplicate groups: 2
-[10:59:58] [INFO] [3/4] Local analysis
-[11:00:30] [INFO] Local cleanup completed
-[11:00:30] [INFO] [4/4] Cleaning empty folders
-[11:00:30] [INFO] === FINAL SUMMARY ===
-[11:00:30] [INFO] Elapsed time: 3m 3s
-[11:00:30] [INFO] Local files: 0
-[11:00:30] [INFO] Ignored (size mismatch): 0
-[11:00:30] [INFO] Cloud duplicate groups: 2
-[11:00:30] [INFO] Local duplicates moved: 0
-[11:00:30] [INFO] Files deleted (disallowed extensions): 0
+[13:07:43] [INFO] [1/4] Loading / scanning OneDrive (V15.1)
+[13:07:43] [INFO] Get-GraphToken: checking existing token
+[13:07:43] [INFO] Valid token loaded from cache
+[13:07:48] [INFO] Existing cache loaded (115273 files)
+[13:07:48] [INFO] Incremental delta scan from last deltaToken
+[13:07:49] [INFO] Graph: 134 items → total 115273
+[13:07:50] [INFO] Graph: 122 items → total 115273
+[13:07:51] [INFO] Graph: 127 items → total 115273
+[13:07:52] [INFO] Graph: 141 items → total 115273
+[13:07:53] [INFO] Graph: 96 items → total 115273
+[13:07:54] [INFO] Graph: 85 items → total 115273
+[13:07:55] [INFO] Graph: 84 items → total 115273
+[13:07:56] [INFO] Graph: 139 items → total 115273
+[13:07:57] [INFO] Graph: 179 items → total 115273
+[13:07:58] [INFO] Graph: 123 items → total 115273
+[13:08:00] [INFO] Graph: 113 items → total 115273
+[13:08:01] [INFO] Graph: 37 items → total 115273
+[13:08:01] [INFO] Final deltaLink received -> end of scan
+[13:08:02] [INFO] OneDrive cache saved
+[13:08:02] [INFO] [2/4] Analyzing OneDrive duplicates
+[13:08:27] [INFO] Cloud duplicate groups: 2
+[13:08:27] [INFO] [3/4] Local analysis
+[13:08:54] [INFO] Local cleanup completed
+[13:08:54] [INFO] [4/4] Cleaning empty folders
+[13:08:54] [INFO] === FINAL SUMMARY ===
+[13:08:54] [INFO] Elapsed time: 1m 11s
+[13:08:54] [INFO] Local files: 0
+[13:08:54] [INFO] Ignored (size mismatch): 0
+[13:08:54] [INFO] Cloud duplicate groups: 2
+[13:08:54] [INFO] Local duplicates moved: 0
+[13:08:54] [INFO] Files deleted (disallowed extensions): 0

@@ -1,223 +1,849 @@
-[04:57:25] [INFO] === SESSION START: 2026-06-14 04:57:25 ===
-[04:57:25] [SUCCESS] All required cache files from OneDrive_Sync.ps1 are present.
-[04:57:25] [INFO] Loading OneDrive cache C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cache.json ...
-[04:57:30] [INFO] Loading already processed IDs (C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log) ...
-[04:57:30] [INFO] Already processed files : 127
-[04:57:30] [INFO] Discovering already processed files containing marker '--odr--' ...
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!30011
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!121274
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s5d0badf359434ff4b2e8aea55f1ddf2d
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s599a4854490649499a1072f0a4ebc770
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s0660aa48e45a463ca1f132fda7b84029
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s716287b61157485790e5484aebffbeac
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!122579
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!129140
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s383cb7e8bb994c71bf9b81102c839138
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!115201
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!22620
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!sd9e2f170de4b42dc97788b8f19fa07ae
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s4080a0187fd74bfb97647d05c5f735a2
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!21618
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!62516
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!59900
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s7f8e1d61697c4c3ea3880271fb3c0718
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s57f754d075d7487fbfaae13133bc2d12
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!26861
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!sbbe2a0125bf74e1c89741aefafe98ff2
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!sf3f971fd376c44b78c48e685af11b916
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!90895
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s367f2c03520549d59ca48163d09d4f46
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s36867a10e02f4c219e2218bb8c5e41fc
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!21438
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!127975
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!139396
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!55423
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!sf25b7afe1872407eb24528c63e17549a
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!145660
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s2f803ceb244c4185b6444e1d8fbb2de8
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s83897ef637304e46ac45b18d6dd81b2a
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!81045
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s3fe6753f25484e7fa4ed4e0ac117dc98
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!108165
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!144751
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!141158
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s78c7cb5f84ad40688d56e18f6a308db4
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s98d451489eec4ba2bb99b48666d48969
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!26837
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!sb2c2a7ce1f2143929e6a07b364a48987
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!sbfa9d72cdf0c4f399b8ad3d0613031f2
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!sdcec57807ca34a8b86b30bf259297911
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!28202
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!sa1fa8165007146afa38765b12d0a79ec
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s4262ba9eb810460a98aa2e17ed83dbb7
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s27db4ef9a7c6454688e4a141420edde7
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s8f449f7ca15e458f8063de5a32759073
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!s00d63f8327f5446891c29f5591074401
-[04:57:30] [INFO] Ignored (already processed): 440B3E9A717E6203!70753
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s28d856b74829403599ee5ecd32642a56
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s48844f25fdc540489c97785d53bb1f60
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!97493
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s128336d08bb54fc0a82f1b761236534d
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!29402
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!12182
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s9ccd6449c2774252b2526aedd91a2d9c
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sa69fdbc4c8b24760bdd70a1d0a12deab
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!20409
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!23762
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!27929
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s6de2a6e790824f3bba8dde51e3bedaf3
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sfb3be884d49d49c585b37c38bfcbac32
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!71694
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s55339815e23e4ae8bf4a1904666dad76
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!54740
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sdc57fce2562b4d0d8c6846b247dc808a
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s4184b53c810749c78f36e2907d30b842
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s364e2c18cb4b40b08a3f660cff9df5c8
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s8cb250a3720d4f7693092ef2da4e2ddb
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!101739
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sb4a48582ac174a0393a526f4e79b3b14
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sce591ce445d442019479129c2f4e58a5
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sad7f1303bc754a04a3ab5168762a3562
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s50e30245d21943a88d351fc10966a617
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!se41c096e1d6e4564ab648c04c951eadf
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s563b1c824c0442f69ddf3681dd7ec3f1
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!se3a2a0632c744dcba8291086a142722b
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s002c69fd6b794c6a879d9bc51d22f81a
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!13695
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sc25b554f9ecc4053abf6ee0fdff03f5a
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s1d36d0b178b84c52aa716569cd70b802
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!56366
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s5a5a211b8f57471aab8db6b2a69dbc9e
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sbe1ea9c68f184807bf7a644319a9164e
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!119183
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s4765a58a737445d3b15d74abbdb08322
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!113438
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s8e6153f8939646e39051094896fcc8d4
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!105273
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s39483f9ed9164c5592ee7c0c465d84a6
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sda36f18555554582b8bb38f02b90885f
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!117937
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!60395
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!128364
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!49580
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!137162
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!81239
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!55938
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!129058
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!22340
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s60cd5e1eecfa4e2f9559afd975a3f65c
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s97285ffb1ebd4b549a16f2ec153ff2e4
-[04:57:31] [INFO] Added to ProcessedIds (already renamed): /drive/root:/VersCoffreFort/archives/Images/2003/03/20030323_202722--odr--.jpg
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s4db699b9a9ed41d380ecde9977477c0e
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s01711553c46f46cdbd163a9d4d1d9390
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s139d3a869bef41048b3f1534731b9e19
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s9f175f69ede34f15bd1dfabc1832961b
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!76247
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sbb9c4ab8b8c146cfb245dc423ea9599d
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s867a938f52414d88b31d66e37e6f6411
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s9714cf00212d49388a4847498dbe3f50
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!117659
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!sf90669e9946047018cec6dda20440cf1
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!26751
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!138068
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!28274
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!28447
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s092e0d18083a41fcb12e6d0d92fde09b
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s7f1d031a588f4f21aaad82a1b63b1c4c
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s88f911556cd04a32a2865c95cd36f69e
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s63c2e7ceaf3840c3b737662b9261bb8a
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s92287031b24f4762bdcd86b61d7ccd8d
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s656b9e24c1964fde9b3358f415ec314b
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!104509
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s5a9c1c2b7894487b9526764df8e83dec
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!126315
-[04:57:31] [INFO] Ignored (already processed): 440B3E9A717E6203!s1f61cf2ceaf54eebb902ec6f200954b1
-[04:57:31] [INFO] Indexing complete. Files to process: 115147
-[04:57:31] [WARN] === FIX CACHE: Automatic OneDrive cache cleanup ===
-[04:57:32] [SUCCESS] Fix complete: 0 entries removed, 0 extensions corrected.
-[04:57:33] [WARN] === FIX GPS: Clean invalid GPS entries ===
-[04:57:33] [SUCCESS] GPS cleanup complete.
-[04:57:33] [SUCCESS] Plan existant valide - reprise sans analyse.
-[04:57:33] [SUCCESS] Existing plan resume detected (identical SHA256 hash).
-[04:57:33] [INFO] === PLAN ANALYSIS ===
-[04:57:33] [INFO] Total actions : 55
-[04:57:33] [SUCCESS] No collisions detected.
-[04:57:33] [INFO] Paths > 250 characters: 1
-[04:57:33] [SUCCESS] Analysis complete.
-[04:57:33] [WARN] SWITCHING TO REAL EXECUTION MODE...
-[04:57:33] [INFO] Obtaining Graph token via module...
-[04:57:33] [INFO] Get-GraphToken: checking existing token
-[04:57:33] [INFO] Valid token loaded from cache
-[04:57:33] [SUCCESS] Graph token loaded.
-[04:57:33] [INFO] Checking OneDrive folder hierarchy...
-[04:57:36] [DEBUG] [DEBUG] Attempting to create folder...
-[04:57:36] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Finances:/children
-[04:57:36] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"Maison_et_Logement"}
-[04:57:37] [DEBUG] Folder created: /Finances/Maison_et_Logement
-[04:57:39] [DEBUG] [DEBUG] Attempting to create folder...
-[04:57:39] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Finances/Maison_et_Logement:/children
-[04:57:39] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"old"}
-[04:57:40] [DEBUG] Folder created: /Finances/Maison_et_Logement/old
-[04:57:41] [DEBUG] [DEBUG] Attempting to create folder...
-[04:57:41] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Finances/Maison_et_Logement/old:/children
-[04:57:41] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"72_André_Beauregard,_Verchères"}
-[04:57:42] [DEBUG] Folder created: /Finances/Maison_et_Logement/old/72_André_Beauregard,_Verchères
-[04:57:44] [DEBUG] [DEBUG] Attempting to create folder...
-[04:57:44] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Finances/Maison_et_Logement/old/72_Andr%C3%A9_Beauregard%2C_Verch%C3%A8res:/children
-[04:57:44] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"dossier_légal_poursuite_patio"}
-[04:57:45] [DEBUG] Folder created: /Finances/Maison_et_Logement/old/72_André_Beauregard,_Verchères/dossier_légal_poursuite_patio
-[04:57:46] [DEBUG] [DEBUG] Attempting to create folder...
-[04:57:46] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Finances/Maison_et_Logement/old/72_Andr%C3%A9_Beauregard%2C_Verch%C3%A8res/dossier_l%C3%A9gal_poursuite_patio:/children
-[04:57:46] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"0_documents"}
-[04:57:47] [DEBUG] Folder created: /Finances/Maison_et_Logement/old/72_André_Beauregard,_Verchères/dossier_légal_poursuite_patio/0_documents
-[04:57:48] [DEBUG] [DEBUG] Attempting to create folder...
-[04:57:48] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Finances/Maison_et_Logement/old/72_Andr%C3%A9_Beauregard%2C_Verch%C3%A8res/dossier_l%C3%A9gal_poursuite_patio/0_documents:/children
-[04:57:48] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"archives"}
-[04:57:49] [DEBUG] Folder created: /Finances/Maison_et_Logement/old/72_André_Beauregard,_Verchères/dossier_légal_poursuite_patio/0_documents/archives
-[04:57:52] [DEBUG] [DEBUG] Attempting to create folder...
-[04:57:52] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Finances/Maison_et_Logement/old/72_Andr%C3%A9_Beauregard%2C_Verch%C3%A8res/dossier_l%C3%A9gal_poursuite_patio/0_documents/archives:/children
-[04:57:52] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"galerie"}
-[04:57:53] [DEBUG] Folder created: /Finances/Maison_et_Logement/old/72_André_Beauregard,_Verchères/dossier_légal_poursuite_patio/0_documents/archives/galerie
-[04:57:55] [DEBUG] [DEBUG] Attempting to create folder...
-[04:57:55] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Finances/Maison_et_Logement/old/72_Andr%C3%A9_Beauregard%2C_Verch%C3%A8res/dossier_l%C3%A9gal_poursuite_patio/0_documents/archives/galerie:/children
-[04:57:55] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"pour_impression_proces"}
-[04:57:55] [DEBUG] Folder created: /Finances/Maison_et_Logement/old/72_André_Beauregard,_Verchères/dossier_légal_poursuite_patio/0_documents/archives/galerie/pour_impression_proces
-[04:57:58] [DEBUG] [DEBUG] Attempting to create folder...
-[04:57:58] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Images/2010:/children
-[04:57:58] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"07"}
-[04:57:58] [DEBUG] Folder created: /Images/2010/07
-[04:58:02] [DEBUG] [DEBUG] Attempting to create folder...
-[04:58:02] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/VersCoffreFort/archives/Images/2005:/children
-[04:58:02] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"05"}
-[04:58:03] [DEBUG] Folder created: /VersCoffreFort/archives/Images/2005/05
-[04:58:12] [DEBUG] [DEBUG] Attempting to create folder...
-[04:58:12] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Images:/children
-[04:58:12] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"2005"}
-[04:58:12] [DEBUG] Folder created: /Images/2005
-[04:58:14] [DEBUG] [DEBUG] Attempting to create folder...
-[04:58:14] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Images/2005:/children
-[04:58:14] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"01"}
-[04:58:15] [DEBUG] Folder created: /Images/2005/01
-[04:58:19] [DEBUG] [DEBUG] Attempting to create folder...
-[04:58:19] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/VersCoffreFort/archives/Images/2003:/children
-[04:58:19] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"07"}
-[04:58:20] [DEBUG] Folder created: /VersCoffreFort/archives/Images/2003/07
-[04:58:22] [DEBUG] [DEBUG] Attempting to create folder...
-[04:58:22] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Images/2019:/children
-[04:58:22] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"07"}
-[04:58:23] [DEBUG] Folder created: /Images/2019/07
-[04:58:26] [DEBUG] [DEBUG] Attempting to create folder...
-[04:58:26] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/VersCoffreFort/archives/Images:/children
-[04:58:26] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"2014"}
-[04:58:27] [DEBUG] Folder created: /VersCoffreFort/archives/Images/2014
-[04:58:28] [DEBUG] [DEBUG] Attempting to create folder...
-[04:58:28] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/VersCoffreFort/archives/Images/2014:/children
-[04:58:28] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"02"}
-[04:58:29] [DEBUG] Folder created: /VersCoffreFort/archives/Images/2014/02
-[04:58:34] [DEBUG] [DEBUG] Attempting to create folder...
-[04:58:34] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/VersCoffreFort/archives/Images/2009:/children
-[04:58:34] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"09"}
-[04:58:35] [DEBUG] Folder created: /VersCoffreFort/archives/Images/2009/09
-[04:58:39] [DEBUG] [DEBUG] Attempting to create folder...
-[04:58:39] [DEBUG] [DEBUG] POST URI: https://graph.microsoft.com/v1.0/me/drive/root:/Images/2009:/children
-[04:58:39] [DEBUG] [DEBUG] POST Body: {"folder":{},"@microsoft.graph.conflictBehavior":"fail","name":"11"}
+[13:14:55] [INFO] === SESSION START: 2026-06-14 13:14:55 ===
+[13:14:55] [SUCCESS] All required cache files from OneDrive_Sync.ps1 are present.
+[13:14:55] [INFO] Loading OneDrive cache C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cache.json ...
+[13:15:01] [INFO] Loading already processed IDs (C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log) ...
+[13:15:01] [INFO] Already processed files : 1641
+[13:15:01] [INFO] Discovering already processed files containing marker '--odr--' ...
+[13:15:02] [INFO] Discovery summary: 1641 skipped (via processed log), 1 skipped (via filename marker).
+[13:15:02] [INFO] Indexing complete. Files to process: 113631
+[13:15:02] [INFO] Priming folder cache from OneDrive index...
+[13:15:06] [SUCCESS] Folder cache primed (4371 folders known).
+[13:15:06] [WARN] === FIX CACHE: Automatic OneDrive cache cleanup ===
+[13:15:06] [SUCCESS] Fix complete: 0 entries removed, 0 extensions corrected.
+[13:15:08] [WARN] === FIX GPS: Clean invalid GPS entries ===
+[13:15:08] [SUCCESS] GPS cleanup complete.
+[13:15:08] [SUCCESS] Plan existant valide - reprise sans analyse.
+[13:15:08] [SUCCESS] Existing plan resume detected (identical SHA256 hash).
+[13:15:08] [INFO] Ordering plan by Category and Destination Name...
+[13:15:08] [INFO] Applying ProcessRange filter: 1..1000
+[13:15:08] [DEBUG] Filtering range: 1 to 884 (Total: 884)
+[13:15:08] [INFO] Plan filtered: 884 items remaining
+[13:15:08] [INFO] === PLAN ANALYSIS ===
+[13:15:08] [INFO] Total actions : 884
+[13:15:08] [SUCCESS] No collisions detected.
+[13:15:08] [INFO] Paths > 250 characters: 10
+[13:15:08] [SUCCESS] Analysis complete.
+[13:15:08] [WARN] SWITCHING TO REAL EXECUTION MODE...
+[13:15:08] [DEBUG] Checking Graph token validity...
+[13:15:08] [DEBUG] Get-GraphToken: checking existing token
+[13:15:08] [INFO] [AUTH] Token expired or expiring soon. Attempting silent refresh...
+[13:15:09] [DEBUG] Graph token saved
+[13:15:09] [SUCCESS] [AUTH] Silent refresh successful
+[13:15:09] [INFO] Checking OneDrive folder hierarchy...
+[13:15:09] [DEBUG] Checking Graph token validity...
+[13:15:09] [DEBUG] Get-GraphToken: checking existing token
+[13:15:09] [DEBUG] Valid token loaded from cache
+[13:15:09] [DEBUG] Checking Graph token validity...
+[13:15:09] [DEBUG] Get-GraphToken: checking existing token
+[13:15:09] [DEBUG] Valid token loaded from cache
+[13:15:09] [DEBUG] Checking Graph token validity...
+[13:15:09] [DEBUG] Get-GraphToken: checking existing token
+[13:15:09] [DEBUG] Valid token loaded from cache
+[13:15:09] [DEBUG] Checking Graph token validity...
+[13:15:09] [DEBUG] Get-GraphToken: checking existing token
+[13:15:09] [DEBUG] Valid token loaded from cache
+[13:15:09] [DEBUG] Checking Graph token validity...
+[13:15:09] [DEBUG] Get-GraphToken: checking existing token
+[13:15:09] [DEBUG] Valid token loaded from cache
+[13:15:10] [DEBUG] Checking Graph token validity...
+[13:15:10] [DEBUG] Get-GraphToken: checking existing token
+[13:15:10] [DEBUG] Valid token loaded from cache
+[13:15:11] [DEBUG] Checking Graph token validity...
+[13:15:11] [DEBUG] Get-GraphToken: checking existing token
+[13:15:11] [DEBUG] Valid token loaded from cache
+[13:15:11] [DEBUG] Checking Graph token validity...
+[13:15:11] [DEBUG] Get-GraphToken: checking existing token
+[13:15:11] [DEBUG] Valid token loaded from cache
+[13:15:11] [DEBUG] Checking Graph token validity...
+[13:15:11] [DEBUG] Get-GraphToken: checking existing token
+[13:15:11] [DEBUG] Valid token loaded from cache
+[13:15:11] [DEBUG] Checking Graph token validity...
+[13:15:11] [DEBUG] Get-GraphToken: checking existing token
+[13:15:11] [DEBUG] Valid token loaded from cache
+[13:15:11] [DEBUG] Checking Graph token validity...
+[13:15:11] [DEBUG] Get-GraphToken: checking existing token
+[13:15:11] [DEBUG] Valid token loaded from cache
+[13:15:11] [DEBUG] Checking Graph token validity...
+[13:15:11] [DEBUG] Get-GraphToken: checking existing token
+[13:15:11] [DEBUG] Valid token loaded from cache
+[13:15:11] [DEBUG] Checking Graph token validity...
+[13:15:11] [DEBUG] Get-GraphToken: checking existing token
+[13:15:11] [DEBUG] Valid token loaded from cache
+[13:15:11] [DEBUG] Checking Graph token validity...
+[13:15:11] [DEBUG] Get-GraphToken: checking existing token
+[13:15:11] [DEBUG] Valid token loaded from cache
+[13:15:11] [DEBUG] Checking Graph token validity...
+[13:15:11] [DEBUG] Get-GraphToken: checking existing token
+[13:15:11] [DEBUG] Valid token loaded from cache
+[13:15:12] [DEBUG] Checking Graph token validity...
+[13:15:12] [DEBUG] Get-GraphToken: checking existing token
+[13:15:12] [DEBUG] Valid token loaded from cache
+[13:15:12] [DEBUG] Checking Graph token validity...
+[13:15:12] [DEBUG] Get-GraphToken: checking existing token
+[13:15:12] [DEBUG] Valid token loaded from cache
+[13:15:13] [DEBUG] Checking Graph token validity...
+[13:15:13] [DEBUG] Get-GraphToken: checking existing token
+[13:15:13] [DEBUG] Valid token loaded from cache
+[13:15:13] [DEBUG] Checking Graph token validity...
+[13:15:13] [DEBUG] Get-GraphToken: checking existing token
+[13:15:13] [DEBUG] Valid token loaded from cache
+[13:15:15] [DEBUG] Checking Graph token validity...
+[13:15:15] [DEBUG] Get-GraphToken: checking existing token
+[13:15:15] [DEBUG] Valid token loaded from cache
+[13:15:15] [DEBUG] Checking Graph token validity...
+[13:15:15] [DEBUG] Get-GraphToken: checking existing token
+[13:15:15] [DEBUG] Valid token loaded from cache
+[13:15:15] [DEBUG] Checking Graph token validity...
+[13:15:15] [DEBUG] Get-GraphToken: checking existing token
+[13:15:15] [DEBUG] Valid token loaded from cache
+[13:15:15] [DEBUG] Checking Graph token validity...
+[13:15:15] [DEBUG] Get-GraphToken: checking existing token
+[13:15:15] [DEBUG] Valid token loaded from cache
+[13:15:16] [DEBUG] Checking Graph token validity...
+[13:15:16] [DEBUG] Get-GraphToken: checking existing token
+[13:15:16] [DEBUG] Valid token loaded from cache
+[13:15:16] [DEBUG] Checking Graph token validity...
+[13:15:16] [DEBUG] Get-GraphToken: checking existing token
+[13:15:16] [DEBUG] Valid token loaded from cache
+[13:15:16] [DEBUG] Checking Graph token validity...
+[13:15:16] [DEBUG] Get-GraphToken: checking existing token
+[13:15:16] [DEBUG] Valid token loaded from cache
+[13:15:16] [DEBUG] Checking Graph token validity...
+[13:15:16] [DEBUG] Get-GraphToken: checking existing token
+[13:15:16] [DEBUG] Valid token loaded from cache
+[13:15:17] [DEBUG] Checking Graph token validity...
+[13:15:17] [DEBUG] Get-GraphToken: checking existing token
+[13:15:17] [DEBUG] Valid token loaded from cache
+[13:15:17] [DEBUG] Checking Graph token validity...
+[13:15:17] [DEBUG] Get-GraphToken: checking existing token
+[13:15:17] [DEBUG] Valid token loaded from cache
+[13:15:17] [DEBUG] Checking Graph token validity...
+[13:15:17] [DEBUG] Get-GraphToken: checking existing token
+[13:15:17] [DEBUG] Valid token loaded from cache
+[13:15:17] [DEBUG] Checking Graph token validity...
+[13:15:17] [DEBUG] Get-GraphToken: checking existing token
+[13:15:17] [DEBUG] Valid token loaded from cache
+[13:15:17] [DEBUG] Checking Graph token validity...
+[13:15:17] [DEBUG] Get-GraphToken: checking existing token
+[13:15:17] [DEBUG] Valid token loaded from cache
+[13:15:17] [DEBUG] Checking Graph token validity...
+[13:15:17] [DEBUG] Get-GraphToken: checking existing token
+[13:15:17] [DEBUG] Valid token loaded from cache
+[13:15:17] [DEBUG] Checking Graph token validity...
+[13:15:17] [DEBUG] Get-GraphToken: checking existing token
+[13:15:17] [DEBUG] Valid token loaded from cache
+[13:15:17] [DEBUG] Checking Graph token validity...
+[13:15:17] [DEBUG] Get-GraphToken: checking existing token
+[13:15:17] [DEBUG] Valid token loaded from cache
+[13:15:17] [DEBUG] Checking Graph token validity...
+[13:15:17] [DEBUG] Get-GraphToken: checking existing token
+[13:15:17] [DEBUG] Valid token loaded from cache
+[13:15:18] [DEBUG] Checking Graph token validity...
+[13:15:18] [DEBUG] Get-GraphToken: checking existing token
+[13:15:18] [DEBUG] Valid token loaded from cache
+[13:15:18] [DEBUG] Checking Graph token validity...
+[13:15:18] [DEBUG] Get-GraphToken: checking existing token
+[13:15:18] [DEBUG] Valid token loaded from cache
+[13:15:18] [DEBUG] Checking Graph token validity...
+[13:15:18] [DEBUG] Get-GraphToken: checking existing token
+[13:15:18] [DEBUG] Valid token loaded from cache
+[13:15:18] [DEBUG] Checking Graph token validity...
+[13:15:18] [DEBUG] Get-GraphToken: checking existing token
+[13:15:18] [DEBUG] Valid token loaded from cache
+[13:15:18] [DEBUG] Checking Graph token validity...
+[13:15:18] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:19] [INFO] [50/332] Folder check progress...
+[13:15:19] [DEBUG] Checking Graph token validity...
+[13:15:19] [DEBUG] Get-GraphToken: checking existing token
+[13:15:19] [DEBUG] Valid token loaded from cache
+[13:15:20] [DEBUG] Checking Graph token validity...
+[13:15:20] [DEBUG] Get-GraphToken: checking existing token
+[13:15:20] [DEBUG] Valid token loaded from cache
+[13:15:20] [DEBUG] Checking Graph token validity...
+[13:15:20] [DEBUG] Get-GraphToken: checking existing token
+[13:15:20] [DEBUG] Valid token loaded from cache
+[13:15:20] [DEBUG] Checking Graph token validity...
+[13:15:20] [DEBUG] Get-GraphToken: checking existing token
+[13:15:20] [DEBUG] Valid token loaded from cache
+[13:15:20] [DEBUG] Checking Graph token validity...
+[13:15:20] [DEBUG] Get-GraphToken: checking existing token
+[13:15:20] [DEBUG] Valid token loaded from cache
+[13:15:20] [DEBUG] Checking Graph token validity...
+[13:15:20] [DEBUG] Get-GraphToken: checking existing token
+[13:15:20] [DEBUG] Valid token loaded from cache
+[13:15:20] [DEBUG] Checking Graph token validity...
+[13:15:20] [DEBUG] Get-GraphToken: checking existing token
+[13:15:20] [DEBUG] Valid token loaded from cache
+[13:15:20] [DEBUG] Checking Graph token validity...
+[13:15:20] [DEBUG] Get-GraphToken: checking existing token
+[13:15:20] [DEBUG] Valid token loaded from cache
+[13:15:20] [DEBUG] Checking Graph token validity...
+[13:15:20] [DEBUG] Get-GraphToken: checking existing token
+[13:15:20] [DEBUG] Valid token loaded from cache
+[13:15:21] [DEBUG] Checking Graph token validity...
+[13:15:21] [DEBUG] Get-GraphToken: checking existing token
+[13:15:21] [DEBUG] Valid token loaded from cache
+[13:15:21] [DEBUG] Checking Graph token validity...
+[13:15:21] [DEBUG] Get-GraphToken: checking existing token
+[13:15:21] [DEBUG] Valid token loaded from cache
+[13:15:21] [DEBUG] Checking Graph token validity...
+[13:15:21] [DEBUG] Get-GraphToken: checking existing token
+[13:15:21] [DEBUG] Valid token loaded from cache
+[13:15:21] [DEBUG] Checking Graph token validity...
+[13:15:21] [DEBUG] Get-GraphToken: checking existing token
+[13:15:21] [DEBUG] Valid token loaded from cache
+[13:15:21] [DEBUG] Checking Graph token validity...
+[13:15:21] [DEBUG] Get-GraphToken: checking existing token
+[13:15:21] [DEBUG] Valid token loaded from cache
+[13:15:21] [DEBUG] Checking Graph token validity...
+[13:15:21] [DEBUG] Get-GraphToken: checking existing token
+[13:15:21] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:22] [DEBUG] Checking Graph token validity...
+[13:15:22] [DEBUG] Get-GraphToken: checking existing token
+[13:15:22] [DEBUG] Valid token loaded from cache
+[13:15:23] [DEBUG] Checking Graph token validity...
+[13:15:23] [DEBUG] Get-GraphToken: checking existing token
+[13:15:23] [DEBUG] Valid token loaded from cache
+[13:15:23] [DEBUG] Checking Graph token validity...
+[13:15:23] [DEBUG] Get-GraphToken: checking existing token
+[13:15:23] [DEBUG] Valid token loaded from cache
+[13:15:24] [DEBUG] Checking Graph token validity...
+[13:15:24] [DEBUG] Get-GraphToken: checking existing token
+[13:15:24] [DEBUG] Valid token loaded from cache
+[13:15:24] [DEBUG] Checking Graph token validity...
+[13:15:24] [DEBUG] Get-GraphToken: checking existing token
+[13:15:24] [DEBUG] Valid token loaded from cache
+[13:15:24] [DEBUG] Checking Graph token validity...
+[13:15:24] [DEBUG] Get-GraphToken: checking existing token
+[13:15:24] [DEBUG] Valid token loaded from cache
+[13:15:24] [DEBUG] Checking Graph token validity...
+[13:15:24] [DEBUG] Get-GraphToken: checking existing token
+[13:15:24] [DEBUG] Valid token loaded from cache
+[13:15:25] [DEBUG] Checking Graph token validity...
+[13:15:25] [DEBUG] Get-GraphToken: checking existing token
+[13:15:25] [DEBUG] Valid token loaded from cache
+[13:15:25] [DEBUG] Checking Graph token validity...
+[13:15:25] [DEBUG] Get-GraphToken: checking existing token
+[13:15:25] [DEBUG] Valid token loaded from cache
+[13:15:25] [DEBUG] Checking Graph token validity...
+[13:15:25] [DEBUG] Get-GraphToken: checking existing token
+[13:15:25] [DEBUG] Valid token loaded from cache
+[13:15:25] [DEBUG] Checking Graph token validity...
+[13:15:25] [DEBUG] Get-GraphToken: checking existing token
+[13:15:25] [DEBUG] Valid token loaded from cache
+[13:15:25] [DEBUG] Checking Graph token validity...
+[13:15:25] [DEBUG] Get-GraphToken: checking existing token
+[13:15:25] [DEBUG] Valid token loaded from cache
+[13:15:25] [DEBUG] Checking Graph token validity...
+[13:15:25] [DEBUG] Get-GraphToken: checking existing token
+[13:15:25] [DEBUG] Valid token loaded from cache
+[13:15:25] [DEBUG] Checking Graph token validity...
+[13:15:25] [DEBUG] Get-GraphToken: checking existing token
+[13:15:25] [DEBUG] Valid token loaded from cache
+[13:15:25] [DEBUG] Checking Graph token validity...
+[13:15:25] [DEBUG] Get-GraphToken: checking existing token
+[13:15:25] [DEBUG] Valid token loaded from cache
+[13:15:25] [INFO] [100/332] Folder check progress...
+[13:15:25] [DEBUG] Checking Graph token validity...
+[13:15:25] [DEBUG] Get-GraphToken: checking existing token
+[13:15:25] [DEBUG] Valid token loaded from cache
+[13:15:26] [DEBUG] Checking Graph token validity...
+[13:15:26] [DEBUG] Get-GraphToken: checking existing token
+[13:15:26] [DEBUG] Valid token loaded from cache
+[13:15:26] [DEBUG] Checking Graph token validity...
+[13:15:26] [DEBUG] Get-GraphToken: checking existing token
+[13:15:26] [DEBUG] Valid token loaded from cache
+[13:15:27] [DEBUG] Checking Graph token validity...
+[13:15:27] [DEBUG] Get-GraphToken: checking existing token
+[13:15:27] [DEBUG] Valid token loaded from cache
+[13:15:29] [DEBUG] Checking Graph token validity...
+[13:15:29] [DEBUG] Get-GraphToken: checking existing token
+[13:15:29] [DEBUG] Valid token loaded from cache
+[13:15:30] [DEBUG] Checking Graph token validity...
+[13:15:30] [DEBUG] Get-GraphToken: checking existing token
+[13:15:30] [DEBUG] Valid token loaded from cache
+[13:15:31] [DEBUG] Checking Graph token validity...
+[13:15:31] [DEBUG] Get-GraphToken: checking existing token
+[13:15:31] [DEBUG] Valid token loaded from cache
+[13:15:31] [DEBUG] Checking Graph token validity...
+[13:15:31] [DEBUG] Get-GraphToken: checking existing token
+[13:15:31] [DEBUG] Valid token loaded from cache
+[13:15:31] [DEBUG] Checking Graph token validity...
+[13:15:31] [DEBUG] Get-GraphToken: checking existing token
+[13:15:31] [DEBUG] Valid token loaded from cache
+[13:15:32] [DEBUG] Checking Graph token validity...
+[13:15:32] [DEBUG] Get-GraphToken: checking existing token
+[13:15:32] [DEBUG] Valid token loaded from cache
+[13:15:32] [DEBUG] Checking Graph token validity...
+[13:15:32] [DEBUG] Get-GraphToken: checking existing token
+[13:15:32] [DEBUG] Valid token loaded from cache
+[13:15:34] [DEBUG] Checking Graph token validity...
+[13:15:34] [DEBUG] Get-GraphToken: checking existing token
+[13:15:34] [DEBUG] Valid token loaded from cache
+[13:15:34] [DEBUG] Checking Graph token validity...
+[13:15:34] [DEBUG] Get-GraphToken: checking existing token
+[13:15:34] [DEBUG] Valid token loaded from cache
+[13:15:34] [DEBUG] Checking Graph token validity...
+[13:15:34] [DEBUG] Get-GraphToken: checking existing token
+[13:15:34] [DEBUG] Valid token loaded from cache
+[13:15:34] [DEBUG] Checking Graph token validity...
+[13:15:34] [DEBUG] Get-GraphToken: checking existing token
+[13:15:34] [DEBUG] Valid token loaded from cache
+[13:15:34] [DEBUG] Checking Graph token validity...
+[13:15:34] [DEBUG] Get-GraphToken: checking existing token
+[13:15:34] [DEBUG] Valid token loaded from cache
+[13:15:35] [DEBUG] Checking Graph token validity...
+[13:15:35] [DEBUG] Get-GraphToken: checking existing token
+[13:15:35] [DEBUG] Valid token loaded from cache
+[13:15:36] [DEBUG] Checking Graph token validity...
+[13:15:36] [DEBUG] Get-GraphToken: checking existing token
+[13:15:36] [DEBUG] Valid token loaded from cache
+[13:15:36] [DEBUG] Checking Graph token validity...
+[13:15:36] [DEBUG] Get-GraphToken: checking existing token
+[13:15:36] [DEBUG] Valid token loaded from cache
+[13:15:37] [DEBUG] Checking Graph token validity...
+[13:15:37] [DEBUG] Get-GraphToken: checking existing token
+[13:15:37] [DEBUG] Valid token loaded from cache
+[13:15:37] [DEBUG] Checking Graph token validity...
+[13:15:37] [DEBUG] Get-GraphToken: checking existing token
+[13:15:37] [DEBUG] Valid token loaded from cache
+[13:15:37] [DEBUG] Checking Graph token validity...
+[13:15:37] [DEBUG] Get-GraphToken: checking existing token
+[13:15:37] [DEBUG] Valid token loaded from cache
+[13:15:37] [DEBUG] Checking Graph token validity...
+[13:15:37] [DEBUG] Get-GraphToken: checking existing token
+[13:15:37] [DEBUG] Valid token loaded from cache
+[13:15:37] [DEBUG] Checking Graph token validity...
+[13:15:37] [DEBUG] Get-GraphToken: checking existing token
+[13:15:37] [DEBUG] Valid token loaded from cache
+[13:15:38] [DEBUG] Checking Graph token validity...
+[13:15:38] [DEBUG] Get-GraphToken: checking existing token
+[13:15:38] [DEBUG] Valid token loaded from cache
+[13:15:38] [DEBUG] Checking Graph token validity...
+[13:15:38] [DEBUG] Get-GraphToken: checking existing token
+[13:15:38] [DEBUG] Valid token loaded from cache
+[13:15:38] [DEBUG] Checking Graph token validity...
+[13:15:38] [DEBUG] Get-GraphToken: checking existing token
+[13:15:38] [DEBUG] Valid token loaded from cache
+[13:15:38] [DEBUG] Checking Graph token validity...
+[13:15:38] [DEBUG] Get-GraphToken: checking existing token
+[13:15:38] [DEBUG] Valid token loaded from cache
+[13:15:38] [DEBUG] Checking Graph token validity...
+[13:15:38] [DEBUG] Get-GraphToken: checking existing token
+[13:15:38] [DEBUG] Valid token loaded from cache
+[13:15:38] [DEBUG] Checking Graph token validity...
+[13:15:38] [DEBUG] Get-GraphToken: checking existing token
+[13:15:38] [DEBUG] Valid token loaded from cache
+[13:15:38] [DEBUG] Checking Graph token validity...
+[13:15:38] [DEBUG] Get-GraphToken: checking existing token
+[13:15:38] [DEBUG] Valid token loaded from cache
+[13:15:39] [DEBUG] Checking Graph token validity...
+[13:15:39] [DEBUG] Get-GraphToken: checking existing token
+[13:15:39] [DEBUG] Valid token loaded from cache
+[13:15:39] [DEBUG] Checking Graph token validity...
+[13:15:39] [DEBUG] Get-GraphToken: checking existing token
+[13:15:39] [DEBUG] Valid token loaded from cache
+[13:15:39] [DEBUG] Checking Graph token validity...
+[13:15:39] [DEBUG] Get-GraphToken: checking existing token
+[13:15:39] [DEBUG] Valid token loaded from cache
+[13:15:40] [DEBUG] Checking Graph token validity...
+[13:15:40] [DEBUG] Get-GraphToken: checking existing token
+[13:15:40] [DEBUG] Valid token loaded from cache
+[13:15:40] [DEBUG] Checking Graph token validity...
+[13:15:40] [DEBUG] Get-GraphToken: checking existing token
+[13:15:40] [DEBUG] Valid token loaded from cache
+[13:15:41] [DEBUG] Checking Graph token validity...
+[13:15:41] [DEBUG] Get-GraphToken: checking existing token
+[13:15:41] [DEBUG] Valid token loaded from cache
+[13:15:41] [DEBUG] Checking Graph token validity...
+[13:15:41] [DEBUG] Get-GraphToken: checking existing token
+[13:15:41] [DEBUG] Valid token loaded from cache
+[13:15:42] [DEBUG] Checking Graph token validity...
+[13:15:42] [DEBUG] Get-GraphToken: checking existing token
+[13:15:42] [DEBUG] Valid token loaded from cache
+[13:15:42] [DEBUG] Checking Graph token validity...
+[13:15:42] [DEBUG] Get-GraphToken: checking existing token
+[13:15:42] [DEBUG] Valid token loaded from cache
+[13:15:42] [DEBUG] Checking Graph token validity...
+[13:15:42] [DEBUG] Get-GraphToken: checking existing token
+[13:15:42] [DEBUG] Valid token loaded from cache
+[13:15:42] [DEBUG] Checking Graph token validity...
+[13:15:42] [DEBUG] Get-GraphToken: checking existing token
+[13:15:42] [DEBUG] Valid token loaded from cache
+[13:15:42] [DEBUG] Checking Graph token validity...
+[13:15:42] [DEBUG] Get-GraphToken: checking existing token
+[13:15:42] [DEBUG] Valid token loaded from cache
+[13:15:44] [DEBUG] Checking Graph token validity...
+[13:15:44] [DEBUG] Get-GraphToken: checking existing token
+[13:15:44] [DEBUG] Valid token loaded from cache
+[13:15:44] [DEBUG] Checking Graph token validity...
+[13:15:44] [DEBUG] Get-GraphToken: checking existing token
+[13:15:44] [DEBUG] Valid token loaded from cache
+[13:15:45] [DEBUG] Checking Graph token validity...
+[13:15:45] [DEBUG] Get-GraphToken: checking existing token
+[13:15:45] [DEBUG] Valid token loaded from cache
+[13:15:46] [DEBUG] Checking Graph token validity...
+[13:15:46] [DEBUG] Get-GraphToken: checking existing token
+[13:15:46] [DEBUG] Valid token loaded from cache
+[13:15:46] [DEBUG] Checking Graph token validity...
+[13:15:46] [DEBUG] Get-GraphToken: checking existing token
+[13:15:46] [DEBUG] Valid token loaded from cache
+[13:15:46] [DEBUG] Checking Graph token validity...
+[13:15:46] [DEBUG] Get-GraphToken: checking existing token
+[13:15:46] [DEBUG] Valid token loaded from cache
+[13:15:47] [DEBUG] Checking Graph token validity...
+[13:15:47] [DEBUG] Get-GraphToken: checking existing token
+[13:15:47] [DEBUG] Valid token loaded from cache
+[13:15:48] [INFO] [150/332] Folder check progress...
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:48] [DEBUG] Checking Graph token validity...
+[13:15:48] [DEBUG] Get-GraphToken: checking existing token
+[13:15:48] [DEBUG] Valid token loaded from cache
+[13:15:49] [DEBUG] Checking Graph token validity...
+[13:15:49] [DEBUG] Get-GraphToken: checking existing token
+[13:15:49] [DEBUG] Valid token loaded from cache
+[13:15:49] [DEBUG] Checking Graph token validity...
+[13:15:49] [DEBUG] Get-GraphToken: checking existing token
+[13:15:49] [DEBUG] Valid token loaded from cache
+[13:15:49] [DEBUG] Checking Graph token validity...
+[13:15:49] [DEBUG] Get-GraphToken: checking existing token
+[13:15:49] [DEBUG] Valid token loaded from cache
+[13:15:50] [DEBUG] Folder created: /Images/2012/08
+[13:15:50] [SUCCESS] [163/332] Verified folder path '/Images/2012/08' (1 new folders created)
+[13:15:50] [DEBUG] Checking Graph token validity...
+[13:15:50] [DEBUG] Get-GraphToken: checking existing token
+[13:15:50] [DEBUG] Valid token loaded from cache
+[13:15:50] [DEBUG] Checking Graph token validity...
+[13:15:50] [DEBUG] Get-GraphToken: checking existing token
+[13:15:50] [DEBUG] Valid token loaded from cache
+[13:15:51] [DEBUG] Folder created: /Images/2012/11
+[13:15:51] [SUCCESS] [165/332] Verified folder path '/Images/2012/11' (1 new folders created)
+[13:15:51] [DEBUG] Checking Graph token validity...
+[13:15:51] [DEBUG] Get-GraphToken: checking existing token
+[13:15:51] [DEBUG] Valid token loaded from cache
+[13:15:51] [DEBUG] Checking Graph token validity...
+[13:15:51] [DEBUG] Get-GraphToken: checking existing token
+[13:15:51] [DEBUG] Valid token loaded from cache
+[13:15:52] [DEBUG] Folder created: /Images/2013/10
+[13:15:52] [SUCCESS] [167/332] Verified folder path '/Images/2013/10' (1 new folders created)
+[13:15:52] [DEBUG] Checking Graph token validity...
+[13:15:52] [DEBUG] Get-GraphToken: checking existing token
+[13:15:52] [DEBUG] Valid token loaded from cache
+[13:15:52] [DEBUG] Checking Graph token validity...
+[13:15:52] [DEBUG] Get-GraphToken: checking existing token
+[13:15:52] [DEBUG] Valid token loaded from cache
+[13:15:52] [DEBUG] Checking Graph token validity...
+[13:15:52] [DEBUG] Get-GraphToken: checking existing token
+[13:15:52] [DEBUG] Valid token loaded from cache
+[13:15:52] [DEBUG] Checking Graph token validity...
+[13:15:52] [DEBUG] Get-GraphToken: checking existing token
+[13:15:52] [DEBUG] Valid token loaded from cache
+[13:15:52] [DEBUG] Checking Graph token validity...
+[13:15:52] [DEBUG] Get-GraphToken: checking existing token
+[13:15:52] [DEBUG] Valid token loaded from cache
+[13:15:53] [DEBUG] Checking Graph token validity...
+[13:15:53] [DEBUG] Get-GraphToken: checking existing token
+[13:15:53] [DEBUG] Valid token loaded from cache
+[13:15:53] [DEBUG] Checking Graph token validity...
+[13:15:53] [DEBUG] Get-GraphToken: checking existing token
+[13:15:53] [DEBUG] Valid token loaded from cache
+[13:15:54] [DEBUG] Folder created: /Images/2015/09
+[13:15:54] [SUCCESS] [174/332] Verified folder path '/Images/2015/09' (1 new folders created)
+[13:15:54] [DEBUG] Checking Graph token validity...
+[13:15:54] [DEBUG] Get-GraphToken: checking existing token
+[13:15:54] [DEBUG] Valid token loaded from cache
+[13:15:54] [DEBUG] Checking Graph token validity...
+[13:15:54] [DEBUG] Get-GraphToken: checking existing token
+[13:15:54] [DEBUG] Valid token loaded from cache
+[13:15:56] [DEBUG] Folder created: /Images/2015/11
+[13:15:56] [SUCCESS] [176/332] Verified folder path '/Images/2015/11' (1 new folders created)
+[13:15:56] [DEBUG] Checking Graph token validity...
+[13:15:56] [DEBUG] Get-GraphToken: checking existing token
+[13:15:56] [DEBUG] Valid token loaded from cache
+[13:15:56] [DEBUG] Checking Graph token validity...
+[13:15:56] [DEBUG] Get-GraphToken: checking existing token
+[13:15:56] [DEBUG] Valid token loaded from cache
+[13:15:56] [DEBUG] Checking Graph token validity...
+[13:15:56] [DEBUG] Get-GraphToken: checking existing token
+[13:15:56] [DEBUG] Valid token loaded from cache
+[13:15:58] [DEBUG] Folder created: /Images/2016/12
+[13:15:58] [SUCCESS] [179/332] Verified folder path '/Images/2016/12' (1 new folders created)
+[13:15:58] [DEBUG] Checking Graph token validity...
+[13:15:58] [DEBUG] Get-GraphToken: checking existing token
+[13:15:58] [DEBUG] Valid token loaded from cache
+[13:15:58] [DEBUG] Checking Graph token validity...
+[13:15:58] [DEBUG] Get-GraphToken: checking existing token
+[13:15:58] [DEBUG] Valid token loaded from cache
+[13:15:58] [DEBUG] Checking Graph token validity...
+[13:15:58] [DEBUG] Get-GraphToken: checking existing token
+[13:15:58] [DEBUG] Valid token loaded from cache
+[13:15:58] [DEBUG] Checking Graph token validity...
+[13:15:58] [DEBUG] Get-GraphToken: checking existing token
+[13:15:58] [DEBUG] Valid token loaded from cache
+[13:15:58] [DEBUG] Checking Graph token validity...
+[13:15:58] [DEBUG] Get-GraphToken: checking existing token
+[13:15:58] [DEBUG] Valid token loaded from cache
+[13:15:58] [DEBUG] Checking Graph token validity...
+[13:15:58] [DEBUG] Get-GraphToken: checking existing token
+[13:15:58] [DEBUG] Valid token loaded from cache
+[13:15:58] [DEBUG] Checking Graph token validity...
+[13:15:58] [DEBUG] Get-GraphToken: checking existing token
+[13:15:58] [DEBUG] Valid token loaded from cache
+[13:15:58] [DEBUG] Checking Graph token validity...
+[13:15:58] [DEBUG] Get-GraphToken: checking existing token
+[13:15:58] [DEBUG] Valid token loaded from cache
+[13:15:59] [DEBUG] Checking Graph token validity...
+[13:15:59] [DEBUG] Get-GraphToken: checking existing token
+[13:15:59] [DEBUG] Valid token loaded from cache
+[13:15:59] [DEBUG] Checking Graph token validity...
+[13:15:59] [DEBUG] Get-GraphToken: checking existing token
+[13:15:59] [DEBUG] Valid token loaded from cache
+[13:16:00] [DEBUG] Checking Graph token validity...
+[13:16:00] [DEBUG] Get-GraphToken: checking existing token
+[13:16:00] [DEBUG] Valid token loaded from cache
+[13:16:01] [DEBUG] Checking Graph token validity...
+[13:16:01] [DEBUG] Get-GraphToken: checking existing token
+[13:16:01] [DEBUG] Valid token loaded from cache
+[13:16:01] [DEBUG] Checking Graph token validity...
+[13:16:01] [DEBUG] Get-GraphToken: checking existing token
+[13:16:01] [DEBUG] Valid token loaded from cache
+[13:16:01] [DEBUG] Checking Graph token validity...
+[13:16:01] [DEBUG] Get-GraphToken: checking existing token
+[13:16:01] [DEBUG] Valid token loaded from cache
+[13:16:02] [DEBUG] Checking Graph token validity...
+[13:16:02] [DEBUG] Get-GraphToken: checking existing token
+[13:16:02] [DEBUG] Valid token loaded from cache
+[13:16:02] [DEBUG] Checking Graph token validity...
+[13:16:02] [DEBUG] Get-GraphToken: checking existing token
+[13:16:02] [DEBUG] Valid token loaded from cache
+[13:16:03] [DEBUG] Checking Graph token validity...
+[13:16:03] [DEBUG] Get-GraphToken: checking existing token
+[13:16:03] [DEBUG] Valid token loaded from cache
+[13:16:03] [DEBUG] Checking Graph token validity...
+[13:16:03] [DEBUG] Get-GraphToken: checking existing token
+[13:16:03] [DEBUG] Valid token loaded from cache
+[13:16:03] [DEBUG] Checking Graph token validity...
+[13:16:03] [DEBUG] Get-GraphToken: checking existing token
+[13:16:03] [DEBUG] Valid token loaded from cache
+[13:16:04] [DEBUG] Checking Graph token validity...
+[13:16:04] [DEBUG] Get-GraphToken: checking existing token
+[13:16:04] [DEBUG] Valid token loaded from cache
+[13:16:04] [DEBUG] Checking Graph token validity...
+[13:16:04] [DEBUG] Get-GraphToken: checking existing token
+[13:16:04] [DEBUG] Valid token loaded from cache
+[13:16:04] [INFO] [200/332] Folder check progress...
+[13:16:04] [DEBUG] Checking Graph token validity...
+[13:16:04] [DEBUG] Get-GraphToken: checking existing token
+[13:16:04] [DEBUG] Valid token loaded from cache
+[13:16:04] [DEBUG] Checking Graph token validity...
+[13:16:04] [DEBUG] Get-GraphToken: checking existing token
+[13:16:04] [DEBUG] Valid token loaded from cache
+[13:16:05] [DEBUG] Checking Graph token validity...
+[13:16:05] [DEBUG] Get-GraphToken: checking existing token
+[13:16:05] [DEBUG] Valid token loaded from cache
+[13:16:06] [DEBUG] Checking Graph token validity...
+[13:16:06] [DEBUG] Get-GraphToken: checking existing token
+[13:16:06] [DEBUG] Valid token loaded from cache
+[13:16:07] [DEBUG] Folder created: /Videos/2019/12
+[13:16:07] [SUCCESS] [204/332] Verified folder path '/Videos/2019/12' (1 new folders created)
+[13:16:07] [DEBUG] Checking Graph token validity...
+[13:16:07] [DEBUG] Get-GraphToken: checking existing token
+[13:16:07] [DEBUG] Valid token loaded from cache
+[13:16:07] [DEBUG] Checking Graph token validity...
+[13:16:07] [DEBUG] Get-GraphToken: checking existing token
+[13:16:07] [DEBUG] Valid token loaded from cache
+[13:16:08] [DEBUG] Checking Graph token validity...
+[13:16:08] [DEBUG] Get-GraphToken: checking existing token
+[13:16:08] [DEBUG] Valid token loaded from cache
+[13:16:08] [DEBUG] Checking Graph token validity...
+[13:16:08] [DEBUG] Get-GraphToken: checking existing token
+[13:16:08] [DEBUG] Valid token loaded from cache
+[13:16:09] [DEBUG] Checking Graph token validity...
+[13:16:09] [DEBUG] Get-GraphToken: checking existing token
+[13:16:09] [DEBUG] Valid token loaded from cache
+[13:16:09] [DEBUG] Checking Graph token validity...
+[13:16:09] [DEBUG] Get-GraphToken: checking existing token
+[13:16:09] [DEBUG] Valid token loaded from cache
+[13:16:09] [DEBUG] Checking Graph token validity...
+[13:16:09] [DEBUG] Get-GraphToken: checking existing token
+[13:16:09] [DEBUG] Valid token loaded from cache
+[13:16:09] [DEBUG] Checking Graph token validity...
+[13:16:09] [DEBUG] Get-GraphToken: checking existing token
+[13:16:09] [DEBUG] Valid token loaded from cache
+[13:16:10] [DEBUG] Checking Graph token validity...
+[13:16:10] [DEBUG] Get-GraphToken: checking existing token
+[13:16:10] [DEBUG] Valid token loaded from cache
+[13:16:10] [DEBUG] Checking Graph token validity...
+[13:16:10] [DEBUG] Get-GraphToken: checking existing token
+[13:16:10] [DEBUG] Valid token loaded from cache
+[13:16:10] [DEBUG] Checking Graph token validity...
+[13:16:10] [DEBUG] Get-GraphToken: checking existing token
+[13:16:10] [DEBUG] Valid token loaded from cache
+[13:16:10] [DEBUG] Checking Graph token validity...
+[13:16:10] [DEBUG] Get-GraphToken: checking existing token
+[13:16:10] [DEBUG] Valid token loaded from cache
+[13:16:10] [DEBUG] Checking Graph token validity...
+[13:16:10] [DEBUG] Get-GraphToken: checking existing token
+[13:16:10] [DEBUG] Valid token loaded from cache
+[13:16:10] [DEBUG] Checking Graph token validity...
+[13:16:10] [DEBUG] Get-GraphToken: checking existing token
+[13:16:10] [DEBUG] Valid token loaded from cache
+[13:16:11] [DEBUG] Checking Graph token validity...
+[13:16:11] [DEBUG] Get-GraphToken: checking existing token
+[13:16:11] [DEBUG] Valid token loaded from cache
+[13:16:11] [DEBUG] Checking Graph token validity...
+[13:16:11] [DEBUG] Get-GraphToken: checking existing token
+[13:16:11] [DEBUG] Valid token loaded from cache
+[13:16:11] [DEBUG] Checking Graph token validity...
+[13:16:11] [DEBUG] Get-GraphToken: checking existing token
+[13:16:11] [DEBUG] Valid token loaded from cache
+[13:16:12] [DEBUG] Checking Graph token validity...
+[13:16:12] [DEBUG] Get-GraphToken: checking existing token
+[13:16:12] [DEBUG] Valid token loaded from cache
+[13:16:12] [DEBUG] Checking Graph token validity...
+[13:16:12] [DEBUG] Get-GraphToken: checking existing token
+[13:16:12] [DEBUG] Valid token loaded from cache
+[13:16:13] [DEBUG] Checking Graph token validity...
+[13:16:13] [DEBUG] Get-GraphToken: checking existing token
+[13:16:13] [DEBUG] Valid token loaded from cache
+[13:16:13] [DEBUG] Checking Graph token validity...
+[13:16:13] [DEBUG] Get-GraphToken: checking existing token
+[13:16:13] [DEBUG] Valid token loaded from cache
+[13:16:13] [DEBUG] Checking Graph token validity...
+[13:16:13] [DEBUG] Get-GraphToken: checking existing token
+[13:16:13] [DEBUG] Valid token loaded from cache
+[13:16:13] [DEBUG] Checking Graph token validity...
+[13:16:13] [DEBUG] Get-GraphToken: checking existing token
+[13:16:13] [DEBUG] Valid token loaded from cache
+[13:16:13] [DEBUG] Checking Graph token validity...
+[13:16:13] [DEBUG] Get-GraphToken: checking existing token
+[13:16:13] [DEBUG] Valid token loaded from cache
+[13:16:14] [DEBUG] Checking Graph token validity...
+[13:16:14] [DEBUG] Get-GraphToken: checking existing token
+[13:16:14] [DEBUG] Valid token loaded from cache
+[13:16:15] [DEBUG] Checking Graph token validity...
+[13:16:15] [DEBUG] Get-GraphToken: checking existing token
+[13:16:15] [DEBUG] Valid token loaded from cache
+[13:16:15] [DEBUG] Checking Graph token validity...
+[13:16:15] [DEBUG] Get-GraphToken: checking existing token
+[13:16:15] [DEBUG] Valid token loaded from cache
+[13:16:15] [DEBUG] Checking Graph token validity...
+[13:16:15] [DEBUG] Get-GraphToken: checking existing token
+[13:16:15] [DEBUG] Valid token loaded from cache
+[13:16:15] [DEBUG] Checking Graph token validity...
+[13:16:15] [DEBUG] Get-GraphToken: checking existing token
+[13:16:15] [DEBUG] Valid token loaded from cache
+[13:16:15] [DEBUG] Checking Graph token validity...
+[13:16:15] [DEBUG] Get-GraphToken: checking existing token
+[13:16:15] [DEBUG] Valid token loaded from cache
+[13:16:17] [DEBUG] Folder created: /Videos/2022/10
+[13:16:17] [SUCCESS] [234/332] Verified folder path '/Videos/2022/10' (1 new folders created)
+[13:16:17] [DEBUG] Checking Graph token validity...
+[13:16:17] [DEBUG] Get-GraphToken: checking existing token
+[13:16:17] [DEBUG] Valid token loaded from cache
+[13:16:18] [DEBUG] Checking Graph token validity...
+[13:16:18] [DEBUG] Get-GraphToken: checking existing token
+[13:16:18] [DEBUG] Valid token loaded from cache
+[13:16:18] [DEBUG] Checking Graph token validity...
+[13:16:18] [DEBUG] Get-GraphToken: checking existing token
+[13:16:18] [DEBUG] Valid token loaded from cache
+[13:16:18] [DEBUG] Checking Graph token validity...
+[13:16:18] [DEBUG] Get-GraphToken: checking existing token
+[13:16:18] [DEBUG] Valid token loaded from cache
+[13:16:18] [DEBUG] Checking Graph token validity...
+[13:16:18] [DEBUG] Get-GraphToken: checking existing token
+[13:16:18] [DEBUG] Valid token loaded from cache
+[13:16:18] [DEBUG] Checking Graph token validity...
+[13:16:18] [DEBUG] Get-GraphToken: checking existing token
+[13:16:18] [DEBUG] Valid token loaded from cache
+[13:16:20] [DEBUG] Folder created: /Images/2023/03
+[13:16:20] [SUCCESS] [240/332] Verified folder path '/Images/2023/03' (1 new folders created)
+[13:16:20] [DEBUG] Checking Graph token validity...
+[13:16:20] [DEBUG] Get-GraphToken: checking existing token
+[13:16:20] [DEBUG] Valid token loaded from cache
+[13:16:20] [DEBUG] Checking Graph token validity...
+[13:16:20] [DEBUG] Get-GraphToken: checking existing token
+[13:16:20] [DEBUG] Valid token loaded from cache
+[13:16:21] [DEBUG] Checking Graph token validity...
+[13:16:21] [DEBUG] Get-GraphToken: checking existing token
+[13:16:21] [DEBUG] Valid token loaded from cache
+[13:16:22] [DEBUG] Checking Graph token validity...
+[13:16:22] [DEBUG] Get-GraphToken: checking existing token
+[13:16:22] [DEBUG] Valid token loaded from cache
+[13:16:22] [DEBUG] Checking Graph token validity...
+[13:16:22] [DEBUG] Get-GraphToken: checking existing token
+[13:16:22] [DEBUG] Valid token loaded from cache
+[13:16:22] [DEBUG] Checking Graph token validity...
+[13:16:22] [DEBUG] Get-GraphToken: checking existing token
+[13:16:22] [DEBUG] Valid token loaded from cache
+[13:16:22] [DEBUG] Checking Graph token validity...
+[13:16:22] [DEBUG] Get-GraphToken: checking existing token
+[13:16:22] [DEBUG] Valid token loaded from cache
+[13:16:23] [DEBUG] Checking Graph token validity...
+[13:16:23] [DEBUG] Get-GraphToken: checking existing token
+[13:16:23] [DEBUG] Valid token loaded from cache
+[13:16:23] [DEBUG] Checking Graph token validity...
+[13:16:23] [DEBUG] Get-GraphToken: checking existing token
+[13:16:23] [DEBUG] Valid token loaded from cache
+[13:16:24] [DEBUG] Checking Graph token validity...
+[13:16:24] [DEBUG] Get-GraphToken: checking existing token
+[13:16:24] [DEBUG] Valid token loaded from cache
+[13:16:24] [INFO] [250/332] Folder check progress...
+[13:16:24] [DEBUG] Checking Graph token validity...
+[13:16:24] [DEBUG] Get-GraphToken: checking existing token
+[13:16:24] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Folder created: /Videos/2023/12
+[13:16:26] [SUCCESS] [251/332] Verified folder path '/Videos/2023/12' (1 new folders created)
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:26] [DEBUG] Checking Graph token validity...
+[13:16:26] [DEBUG] Get-GraphToken: checking existing token
+[13:16:26] [DEBUG] Valid token loaded from cache
+[13:16:27] [DEBUG] Checking Graph token validity...
+[13:16:27] [DEBUG] Get-GraphToken: checking existing token
+[13:16:27] [DEBUG] Valid token loaded from cache
+[13:16:27] [DEBUG] Checking Graph token validity...
+[13:16:27] [DEBUG] Get-GraphToken: checking existing token
+[13:16:27] [DEBUG] Valid token loaded from cache
+[13:16:27] [DEBUG] Checking Graph token validity...
+[13:16:27] [DEBUG] Get-GraphToken: checking existing token
+[13:16:27] [DEBUG] Valid token loaded from cache

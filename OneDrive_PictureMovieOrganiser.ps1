@@ -17,7 +17,7 @@ param (
     [bool]$Validate = $false,         # Validate OneDrive cache
     [string]$DebugId = "",            # Debug a specific file
     [bool]$ReportIgnored = $false,    # Generate ignored files report
-    [string]$ProcessRange = "1..100",       # Process only a subset of files (e.g., "1", "1..10", "10+")
+    [string]$ProcessRange = "1..1000",       # Process only a subset of files (e.g., "1", "1..10", "10+")
     [bool]$StepByStep = $false         # Interactive step-by-step mode with confirmation
 )
 
@@ -36,10 +36,11 @@ $app = Get-AppConfiguration -ConfigFile $ConfigFile
 $global:IndexFile = $app.IndexFile
 $global:TokenFile = $app.TokenFile
 $global:LogFile = $app.OrganizerLogFile
+$global:OrganizerLogFile = $app.OrganizerLogFile # Explicitly define for this script
 $global:ProcessedLog = $app.ProcessedLog
 $global:ExecutionReport = $app.ExecutionReport
 $GpsCacheFile = $app.GpsCacheFile
-$VerboseMode = $app.VerboseMode
+
 
 $global:ProcessRange = $ProcessRange
 
@@ -59,7 +60,7 @@ $global:Config = $Config
 # =====================================================================
 
 Import-Module "$PSScriptRoot\modules\OneDriveTools.psm1" -ArgumentList $Config.ClientId, $TokenFile, $LogFile -Force
-Import-Module "$PSScriptRoot\modules\OneDriveOrganize.psm1" -Force
+Import-Module "$PSScriptRoot\modules\OneDriveOrganize.psm1" -ArgumentList $Config.ClientId, $TokenFile, $LogFile -Force -DisableNameChecking
 Import-Module "$PSScriptRoot\modules\OneDriveCacheUtils.psm1" -Force -DisableNameChecking
 Import-Module "$PSScriptRoot\modules\GpsTools.psm1" -ArgumentList $GpsCacheFile -Force
 
@@ -69,11 +70,12 @@ Import-Module "$PSScriptRoot\modules\GpsTools.psm1" -ArgumentList $GpsCacheFile 
 
 # Global script state
 $Global:State = @{
-    Headers        = $null
-    Cache          = $null
-    ProcessedIds   = @{}
-    PlannedActions = New-Object System.Collections.Generic.List[PSCustomObject]
-    FilesToProcess = @{}
+    Headers         = $null
+    Cache           = $null
+    ProcessedIds    = @{}
+    PlannedActions  = New-Object System.Collections.Generic.List[PSCustomObject]
+    FilesToProcess  = @{}
+    VerifiedFolders = @{}
 }
 
 
@@ -121,18 +123,23 @@ function Test-OneDrivePath {
         [string]$RelativePath
     )
 
+    $cleanPath = $RelativePath.Trim('/')
+    if ([string]::IsNullOrWhiteSpace($cleanPath)) { return 0 }
+
+    # Check session cache to skip redundant network calls for shared parent folders
+    if ($Global:State.VerifiedFolders.ContainsKey($cleanPath)) {
+        return 0
+    }
+
     # 1. Safety initialization to avoid missing variable errors
     $uriGet = "Not generated"
     $uriPost = "Not generated"
     $currentPathRaw = ""
     $currentPathEncoded = ""
     $part = "Root"
+    $createdCount = 0
 
     try {
-        # Clean the path (remove leading/trailing slashes)
-        $cleanPath = $RelativePath.Trim('/')
-        if ([string]::IsNullOrWhiteSpace($cleanPath)) { return }
-
         # Split path and trim invisible whitespace
         $pathParts = $cleanPath -split '/' | ForEach-Object { $_.Trim() }
 
@@ -152,6 +159,9 @@ function Test-OneDrivePath {
                 $currentPathEncoded += "/$encodedPart"
             }
 
+            # Skip segment if verified in previous call during this execution
+            if ($Global:State.VerifiedFolders.ContainsKey($currentPathRaw)) { continue }
+
             # --- CHECK (GET) ---
             # Graph syntax: root:/path/to/folder
             $encoded = $currentPathEncoded
@@ -169,91 +179,39 @@ function Test-OneDrivePath {
                 }
                 else {
                     # Folder under a parent (note the ':' around the parent path)
-                    $encoded = $parentPathEncoded
-                    $uriPost = "https://graph.microsoft.com/v1.0/me/drive/root:/$encoded" + ":/children"
+                    $uriPost = "https://graph.microsoft.com/v1.0/me/drive/root:/$parentPathEncoded" + ":/children"
                 }
 
-                # Before creating, list parent children to avoid creating duplicates
-                $exists = $false
                 try {
-                    if ($parentPathEncoded -eq "") {
-                        $childrenUri = "https://graph.microsoft.com/v1.0/me/drive/root/children"
-                    }
-                    else {
-                        $childrenUri = "https://graph.microsoft.com/v1.0/me/drive/root:/" + $parentPathEncoded + ":/children"
-                    }
-
-                    $childrenResp = Invoke-RestMethod -Headers $Global:State.Headers -Uri $childrenUri -Method Get -ErrorAction Stop
-                    if ($childrenResp.value) {
-                        foreach ($c in $childrenResp.value) {
-                            if ($c.name -ieq $part -and $c.folder) {
-                                Write-Log "Folder already exists (parent children): /$currentPathRaw" "DEBUG"
-                                $exists = $true
-                                break
-                            }
-                        }
-                    }
-                }
-                catch {
-                    Write-Log "Unable to list parent children for existence check: $($_.Exception.Message)" "DEBUG"
-                }
-
-                if (-not $exists) {
                     $body = @{
                         name                                = $part
                         folder                              = @{ }
                         "@microsoft.graph.conflictBehavior" = "fail"
                     } | ConvertTo-Json -Compress
 
-                    Write-Log "[DEBUG] Attempting to create folder..." "DEBUG"
-                    Write-Log "[DEBUG] POST URI: $uriPost" "DEBUG"
-                    Write-Log "[DEBUG] POST Body: $body" "DEBUG"
-
-                    try {
-                        Invoke-RestMethod -Headers $Global:State.Headers -Uri $uriPost -Method POST -Body $body -ContentType "application/json" -ErrorAction Stop > $null
-
-                        Write-Log "Folder created: /$currentPathRaw" "DEBUG"
-                        $createdCount++
-                        $uriPost = "Not generated" # Reset after success
+                    Invoke-RestMethod -Headers $Global:State.Headers -Uri $uriPost -Method POST -Body $body -ContentType "application/json" -ErrorAction Stop > $null
+                    Write-Log "Folder created: /$currentPathRaw" "DEBUG"
+                    $createdCount++
+                }
+                catch {
+                    # Robust status code check for both PS 5.1 and 7
+                    $isConflict = $false
+                    if ($_.Exception.Response) {
+                        $status = [int]$_.Exception.Response.StatusCode
+                        if ($status -eq 409) { $isConflict = $true }
                     }
-                    catch {
-                        $errDetails = Get-ErrorDetails $_
-                        $httpStatus = "Unknown"
-                        if ($_.Exception.Response) {
-                            try { $httpStatus = [int]$_.Exception.Response.StatusCode } catch {}
-                        }
 
-                        Write-Log "Create folder error (status $httpStatus): $errDetails" "DEBUG"
-
-                        # If conflict (another client created it between our check and the POST), try to find existing folder
-                        if ($httpStatus -eq 409 -or $errDetails -match 'nameAlreadyExists' -or $errDetails -match 'alreadyExists') {
-                            try {
-                                $childrenResp = Invoke-RestMethod -Headers $Global:State.Headers -Uri $childrenUri -Method Get -ErrorAction Stop
-                                if ($childrenResp.value) {
-                                    foreach ($c in $childrenResp.value) {
-                                        if ($c.name -ieq $part -and $c.folder) {
-                                            Write-Log "Detected existing folder after conflict: /$currentPathRaw (id $($c.id))" "DEBUG"
-                                            $exists = $true
-                                            break
-                                        }
-                                    }
-                                }
-                            }
-                            catch {
-                                Write-Log "Failed to re-list children after conflict: $($_.Exception.Message)" "ERROR"
-                                throw
-                            }
-
-                            if (-not $exists) {
-                                throw
-                            }
-                        }
-                        else {
-                            throw
-                        }
+                    if ($isConflict -or (Get-ErrorDetails $_) -match "alreadyExists") {
+                        Write-Log "Folder already exists (detected via 409 conflict): /$currentPathRaw" "DEBUG"
+                    }
+                    else {
+                        throw $_
                     }
                 }
             }
+
+            # Folder verified or created: mark in session cache
+            $Global:State.VerifiedFolders[$currentPathRaw] = $true
         }
 
         return $createdCount
@@ -330,10 +288,8 @@ function Invoke-MovesInteractive {
 
         foreach ($action in $Global:State.PlannedActions) {
             $index++
-            Write-Host "`n" -NoNewline
-            Write-Host "========================================" -ForegroundColor Cyan
-            Write-Host "ACTION $index / $total" -ForegroundColor Cyan
-            Write-Host "========================================" -ForegroundColor Cyan
+            Write-Host "`n================ ACTION $index / $total ================" -ForegroundColor Cyan
+            Write-Log "Interactive session progress: $index / $total" "DEBUG"
 
             # --- STEP 1: Element Before ---
             Write-Host "`n[1] ELEMENT BEFORE:" -ForegroundColor Yellow
@@ -406,7 +362,7 @@ function Invoke-MovesInteractive {
                 "$(Get-Date -Format 'HH:mm'),$($action.Id),SUCCESS,$($action.SrcPath),$($action.FullDst)," |
                 Add-Content $global:ExecutionReport
 
-                $action.Id | Add-Content $global:ProcessedLog
+                $action.Id | Add-Content $global:ProcessedLog -Encoding utf8
 
                 $dstPathCache = $action.DstDir.TrimStart('/')
                 $Global:State.Cache.Files[$action.Id].p = "/drive/root:/" + $dstPathCache
@@ -467,11 +423,16 @@ function Invoke-Moves {
         foreach ($action in $Global:State.PlannedActions) {
 
             $index++
-            if ($index % 200 -eq 0) {
-                Write-Progress -Activity "OneDrive move" `
-                    -Status "File $index / $total" `
-                    -PercentComplete (($index / $total) * 100)
-            }
+            # Vérifier et rafraîchir le jeton si nécessaire tous les 50 fichiers
+            if ($index % 50 -eq 0) { Connect-AzureGraph }
+
+            # Mise à jour fluide de la barre de progression
+            Write-Progress -Activity "OneDrive move" `
+                -Status "Moving [$index/$total] : $($action.SrcName)" `
+                -PercentComplete (($index / $total) * 100)
+
+            # Affichage systématique pour créer le défilement dans la console et le log
+            Write-Log "[$index/$total] Moving: $($action.SrcName) -> $($action.FullDst)" "INFO"
 
             try {
                 $dstPathCache = $action.DstDir.TrimStart('/')
@@ -484,10 +445,10 @@ function Invoke-Moves {
                     -Uri "https://graph.microsoft.com/v1.0/me/drive/items/$($action.Id)" `
                     -Method PATCH -Body $body -ErrorAction Stop > $null
 
-                "$(Get-Date -Format 'HH:mm'),$($action.Id),SUCCESS,$($action.SrcPath),$($action.FullDst)," |
+                "$(Get-Date -Format 'HH:mm:ss'),$($action.Id),SUCCESS,$($action.SrcPath),$($action.FullDst)," |
                 Add-Content $global:ExecutionReport
 
-                $action.Id | Add-Content $global:ProcessedLog
+                $action.Id | Add-Content $global:ProcessedLog -Encoding utf8
 
                 $Global:State.Cache.Files[$action.Id].p = "/drive/root:/" + $dstPathCache
                 $Global:State.Cache.Files[$action.Id].n = $action.DstName
@@ -503,6 +464,7 @@ function Invoke-Moves {
 
         $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $global:IndexFile
         Write-Log "Move execution completed." "SUCCESS"
+        Write-Progress -Activity "OneDrive move" -Completed
     }
     catch {
         Write-Log "Invoke-Moves error: $($_.Exception.Message)" "ERROR"
@@ -598,11 +560,31 @@ function Start-OneDriveOrganizer {
 
     try {
         # 1b. PRE-REQUISITE CHECK: Validate Sync cache before proceeding
-        Test-SyncPrerequisites -IndexFile $IndexFile -ProcessedLog $ProcessedLog -ConfigFile $ConfigFile -PSScriptRoot $PSScriptRoot
+        Test-SyncPrerequisites -IndexFile $IndexFile -ProcessedLog $ProcessedLog -ConfigFile $ConfigFile -SourceRoot $PSScriptRoot
 
         # 2. LOAD AND REPAIR IN-MEMORY DATA
         # Note: Import-Set-Cache is called ONLY ONCE.
         Import-Set-Cache
+
+        # --- OPTIMISATION : Amorçage du cache des dossiers ---
+        # On utilise l'index existant pour marquer tous les dossiers connus comme "vérifiés".
+        # Cela évite des centaines d'appels API "GET" inutiles.
+        Write-Log "Priming folder cache from OneDrive index..." "INFO"
+        foreach ($file in $Global:State.Cache.Files.Values) {
+            if ($null -eq $file.p) { continue }
+
+            $clean = $file.p -replace '^/drive/root:/?', ''
+            $clean = $clean.Trim('/')
+            if ([string]::IsNullOrWhiteSpace($clean)) { continue }
+
+            $segments = $clean -split '/'
+            $current = ""
+            foreach ($seg in $segments) {
+                if ($current -eq "") { $current = $seg } else { $current += "/$seg" }
+                $Global:State.VerifiedFolders[$current] = $true
+            }
+        }
+        Write-Log "Folder cache primed ($($Global:State.VerifiedFolders.Count) folders known)." "SUCCESS"
 
         # Repair in-memory cache (remove invalid entries, etc.)
         Repair-Cache
@@ -632,6 +614,21 @@ function Start-OneDriveOrganizer {
             $Global:State.PlannedActions = [System.Collections.Generic.List[PSCustomObject]]$plan
         }
 
+        # 3b. SORT AND FILTER PLAN
+        if ($Global:State.PlannedActions.Count -gt 0) {
+            Write-Log "Ordering plan by Category and Destination Name..." "INFO"
+            # Sort naturally by Category then by the generated DstName
+            $sortedPlan = $Global:State.PlannedActions | Sort-Object Category, DstName
+            $Global:State.PlannedActions = [System.Collections.Generic.List[PSCustomObject]]@($sortedPlan)
+
+            if ($global:ProcessRange) {
+                Write-Log "Applying ProcessRange filter: $($global:ProcessRange)" "INFO"
+                $filteredPlan = Get-FilteredFileIds -Range $global:ProcessRange -AllIds $Global:State.PlannedActions
+                $Global:State.PlannedActions = [System.Collections.Generic.List[PSCustomObject]]@($filteredPlan)
+                Write-Log "Plan filtered: $($Global:State.PlannedActions.Count) items remaining" "INFO"
+            }
+        }
+
         # 4. CONFLICT RESOLUTION AND VALIDATION
         # Check for name collisions in target destinations
         #Repair-Collisions
@@ -652,9 +649,23 @@ function Start-OneDriveOrganizer {
         # Proactively create destination folders to avoid 404 errors
         Write-Log "Checking OneDrive folder hierarchy..." "INFO"
         $uniqueDirs = $Global:State.PlannedActions.DstDir | Select-Object -Unique
+        $dirTotal = $uniqueDirs.Count
+        $dirIdx = 0
         foreach ($dir in $uniqueDirs) {
-            Test-OneDrivePath $dir
+            $dirIdx++
+            # Vérifier la validité du jeton avant chaque vérification de chemin
+            Connect-AzureGraph
+
+            Write-Progress -Activity "Checking OneDrive folder hierarchy" `
+                -Status "Folder $dirIdx / $dirTotal" `
+                -PercentComplete (($dirIdx / $dirTotal) * 100)
+
+            $newFolders = Test-OneDrivePath $dir
+            if ($newFolders -gt 0) {
+                Write-Log "[$dirIdx/$dirTotal] Verified folder path '$dir' ($newFolders new folders created)" "SUCCESS"
+            }
         }
+        Write-Progress -Activity "Checking OneDrive folder hierarchy" -Completed
 
         # Actual file move execution
         if ($StepByStep) {

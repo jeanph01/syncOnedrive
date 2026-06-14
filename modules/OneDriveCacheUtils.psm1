@@ -1,14 +1,19 @@
-﻿
-# =====================================================================
-# HELPER FUNCTION: Ensure Sync cache exists
-# =====================================================================
+﻿﻿﻿﻿if ($script:ModuleLoaded) {
+    return
+}
+$script:ModuleLoaded = $true
+
+# Validate OneDriveTools dependency
+if (-not (Get-Command Write-Log -ErrorAction SilentlyContinue)) {
+    Write-Warning "OneDriveTools (Write-Log) is not loaded. Ensure modules are imported in the correct order."
+}
 
 function Test-SyncPrerequisites {
     param(
         [string]$IndexFile,
         [string]$ProcessedLog,
         [string]$ConfigFile,
-        [string]$PSScriptRoot
+        [string]$SourceRoot
     )
 
     $requiredFiles = @(
@@ -30,7 +35,7 @@ function Test-SyncPrerequisites {
         }
 
         Write-Log "Launching OneDrive_Sync.ps1 first..." "INFO"
-        $syncScript = Join-Path $PSScriptRoot "OneDrive_Sync.ps1"
+        $syncScript = Join-Path $SourceRoot "OneDrive_Sync.ps1"
         if (Test-Path $syncScript) {
             & $syncScript -ConfigFile $ConfigFile
             Write-Log "Sync completed. Continuing with organization..." "SUCCESS"
@@ -83,7 +88,7 @@ function Get-ExistingPlan {
     )
 
     try {
-        $cacheFolder = Split-Path $IndexFile -Parent
+        $cacheFolder = Split-Path $Global:IndexFile -Parent
         $planFile = Join-Path $cacheFolder "plan.json"
         $hashFile = Join-Path $cacheFolder "cache_hash.txt"
 
@@ -118,27 +123,29 @@ function Import-Set-Cache {
         # Write-Log "Cleaning old log $LogFile"
         # if (Test-Path $LogFile) { Remove-Item $LogFile -Force }
 
-        Write-Log "Loading OneDrive cache $IndexFile ..." "INFO"
-        if (!(Test-Path $IndexFile)) {
-            Write-Log "Cache not found: $IndexFile" "ERROR"
+        Write-Log "Loading OneDrive cache $Global:IndexFile ..." "INFO"
+        if (!(Test-Path $Global:IndexFile)) {
+            Write-Log "Cache not found: $Global:IndexFile" "ERROR"
             exit 1
         }
 
-        $Global:State.Cache = ConvertFrom-JsonOptimized -JsonString (Get-Content $IndexFile -Raw) -AsHashtable
+        $Global:State.Cache = ConvertFrom-JsonOptimized -JsonString (Get-Content $Global:IndexFile -Raw) -AsHashtable
 
         if (-not $Global:State.Cache.Files) {
             Write-Log "No files in cache." "ERROR"
             exit 1
         }
 
-        Write-Log "Loading already processed IDs ($ProcessedLog) ..."
+        Write-Log "Loading already processed IDs ($Global:ProcessedLog) ..."
         $Global:State.ProcessedIds = @{}
         $Global:State.FilesToProcess = @{}
 
-        if (Test-Path $ProcessedLog) {
-            Get-Content $ProcessedLog | ForEach-Object {
-                $id = $_.Trim()
-                if ($id) { $Global:State.ProcessedIds[$id] = $true }
+        if (Test-Path $Global:ProcessedLog) {
+            Get-Content $Global:ProcessedLog -Encoding utf8 | ForEach-Object {
+                # Trim whitespace and handle legacy JSON characters (quotes, commas, braces) if they exist
+                $id = $_.Trim(' "''{},')
+                # Only add if it's a valid ID (not JSON metadata or empty)
+                if ($id -and $id -ne "true" -and $id -ne "false") { $Global:State.ProcessedIds[$id] = $true }
             }
             Write-Log "Already processed files : $($Global:State.ProcessedIds.Count)"
         }
@@ -146,9 +153,11 @@ function Import-Set-Cache {
             Write-Log "No previously processed files (file $ProcessedLog missing)."
         }
 
-        Write-Log "Discovering already processed files containing marker '$($Config.RenameMarker)' ..."
+        Write-Log "Discovering already processed files containing marker '$($Global:Config.RenameMarker)' ..."
         $index = 0
         $total = $Global:State.Cache.Files.Count
+        $skippedLog = 0
+        $skippedMarker = 0
         foreach ($id in $Global:State.Cache.Files.Keys) {
             $index++
             if ($index % 500 -eq 0) {
@@ -160,12 +169,12 @@ function Import-Set-Cache {
 
             # a) Si deja dans ProcessedIds => ignorer
             if ($Global:State.ProcessedIds.ContainsKey($id)) {
-                Write-Log "Ignored (already processed): $id" "INFO"
+                $skippedLog++
                 continue
             }
             # b) Si le nom contient le marqueur => l'ajouter a ProcessedIds
-            if ($fileMeta.n -like "*$($Config.RenameMarker)*") {
-                Write-Log "Added to ProcessedIds (already renamed): $($fileMeta.p)/$($fileMeta.n)" "INFO"
+            if ($fileMeta.n -like "*$($Global:Config.RenameMarker)*") {
+                $skippedMarker++
                 $Global:State.ProcessedIds[$id] = $true
                 continue
             }
@@ -175,8 +184,9 @@ function Import-Set-Cache {
         }
 
         Write-Progress -Activity "Analysis completed" -Completed
+        Write-Log "Discovery summary: $skippedLog skipped (via processed log), $skippedMarker skipped (via filename marker)." "INFO"
         Write-Log "Indexing complete. Files to process: $($Global:State.FilesToProcess.Count)"
-        "Timestamp,ID,Status,OldPath,NewPath,Error" | Set-Content $ExecutionReport
+        "Timestamp,ID,Status,OldPath,NewPath,Error" | Set-Content $Global:ExecutionReport
     }
     catch {
         Write-Log "Import-Set-Cache error : $($_.Exception.Message)" "ERROR"
@@ -212,7 +222,13 @@ function Get-FilteredFileIds {
         # Range: "1..10" -> files 1 to 10
         $start = [int]$Matches[1] - 1
         $end = [int]$Matches[2] - 1
-        if ($start -le $end -and $start -ge 0 -and $end -lt $total) {
+
+        # Cap the range to the available files instead of failing
+        if ($end -ge $total) { $end = $total - 1 }
+        if ($start -lt 0) { $start = 0 }
+
+        if ($start -le $end -and $start -lt $total) {
+            Write-Log "Filtering range: $($start+1) to $($end+1) (Total: $total)" "DEBUG"
             return $AllIds[$start..$end]
         }
         elseif ($total -eq 0) {
@@ -385,13 +401,13 @@ function Repair-Cache {
 
         # SAFE WRITE
         try {
-            $tmp = "$IndexFile.tmp"
+            $tmp = "$Global:IndexFile.tmp"
 
             $Global:State.Cache |
             ConvertTo-Json -Depth 10 |
             Set-Content $tmp -ErrorAction Stop
 
-            Move-Item -Force $tmp $IndexFile
+            Move-Item -Force $tmp $Global:IndexFile
         }
         catch {
             Write-Log "Repair-Cache write error: $($_.Exception.Message)" "ERROR"
@@ -432,24 +448,14 @@ function Repair-GPS {
 # ============================================================
 # INITIALISATION
 # ============================================================
-function main {
-    try {
-        if ($script:ModuleLoaded) {
-            Write-Log "OneDriveCacheUtils.psm1 already loaded -> import ignored" "DEBUG"
-            return
-        }
-        $script:ModuleLoaded = $true
+try {
+    Write-Log "OneDriveCacheUtils.psm1 loaded" "DEBUG"
+}
+catch {
+    # Safe fallback during module load if Write-Log isn't ready
+    Write-Host "[DEBUG] OneDriveCacheUtils.psm1 initialized"
+}
 
-        Write-Log "OneDriveCacheUtils.psm1 loaded"
-
-    }
-    catch {
-        Write-Log "Failure: $_" "ERROR"
-    }
-} # main
-
-
-main
 # ============================================================
 # EXPORT
 # ============================================================

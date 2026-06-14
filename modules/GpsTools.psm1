@@ -17,7 +17,7 @@ if (-not (Get-Command Get-GraphToken -ErrorAction SilentlyContinue)) {
 }
 
 # --- Configure user agent for Nominatim ---
-$script:UserAgent = "OneDriveOrganizer_$($Config.ClientId)"
+$script:UserAgent = "OneDriveOrganizer_$($Global:Config.ClientId)"
 
 # --- Rate limit tracking ---
 if (-not $script:LastApiCall) {
@@ -128,9 +128,9 @@ function Convert-LocationName {
     try {
         $normalized = $Name.Normalize([System.Text.NormalizationForm]::FormD)
         $clean = ($normalized.ToCharArray() | Where-Object {
-            [System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($_) -ne
-            [System.Globalization.UnicodeCategory]::NonSpacingMark
-        }) -join ""
+                [System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($_) -ne
+                [System.Globalization.UnicodeCategory]::NonSpacingMark
+            }) -join ""
 
         $clean = [Regex]::Replace($clean, "[^a-zA-Z0-9\-]", "")
         return ($clean -replace "-+", "-").Trim("-")
@@ -158,20 +158,20 @@ function Resolve-GpsApi {
 
         $uri = "https://nominatim.openstreetmap.org/reverse?format=json&lat=$Lat&lon=$Lon&zoom=10&addressdetails=1"
 
-            try {
-                return Invoke-RestMethod -Uri $uri -UserAgent $script:UserAgent -ErrorAction Stop
-            }
-            catch {
-# Return raw response for debug
-                if ($_.Exception.Response) {
-                    $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
-                    $raw = $reader.ReadToEnd()
-                    Write-Log "GPS API raw response: $raw" "ERROR"
+        try {
+            return Invoke-RestMethod -Uri $uri -UserAgent $script:UserAgent -ErrorAction Stop
+        }
+        catch {
+            # Return raw response for debug
+            if ($_.Exception.Response) {
+                $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
+                $raw = $reader.ReadToEnd()
+                Write-Log "GPS API raw response: $raw" "ERROR"
                 return $raw
             }
 
             Write-Log "GPS API error: $_" "ERROR"
-        return $null
+            return $null
         }
     }
     catch {
@@ -270,7 +270,7 @@ function Get-LocationName($gps) {
         # Handle geocoding errors (e.g. open ocean)
         if (-not $res -or $res.error -or -not $res.address) {
             Write-Log "GPS not found for $gridKey (off-map area or API error)" "DEBUG"
-            return $null 
+            return $null
         }
 
         # Extraction intelligente (Ville > Village > Comté > Pays)

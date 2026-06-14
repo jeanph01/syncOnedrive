@@ -9,10 +9,6 @@ param(
     [string]$LogFile
 )
 
-# ============================================================
-#   MODULE ONEDRIVETOOLS — Logging, Token Graph, Validation
-# ============================================================
-
 if ($script:ModuleLoaded) {
     Write-Log "OneDriveTools.psm1 already loaded -> import ignored" "DEBUG"
     return
@@ -26,7 +22,7 @@ $script:ModuleLoaded = $true
 function Write-Log {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][string]$Message, 
+        [Parameter(Mandatory)][string]$Message,
         [string]$Level = "INFO"
     )
 
@@ -37,11 +33,11 @@ function Write-Log {
         # Define console colors
         $color = switch ($normalized) {
             "ERREUR" { "Red" }
-            "ERROR"  { "Red" }
-            "WARN"   { "Yellow" }
-            "SUCCESS"{ "Green" }
-            "DEBUG"  { "DarkGray" }
-            default  { "Gray" }
+            "ERROR" { "Red" }
+            "WARN" { "Yellow" }
+            "SUCCESS" { "Green" }
+            "DEBUG" { "DarkGray" }
+            default { "Gray" }
         }
 
         $msg = "[$timestamp] [$normalized] $Message"
@@ -56,7 +52,7 @@ function Write-Log {
         for ($i = 0; $i -lt $maxRetries; $i++) {
             try {
                 $msg | Add-Content $LogFile -ErrorAction Stop
-                break 
+                break
             }
             catch {
                 Start-Sleep -Milliseconds 150
@@ -137,22 +133,46 @@ function Test-GraphToken {
 # ============================================================
 function Get-GraphToken {
     try {
-        Write-Log "Get-GraphToken: checking existing token"
+        Write-Log "Get-GraphToken: checking existing token" "DEBUG"
 
         $existing = Read-GraphToken
+        $tenant = "consumers"
 
         if ($existing -and $existing.access_token) {
+            # 1. Vérification expiration locale avec marge de sécurité de 2 minutes
+            $margin = [TimeSpan]::FromMinutes(2).Ticks
+            $now = (Get-Date).ToUniversalTime().ToFileTimeUtc()
 
-            # Vérification expiration locale
-            if ($existing.expires_on -gt (Get-Date).ToUniversalTime().ToFileTimeUtc()) {
-                Write-Log "Valid token loaded from cache"
+            if ($existing.expires_on -gt ($now + $margin)) {
+                Write-Log "Valid token loaded from cache" "DEBUG"
                 return $existing
             }
 
-            # Vérification côté Graph
-            if (Test-GraphToken $existing.access_token) {
-                Write-Log "Token still valid (Graph OK)"
-                return $existing
+            # 2. Si expiré ou proche de l'expiration -> Tenter rafraîchissement silencieux
+            if ($existing.refresh_token) {
+                Write-Log "[AUTH] Token expired or expiring soon. Attempting silent refresh..." "INFO"
+                try {
+                    $Auth = Invoke-RestMethod -Method POST `
+                        -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/token" `
+                        -Body @{
+                        client_id     = $ClientId
+                        grant_type    = "refresh_token"
+                        refresh_token = $existing.refresh_token
+                        scope         = "Files.ReadWrite.All offline_access User.Read"
+                    } -ErrorAction Stop
+
+                    # Ajout expiration locale
+                    $Auth | Add-Member -NotePropertyName expires_on -NotePropertyValue (
+                        (Get-Date).AddSeconds($Auth.expires_in).ToUniversalTime().ToFileTimeUtc()
+                    )
+
+                    Save-GraphToken $Auth
+                    Write-Log "[AUTH] Silent refresh successful" "SUCCESS"
+                    return $Auth
+                }
+                catch {
+                    Write-Log "[AUTH] Silent refresh failed: $($_.Exception.Message). Falling back to interactive auth." "WARN"
+                }
             }
         }
 
@@ -160,17 +180,13 @@ function Get-GraphToken {
 
         Assert-ValidParam -Name "ClientId" -Value $ClientId
 
-        # === MODE ONEDRIVE PERSONNEL (MSA) ===
-        # Le tenant 'consumers' est OBLIGATOIRE pour Outlook.com / Gmail lié à Microsoft
-        $tenant = "consumers"
-
         # === DEVICE CODE FLOW ===
         $DeviceCode = Invoke-RestMethod -Method POST `
             -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/devicecode" `
             -Body @{
-                client_id = $ClientId
-                scope     = "Files.ReadWrite.All offline_access User.Read"
-            }
+            client_id = $ClientId
+            scope     = "Files.ReadWrite.All offline_access User.Read"
+        }
 
         Write-Log $DeviceCode.message
 
@@ -182,10 +198,10 @@ function Get-GraphToken {
                 $Auth = Invoke-RestMethod -Method POST `
                     -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/token" `
                     -Body @{
-                        grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
-                        client_id   = $ClientId
-                        device_code = $DeviceCode.device_code
-                    }
+                    grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
+                    client_id   = $ClientId
+                    device_code = $DeviceCode.device_code
+                }
             }
             catch {
                 Write-Log "Attempting to obtain token..." "DEBUG"
@@ -207,6 +223,49 @@ function Get-GraphToken {
     }
 }
 
+# Helper to convert JSON to Hashtable with PS 5.1 fallback
+function ConvertFrom-JsonOptimized {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$JsonString,
+        [switch]$AsHashtable
+    )
+
+    if ([string]::IsNullOrWhiteSpace($JsonString)) { return $null }
+
+    try {
+        if ($AsHashtable) {
+            if ($PSVersionTable.PSVersion.Major -ge 6) {
+                return $JsonString | ConvertFrom-Json -AsHashtable
+            }
+
+            # PS 5.1 Fallback: Recursive conversion for Hashtables
+            $obj = $JsonString | ConvertFrom-Json
+            return Convert-ObjectToHashtable -InputObject $obj
+        }
+        return $JsonString | ConvertFrom-Json
+    }
+    catch {
+        return $null
+    }
+}
+
+# Private helper for ConvertFrom-JsonOptimized
+function Convert-ObjectToHashtable {
+    param($InputObject)
+    if ($InputObject -is [System.Array] -or $InputObject -is [System.Collections.Generic.List[object]]) {
+        return @($InputObject | ForEach-Object { Convert-ObjectToHashtable $_ })
+    }
+    elseif ($InputObject -is [PSCustomObject]) {
+        $hash = @{}
+        foreach ($prop in $InputObject.psobject.Properties) {
+            $hash[$prop.Name] = Convert-ObjectToHashtable $prop.Value
+        }
+        return $hash
+    }
+    return $InputObject
+}
+
 # =====================================================================
 # CACHE HASH
 # =====================================================================
@@ -214,11 +273,11 @@ function Get-GraphToken {
 # Calculate hash of OneDrive cache file
 function Get-CacheHash {
     try {
-        if (-not (Test-Path $IndexFile)) {
-            Write-Log "Unable to calculate hash, file missing: $IndexFile" "WARN"
+        if (-not (Test-Path $Global:IndexFile)) {
+            Write-Log "Unable to calculate hash, file missing: $Global:IndexFile" "WARN"
             return $null
         }
-        return (Get-FileHash $IndexFile -Algorithm SHA256).Hash
+        return (Get-FileHash $Global:IndexFile -Algorithm SHA256).Hash
     }
     catch {
         Write-Log "Erreur calcul hash : $($_.Exception.Message)" "ERROR"
@@ -285,11 +344,10 @@ function Convert-ToAscii {
 # Obtain a Graph token and prepare headers
 function Connect-AzureGraph {
     try {
-        Write-Log "Obtaining Graph token via module..."
+        Write-Log "Checking Graph token validity..." "DEBUG"
         $auth = Get-GraphToken
 
         if (-not $auth.access_token) {
-            Write-Log "Graph token failed" "ERROR"
             throw "Unable to obtain Graph token."
         }
 
@@ -297,8 +355,6 @@ function Connect-AzureGraph {
             Authorization  = "Bearer $($auth.access_token)"
             "Content-Type" = "application/json"
         }
-
-        Write-Log "Graph token loaded." "SUCCESS"
     }
     catch {
         Write-Log "Erreur Connect-AzureGraph : $($_.Exception.Message)" "ERROR"
