@@ -1,4 +1,47 @@
-[13:24:32] [INFO] === SESSION START: 2026-04-22 13:24:32 ===
-[13:24:32] [WARN] WARNING: Required cache files from OneDrive_Sync.ps1 are missing:
-[13:24:32] [WARN]   - C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cache.json
-[13:24:32] [INFO] Launching OneDrive_Sync.ps1 first...
+[02:03:50] [INFO] === SESSION START: 2026-06-14 02:03:50 ===
+[02:03:50] [SUCCESS] All required cache files from OneDrive_Sync.ps1 are present.
+[02:03:50] [INFO] Loading OneDrive cache C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cache.json ...
+[02:03:54] [INFO] Loading already processed IDs (C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log) ...
+[02:03:54] [INFO] No previously processed files (file C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log missing).
+[02:03:54] [INFO] Discovering already processed files containing marker '--odr--' ...
+[02:03:55] [INFO] Indexing complete. Files to process: 115275
+[02:03:55] [WARN] === FIX CACHE: Automatic OneDrive cache cleanup ===
+[02:03:55] [SUCCESS] Fix complete: 0 entries removed, 0 extensions corrected.
+[02:03:56] [WARN] === FIX PATHS : Normalize paths ===
+[02:03:57] [SUCCESS] Path normalization complete.
+[02:03:57] [WARN] === FIX NAMES : Normalize names ===
+[02:03:57] [SUCCESS] Name normalization complete.
+[02:03:57] [WARN] === FIX GPS: Clean invalid GPS entries ===
+[02:03:57] [SUCCESS] GPS cleanup complete.
+[02:03:57] [INFO] No valid plan found. Starting full analysis...
+[02:03:57] [INFO] Scanning files (merged pipeline)...
+[02:03:58] [INFO] Range filter applied: 1 -> processing 1 files
+[02:03:58] [DEBUG] ----------------------------------------------
+[02:03:58] [DEBUG] Analyzing file
+[02:03:58] [DEBUG] ID             : 440B3E9A717E6203!sd310818d420f44259b8d24e6727477a4
+[02:03:58] [DEBUG] Original name   : 5289h004.jpg
+[02:03:58] [DEBUG] Source path     : /drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/bottes-porn
+[02:03:58] [DEBUG] Extension      : .jpg
+[02:03:58] [DEBUG] File date      : 03/23/2003 20:27:22
+[02:03:58] [DEBUG] GPS            : 
+[02:03:58] [DEBUG] Smart classification = (confidential)
+[02:03:58] [DEBUG] Tags de Path : VersCoffreFort_archives_xxx_XXX_tri-img_bottes-porn
+[02:03:58] [DEBUG] Generated new name: 20030323_202722--odr--.jpg
+[02:03:58] [DEBUG] Destination path = (VersCoffreFort/archives/Images/2003/03)
+[02:03:58] [SUCCESS] Plan generated: 1 files.
+[02:03:58] [SUCCESS] Plan saved to C:\Users\jeanp\github\syncOnedrive\.\_cache\plan.json
+[02:03:58] [WARN] === FIX COLLISIONS: Proactive resolution ===
+[02:03:58] [SUCCESS] No collisions detected.
+[02:03:58] [INFO] === PLAN ANALYSIS ===
+[02:03:58] [INFO] Total actions : 1
+[02:03:58] [SUCCESS] No collisions detected.
+[02:03:58] [SUCCESS] Analysis complete.
+[02:03:58] [WARN] SWITCHING TO REAL EXECUTION MODE...
+[02:03:58] [INFO] Obtaining Graph token via module...
+[02:03:58] [INFO] Get-GraphToken: checking existing token
+[02:03:58] [INFO] Valid token loaded from cache
+[02:03:58] [SUCCESS] Graph token loaded.
+[02:03:58] [INFO] Checking OneDrive folder hierarchy...
+[02:04:02] [WARN] Starting interactive move execution (step-by-step)...
+[02:04:37] [SUCCESS] Interactive move execution completed. Processed: 1, Skipped: 0
+[02:04:37] [SUCCESS] Organization process completed successfully.

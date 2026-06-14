@@ -160,12 +160,12 @@ function Import-Set-Cache {
 
             # a) Si deja dans ProcessedIds => ignorer
             if ($Global:State.ProcessedIds.ContainsKey($id)) {
-                Write-Log "Ignored (already processed): $id" "DEBUG"
+                Write-Log "Ignored (already processed): $id" "INFO"
                 continue
             }
             # b) Si le nom contient le marqueur => l'ajouter a ProcessedIds
             if ($fileMeta.n -like "*$($Config.RenameMarker)*") {
-                Write-Log "Added to ProcessedIds (already renamed): $($fileMeta.p)/$($fileMeta.n)" "DEBUG"
+                Write-Log "Added to ProcessedIds (already renamed): $($fileMeta.p)/$($fileMeta.n)" "INFO"
                 $Global:State.ProcessedIds[$id] = $true
                 continue
             }
@@ -371,12 +371,13 @@ function New-Plan {
 
             # Ajout au plan
             $Global:State.PlannedActions.Add([PSCustomObject]@{
-                    Id      = $fileId
-                    SrcPath = $fileMeta.p
-                    SrcName = $fileMeta.n
-                    DstDir  = "/$($cleanDestination.Trim('/'))"
-                    DstName = $newName
-                    FullDst = $fullDestination
+                    Id       = $fileId
+                    SrcPath  = $fileMeta.p
+                    SrcName  = $fileMeta.n
+                    DstDir   = "/$($cleanDestination.Trim('/'))"
+                    DstName  = $newName
+                    FullDst  = $fullDestination
+                    Category = $category
                 })
         }
         # a la fin du traitement tri le contenu de $logfile

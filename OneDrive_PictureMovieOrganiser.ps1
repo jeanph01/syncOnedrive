@@ -8,7 +8,7 @@
 # =====================================================================
 
 param (
-    [bool]$Execute = $false,                          # Actually performs the moves
+    [bool]$Execute = $true,                          # Actually performs the moves
     [bool]$ResetCache = $true,                      # Resets internal files except GPS and OneDrive cache
     [string]$ConfigFile = ".\config.ini",          # Application configuration
     # === NEW PARAMETERS ===
@@ -17,7 +17,8 @@ param (
     [bool]$Validate = $false,         # Validate OneDrive cache
     [string]$DebugId = "",            # Debug a specific file
     [bool]$ReportIgnored = $false,    # Generate ignored files report
-    [string]$ProcessRange = "1+"        # Process only a subset of files (e.g., "1", "1..10", "10+")
+    [string]$ProcessRange = "1..2",       # Process only a subset of files (e.g., "1", "1..10", "10+")
+    [bool]$StepByStep = $true         # Interactive step-by-step mode with confirmation
 )
 
 # --- Force Write-Progress display in case another script disabled it
@@ -80,6 +81,7 @@ $Global:State = @{
 # =====================================================================
 
 if ($ResetCache) {
+    $createdCount = 0
     try {
         Write-Log "Resetting internal OneDrive_PictureMovieOrganiser cache..." "WARN"
 
@@ -151,7 +153,8 @@ function Test-OneDrivePath {
 
             # --- CHECK (GET) ---
             # Graph syntax: root:/path/to/folder
-            $uriGet = "https://graph.microsoft.com/v1.0/me/drive/root:/$currentPathEncoded"
+            $encoded = $currentPathEncoded
+            $uriGet = "https://graph.microsoft.com/v1.0/me/drive/root:/$encoded"
 
             try {
                 Invoke-RestMethod -Headers $Global:State.Headers -Uri $uriGet -Method Get -ErrorAction Stop > $null
@@ -165,47 +168,289 @@ function Test-OneDrivePath {
                 }
                 else {
                     # Folder under a parent (note the ':' around the parent path)
-                    $uriPost = "https://graph.microsoft.com/v1.0/me/drive/root:/$($parentPathEncoded):/children"
+                    $encoded = $parentPathEncoded
+                    $uriPost = "https://graph.microsoft.com/v1.0/me/drive/root:/$encoded" + ":/children"
                 }
 
-                $body = @{
-                    name                                = $part
-                    folder                              = @{}
-                    "@microsoft.graph.conflictBehavior" = "ignore"
-                } | ConvertTo-Json -Compress
+                # Before creating, list parent children to avoid creating duplicates
+                $exists = $false
+                try {
+                    if ($parentPathEncoded -eq "") {
+                        $childrenUri = "https://graph.microsoft.com/v1.0/me/drive/root/children"
+                    }
+                    else {
+                        $childrenUri = "https://graph.microsoft.com/v1.0/me/drive/root:/" + $parentPathEncoded + ":/children"
+                    }
 
-                Invoke-RestMethod -Headers $Global:State.Headers -Uri $uriPost -Method POST -Body $body -ContentType "application/json" -ErrorAction Stop > $null
+                    $childrenResp = Invoke-RestMethod -Headers $Global:State.Headers -Uri $childrenUri -Method Get -ErrorAction Stop
+                    if ($childrenResp.value) {
+                        foreach ($c in $childrenResp.value) {
+                            if ($c.name -ieq $part -and $c.folder) {
+                                Write-Log "Folder already exists (parent children): /$currentPathRaw" "DEBUG"
+                                $exists = $true
+                                break
+                            }
+                        }
+                    }
+                }
+                catch {
+                    Write-Log "Unable to list parent children for existence check: $($_.Exception.Message)" "DEBUG"
+                }
 
-                Write-Log "Folder created: /$currentPathRaw" "DEBUG"
-                $uriPost = "Not generated" # Reset after success
+                if (-not $exists) {
+                    $body = @{
+                        name                                = $part
+                        folder                              = @{ }
+                        "@microsoft.graph.conflictBehavior" = "fail"
+                    } | ConvertTo-Json -Compress
+
+                    Write-Log "[DEBUG] Attempting to create folder..." "DEBUG"
+                    Write-Log "[DEBUG] POST URI: $uriPost" "DEBUG"
+                    Write-Log "[DEBUG] POST Body: $body" "DEBUG"
+
+                    try {
+                        Invoke-RestMethod -Headers $Global:State.Headers -Uri $uriPost -Method POST -Body $body -ContentType "application/json" -ErrorAction Stop > $null
+
+                        Write-Log "Folder created: /$currentPathRaw" "DEBUG"
+                        $createdCount++
+                        $uriPost = "Not generated" # Reset after success
+                    }
+                    catch {
+                        $errDetails = Get-ErrorDetails $_
+                        $httpStatus = "Unknown"
+                        if ($_.Exception.Response) {
+                            try { $httpStatus = [int]$_.Exception.Response.StatusCode } catch {}
+                        }
+
+                        Write-Log "Create folder error (status $httpStatus): $errDetails" "DEBUG"
+
+                        # If conflict (another client created it between our check and the POST), try to find existing folder
+                        if ($httpStatus -eq 409 -or $errDetails -match 'nameAlreadyExists' -or $errDetails -match 'alreadyExists') {
+                            try {
+                                $childrenResp = Invoke-RestMethod -Headers $Global:State.Headers -Uri $childrenUri -Method Get -ErrorAction Stop
+                                if ($childrenResp.value) {
+                                    foreach ($c in $childrenResp.value) {
+                                        if ($c.name -ieq $part -and $c.folder) {
+                                            Write-Log "Detected existing folder after conflict: /$currentPathRaw (id $($c.id))" "DEBUG"
+                                            $exists = $true
+                                            break
+                                        }
+                                    }
+                                }
+                            }
+                            catch {
+                                Write-Log "Failed to re-list children after conflict: $($_.Exception.Message)" "ERROR"
+                                throw
+                            }
+
+                            if (-not $exists) {
+                                throw
+                            }
+                        }
+                        else {
+                            throw
+                        }
+                    }
+                }
             }
         }
+
+        return $createdCount
     }
     catch {
-        # --- SIMPLIFIED ERROR BLOCK ---
+        # --- ENHANCED ERROR BLOCK FOR DEBUG ---
         $errorMsg = $_.Exception.Message
-        $graphError = "No details"
+        $graphError = Get-ErrorDetails $_
+        $httpStatusCode = "Unknown"
 
-        # Safe attempt to read the server response
-        if ($_.Exception.InnerException -and $_.Exception.InnerException.Response) {
+        # Try to extract HTTP status code
+        if ($_.Exception.Response) {
             try {
-                $stream = $_.Exception.InnerException.Response.GetResponseStream()
-                $reader = New-Object System.IO.StreamReader($stream)
-                $graphError = $reader.ReadToEnd()
+                $httpStatusCode = [int]$_.Exception.Response.StatusCode
             }
-            catch { $graphError = "Unable to read response" }
+            catch {
+                try {
+                    $httpStatusCode = $_.Exception.Response.StatusCode
+                }
+                catch {}
+            }
         }
 
         Write-Log "!!! FATAL ERROR IN TEST-ONEDRIVEPATH !!!" "ERROR"
         Write-Log "Failed segment : [$part]" "ERROR"
         Write-Log "Raw path      : /$currentPathRaw" "ERROR"
         Write-Log "Used URI      : $(if ($uriPost -ne 'Not generated') { $uriPost } else { $uriGet })" "ERROR"
+        Write-Log "HTTP Status   : $httpStatusCode" "ERROR"
         Write-Log "PS message    : $errorMsg" "ERROR"
         Write-Log "Graph response: $graphError" "ERROR"
+
+        # ===== DEBUG COPY-PASTE SECTION =====
+        Write-Log "-" "ERROR"
+        Write-Log "=== DEBUG INFO FOR POSTMAN / MANUAL TESTING ===" "ERROR"
+        Write-Log "Method: POST" "ERROR"
+        Write-Log "URL: $(if ($uriPost -ne 'Not generated') { $uriPost } else { $uriGet })" "ERROR"
+        Write-Log "Headers:" "ERROR"
+        Write-Log "  Authorization: Bearer <YOUR_TOKEN>" "ERROR"
+        Write-Log "  Content-Type: application/json" "ERROR"
+        Write-Log "Body (JSON):" "ERROR"
+        if ($uriPost -ne 'Not generated') {
+            $debugBody = @{
+                name                                = $part
+                folder                              = @{ }
+                "@microsoft.graph.conflictBehavior" = "fail"
+            } | ConvertTo-Json -Depth 10
+            foreach ($line in ($debugBody -split "`n")) {
+                Write-Log "  $line" "ERROR"
+            }
+        }
+        Write-Log "-" "ERROR"
+        Write-Log "Response received:" "ERROR"
+        foreach ($line in ($graphError -split "`n")) {
+            Write-Log "  $line" "ERROR"
+        }
+        Write-Log "=== END DEBUG INFO ===" "ERROR"
 
         throw $_ # Stop the script cleanly
     }
 }
+# =====================================================================
+# INTERACTIVE STEP-BY-STEP MODE
+# =====================================================================
+
+# Interactive confirmation and execution for each file
+function Invoke-MovesInteractive {
+    Write-Log "Starting interactive move execution (step-by-step)..." "WARN"
+
+    try {
+        $total = $Global:State.PlannedActions.Count
+        $index = 0
+        $processedCount = 0
+        $skippedCount = 0
+
+        foreach ($action in $Global:State.PlannedActions) {
+            $index++
+            Write-Host "`n" -NoNewline
+            Write-Host "========================================" -ForegroundColor Cyan
+            Write-Host "ACTION $index / $total" -ForegroundColor Cyan
+            Write-Host "========================================" -ForegroundColor Cyan
+
+            # --- STEP 1: Element Before ---
+            Write-Host "`n[1] ELEMENT BEFORE:" -ForegroundColor Yellow
+            Write-Host "  Path: $($action.SrcPath)" -ForegroundColor Gray
+            Write-Host "  Name: $($action.SrcName)" -ForegroundColor Gray
+            Write-Host "  ID:   $($action.Id)" -ForegroundColor Gray
+            $confirmation = Get-ConfirmationInteractive "Continue?"
+            if ($confirmation -eq 'abort') { throw "User aborted"; }
+            if ($confirmation -eq 'skip') { $skippedCount++; continue }
+            if ($confirmation -ne 'y') { $skippedCount++; continue }
+
+            # --- STEP 2: Element After ---
+            Write-Host "`n[2] ELEMENT AFTER (Classification):" -ForegroundColor Yellow
+            Write-Host "  Category:     $($action.Category)" -ForegroundColor Green
+            $cleanDst = $action.DstDir.TrimStart('/')
+            Write-Host "  Destination:  /$cleanDst" -ForegroundColor Green
+            Write-Host "  New name:     $($action.DstName)" -ForegroundColor Green
+            Write-Host "  Full path:    $($action.FullDst)" -ForegroundColor Green
+            $confirmation = Get-ConfirmationInteractive "Proceed?"
+            if ($confirmation -eq 'abort') { throw "User aborted"; }
+            if ($confirmation -ne 'y') { $skippedCount++; continue }
+
+            # --- STEP 3: Azure - Create folders ---
+            Write-Host "`n[3] AZURE - Create folders if needed:" -ForegroundColor Yellow
+            Write-Host "  Folder path: /$cleanDst" -ForegroundColor Cyan
+            $skipFolderConfirm = $false
+            try {
+                $created = Test-OneDrivePath $action.DstDir
+                if ($created -eq 0) {
+                    Write-Host "  ✓ Aucun dossier à créer (existe déjà) - pas de confirmation requise" -ForegroundColor Green
+                    $skipFolderConfirm = $true
+                }
+                else {
+                    Write-Host "  ✓ Dossiers à créer: $created" -ForegroundColor Green
+                }
+            }
+            catch {
+                Write-Host "  ✗ Error creating folders: $_" -ForegroundColor Red
+                $confirmation = Get-ConfirmationInteractive "Continue anyway?"
+                if ($confirmation -eq 'abort') { throw $_ }
+                if ($confirmation -ne 'y') { $skippedCount++; continue }
+            }
+
+            if (-not $skipFolderConfirm) {
+                $confirmation = Get-ConfirmationInteractive "Confirm folder creation?"
+                if ($confirmation -eq 'abort') { throw "User aborted"; }
+                if ($confirmation -ne 'y') { $skippedCount++; continue }
+            }
+
+            # --- STEP 4: Azure - Move file ---
+            Write-Host "`n[4] AZURE - Move file:" -ForegroundColor Yellow
+            Write-Host "  From: $($action.SrcPath)/$($action.SrcName)" -ForegroundColor Cyan
+            Write-Host "  To:   $($action.FullDst)" -ForegroundColor Cyan
+            $confirmation = Get-ConfirmationInteractive "Execute move?"
+            if ($confirmation -eq 'abort') { throw "User aborted"; }
+            if ($confirmation -ne 'y') { $skippedCount++; continue }
+
+            try {
+                $dstPathClean = $action.DstDir.TrimStart('/')
+                $body = @{
+                    parentReference = @{ path = "/drive/root:/" + $dstPathClean }
+                    name            = $action.DstName
+                } | ConvertTo-Json
+
+                Invoke-RestMethod -Headers $Global:State.Headers `
+                    -Uri "https://graph.microsoft.com/v1.0/me/drive/items/$($action.Id)" `
+                    -Method PATCH -Body $body -ErrorAction Stop > $null
+
+                Write-Host "  ✓ Move successful" -ForegroundColor Green
+                "$(Get-Date -Format 'HH:mm'),$($action.Id),SUCCESS,$($action.SrcPath),$($action.FullDst)," |
+                Add-Content $ExecutionReport
+
+                $action.Id | Add-Content $ProcessedLog
+
+                $dstPathCache = $action.DstDir.TrimStart('/')
+                $Global:State.Cache.Files[$action.Id].p = "/drive/root:/" + $dstPathCache
+                $Global:State.Cache.Files[$action.Id].n = $action.DstName
+
+                $processedCount++
+            }
+            catch {
+                $errorDetails = Get-ErrorDetails $_
+                Write-Host "  ✗ Error: $errorDetails" -ForegroundColor Red
+                "$(Get-Date -Format 'HH:mm'),$($action.Id),ERROR,$($action.SrcPath),$($action.FullDst),$errorDetails" |
+                Add-Content $ExecutionReport
+                $skippedCount++
+            }
+        }
+
+        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $IndexFile
+        Write-Host "`n" -NoNewline
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "Summary: $processedCount processed, $skippedCount skipped" -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Log "Interactive move execution completed. Processed: $processedCount, Skipped: $skippedCount" "SUCCESS"
+    }
+    catch {
+        Write-Log "Invoke-MovesInteractive error: $($_.Exception.Message)" "ERROR"
+        throw
+    }
+} # Invoke-MovesInteractive
+
+# Helper: read confirmation with defaults (Y default, s=skip, a=abort)
+function Get-ConfirmationInteractive {
+    param([string]$Prompt)
+
+    $full = "$Prompt (Y=default, s=skip, a=abort)"
+    $ans = Read-Host $full
+    if ([string]::IsNullOrWhiteSpace($ans)) { $ans = 'y' }
+    $ans = $ans.ToLower()
+
+    switch ($ans) {
+        's' { return 'skip' }
+        'a' { return 'abort' }
+        default { return $ans }
+    }
+}
+
 # =====================================================================
 # MOVES
 # =====================================================================
@@ -228,8 +473,9 @@ function Invoke-Moves {
             }
 
             try {
+                $dstPathCache = $action.DstDir.TrimStart('/')
                 $body = @{
-                    parentReference = @{ path = "/drive/root:${($action.DstDir)}" }
+                    parentReference = @{ path = "/drive/root:/" + $dstPathCache }
                     name            = $action.DstName
                 } | ConvertTo-Json
 
@@ -242,7 +488,7 @@ function Invoke-Moves {
 
                 $action.Id | Add-Content $ProcessedLog
 
-                $Global:State.Cache.Files[$action.Id].p = "/drive/root:${($action.DstDir)}"
+                $Global:State.Cache.Files[$action.Id].p = "/drive/root:/" + $dstPathCache
                 $Global:State.Cache.Files[$action.Id].n = $action.DstName
             }
             catch {
@@ -410,7 +656,12 @@ function Start-OneDriveOrganizer {
         }
 
         # Actual file move execution
-        Invoke-Moves
+        if ($StepByStep) {
+            Invoke-MovesInteractive
+        }
+        else {
+            Invoke-Moves
+        }
 
         Write-Log "Organization process completed successfully." "SUCCESS"
     }
