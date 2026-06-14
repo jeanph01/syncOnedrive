@@ -322,9 +322,9 @@ function Build-FinalNameFromPattern {
     $maxLen = $NamingRules.maxNameLength
     $pattern = $NamingRules.finalPattern
 
-    $gps   = ($GpsWords   -join "_")
-    $tags  = ($TagWords   -join "_")
-    $orig  = ($OrigWords  -join "_")
+    $gps = ($GpsWords -join "_")
+    $tags = ($TagWords -join "_")
+    $orig = ($OrigWords -join "_")
     $media = ($MediaWords -join "_")
 
     $base = $pattern
@@ -474,21 +474,21 @@ function Resolve-RoutingTemplate {
 \[(.*?)\]
 
 ', {
-        param($m)
-        $block = $m.Groups[1].Value
-        $blockResolved = $block
+            param($m)
+            $block = $m.Groups[1].Value
+            $blockResolved = $block
 
-        foreach ($key in $Values.Keys) {
-            $blockResolved = $blockResolved -replace [regex]::Escape($key), [string]$Values[$key]
-        }
+            foreach ($key in $Values.Keys) {
+                $blockResolved = $blockResolved -replace [regex]::Escape($key), [string]$Values[$key]
+            }
 
-        # Si un token reste non résolu → on supprime le bloc
-        if ($blockResolved -match '<[^>]+>') {
-            return ''
-        }
+            # Si un token reste non résolu → on supprime le bloc
+            if ($blockResolved -match '<[^>]+>') {
+                return ''
+            }
 
-        return $blockResolved
-    })
+            return $blockResolved
+        })
 
     # 2) Remplacer les tokens simples
     foreach ($key in $Values.Keys) {
@@ -541,7 +541,7 @@ function Get-DestinationPath {
     if ($action.ContainsKey("keepLevels")) {
         $keep = [int]$action.keepLevels
         if ($keep -gt 0 -and $segments.Count -gt $keep) {
-            $segments = $segments[0..($keep-1)]
+            $segments = $segments[0..($keep - 1)]
         }
     }
 
@@ -621,7 +621,7 @@ function Get-FilteredFileIds {
     }
     elseif ($Range -match '^(\d+)\.\.(\d+)$') {
         $start = [int]$Matches[1] - 1
-        $end   = [int]$Matches[2] - 1
+        $end = [int]$Matches[2] - 1
         if ($start -le $end -and $start -ge 0 -and $end -lt $total) {
             return $AllIds[$start..$end]
         }
@@ -686,8 +686,15 @@ function New-Plan {
             $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension
             Write-Log "Smart classification = ($category)" "DEBUG"
 
+            #
+            # 1) EXTENSION NON SUPPORTEE → marquer comme traité
+            #
             if (-not $Config.ExtensionMap.ContainsKey($extension)) {
                 Write-Log "Ignored: unsupported extension ($extension)" "DEBUG"
+
+                $Global:State.ProcessedIds[$fileId] = $true
+                Save-ProcessedIds
+
                 continue
             }
 
@@ -732,8 +739,15 @@ function New-Plan {
             $logFile = Join-Path (Split-Path $IndexFile -Parent) "log2.txt"
             "[$category] $($fileMeta.p)/$($fileMeta.n) --> $($dest.FullDestination)" | Add-Content -Path $logFile
 
+            #
+            # 2) CAS no_action → marquer comme traité
+            #
             if ($null -eq $dest) {
                 Write-Log "File ignored (no_action category): $($fileMeta.n)" "DEBUG"
+
+                $Global:State.ProcessedIds[$fileId] = $true
+                Save-ProcessedIds
+
                 continue
             }
 
@@ -744,20 +758,30 @@ function New-Plan {
             $srcDirClean = $fileMeta.p -replace "^/drive/root:", ""
             $currentPath = "$($srcDirClean.Trim('/'))/$($fileMeta.n)"
 
+            #
+            # 3) Déjà à la bonne place → marquer comme traité
+            #
             if ($currentPath -eq $fullDestination.Trim('/')) {
                 Write-Log "Already in correct place: $($fileMeta.n)" "DEBUG"
+
+                $Global:State.ProcessedIds[$fileId] = $true
+                Save-ProcessedIds
+
                 continue
             }
 
+            #
+            # 4) Sinon → ajouter au plan
+            #
             $Global:State.PlannedActions.Add([PSCustomObject]@{
-                Id       = $fileId
-                SrcPath  = $fileMeta.p
-                SrcName  = $fileMeta.n
-                DstDir   = "/$($cleanDestination.Trim('/'))"
-                DstName  = $newName
-                FullDst  = $fullDestination
-                Category = $category
-            })
+                    Id       = $fileId
+                    SrcPath  = $fileMeta.p
+                    SrcName  = $fileMeta.n
+                    DstDir   = "/$($cleanDestination.Trim('/'))"
+                    DstName  = $newName
+                    FullDst  = $fullDestination
+                    Category = $category
+                })
         }
 
         if (Test-Path $logFile) {
@@ -781,6 +805,22 @@ function New-Plan {
     catch {
         Write-Log "New-Plan error : $($_.Exception.Message)" "ERROR"
         throw
+    }
+}
+
+function Save-ProcessedIds {
+    try {
+        $cacheFolder = Split-Path $IndexFile -Parent
+        $processedFile = Join-Path $cacheFolder "processed_ids.log"
+
+        $Global:State.ProcessedIds |
+        ConvertTo-Json -Depth 5 |
+        Set-Content -Path $processedFile -Encoding UTF8
+
+        Write-Log "Processed IDs saved to $processedFile" "DEBUG"
+    }
+    catch {
+        Write-Log "Error saving processed IDs: $($_.Exception.Message)" "ERROR"
     }
 }
 

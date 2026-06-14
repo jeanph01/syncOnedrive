@@ -1,20 +1,497 @@
 [
   {
-    "Id": "440B3E9A717E6203!s128336d08bb54fc0a82f1b761236534d",
-    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/!alicia_blonde/Alicia14",
-    "SrcName": "DSC01479.jpg",
-    "DstDir": "/VersCoffreFort/archives/Images/2010/03",
-    "DstName": "20100317_181122_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia14_DSC01479--odr--.jpg",
-    "FullDst": "VersCoffreFort/archives/Images/2010/03/20100317_181122_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia14_DSC01479--odr--.jpg",
+    "Id": "440B3E9A717E6203!77092",
+    "SrcPath": "/drive/root:/Finances/Maison_et_Logement/old/72_André_Beauregard,_Verchères/dossier_légal_poursuite_patio/0_documents/archives/galerie/pour_impression_proces",
+    "SrcName": "Plancher_4.JPG",
+    "DstDir": "/Finances/Maison_et_Logement/old/72_André_Beauregard,_Verchères/dossier_légal_poursuite_patio/0_documents/archives/galerie/pour_impression_proces",
+    "DstName": "20120603_154738_Finances_Maison_Logement_old_72_Andre_Beauregard_Vercheres_dossier_legal_poursuite_patio_0_documents_archives_galerie_impression_proces_Plancher_4_Canon_--odr--.jpg",
+    "FullDst": "/Finances/Maison_et_Logement/old/72_André_Beauregard,_Verchères/dossier_légal_poursuite_patio/0_documents/archives/galerie/pour_impression_proces/20120603_154738_Finances_Maison_Logement_old_72_Andre_Beauregard_Vercheres_dossier_legal_poursuite_patio_0_documents_archives_galerie_impression_proces_Plancher_4_Canon_--odr--.jpg",
+    "Category": "only_rename"
+  },
+  {
+    "Id": "440B3E9A717E6203!sd5bb7261d5304d9897278451afd58cf6",
+    "SrcPath": "/drive/root:/Images/jp",
+    "SrcName": "IMGP2548.JPG",
+    "DstDir": "/Images/2010/07",
+    "DstName": "20100704_140709_Images_jp_IMGP2548_PENTAX_Corporation_K100D_Super--odr--.jpg",
+    "FullDst": "/Images/2010/07/20100704_140709_Images_jp_IMGP2548_PENTAX_Corporation_K100D_Super--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s8fec4c913c9e45b7a4b8e81475c068aa",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/anastacia/Anastacia_5",
+    "SrcName": "DSC03145.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2005/05",
+    "DstName": "20050518_172302_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_5_DSC03145--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2005/05/20050518_172302_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_5_DSC03145--odr--.jpg",
     "Category": "confidential"
   },
   {
-    "Id": "440B3E9A717E6203!sa69fdbc4c8b24760bdd70a1d0a12deab",
-    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/bottes",
-    "SrcName": "j_4_1.jpg",
-    "DstDir": "/VersCoffreFort/archives/Images/2010/10",
-    "DstName": "20101031_112642_VersCoffreFort_archives_xxx_tri_img_bottes_j_4_1--odr--.jpg",
-    "FullDst": "VersCoffreFort/archives/Images/2010/10/20101031_112642_VersCoffreFort_archives_xxx_tri_img_bottes_j_4_1--odr--.jpg",
+    "Id": "440B3E9A717E6203!sad4573482e494907b9491e266672a616",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/natasha/Natasha_-_2009-Black_Latex_Catsuit2-2",
+    "SrcName": "Photo_4025.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2009/12",
+    "DstName": "20091207_051558_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_Black_Latex_Catsuit2_2_Photo_4025--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2009/12/20091207_051558_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_Black_Latex_Catsuit2_2_Photo_4025--odr--.jpg",
     "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!54481",
+    "SrcPath": "/drive/root:/JPM/Relations/justyna/!justyna/moments_avec_Justyna/2019_Mexique/voyage_au_mexique_-_appareil_de_justyna",
+    "SrcName": "IMG_1762.JPG",
+    "DstDir": "/Images/2019/01",
+    "DstName": "20190112_001902_JPM_Relations_justyna_moments_Mexique_voyage_appareil_IMG_1762_Canon_EOS_60D--odr--.jpg",
+    "FullDst": "/Images/2019/01/20190112_001902_JPM_Relations_justyna_moments_Mexique_voyage_appareil_IMG_1762_Canon_EOS_60D--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!126868",
+    "SrcPath": "/drive/root:/Images/Pellicule/2023/09",
+    "SrcName": "IMG_20230923_205912602.jpg",
+    "DstDir": "/Images/2023/09",
+    "DstName": "20230923_205915_Saint_Basile_le_Grand_Quebec_Canada_Images_Pellicule_09_IMG_205912602_motorola_moto_g_5G_2022--odr--.jpg",
+    "FullDst": "/Images/2023/09/20230923_205915_Saint_Basile_le_Grand_Quebec_Canada_Images_Pellicule_09_IMG_205912602_motorola_moto_g_5G_2022--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!25447",
+    "SrcPath": "/drive/root:/Images/ensemble/Saved_Pictures/Mes_images/FinePix2800ZOOM",
+    "SrcName": "2005-01-22_18-20-36_Originals_.jpg",
+    "DstDir": "/Images/2005/01",
+    "DstName": "20050122_182036_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_01_22_18_20_36_Originals_FUJIFILM--odr--.jpg",
+    "FullDst": "/Images/2005/01/20050122_182036_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_01_22_18_20_36_Originals_FUJIFILM--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s21c9870ae2d14b57a600cf9db1a6d0a6",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/Beautés_Wow",
+    "SrcName": "ww.bmp",
+    "DstDir": "/VersCoffreFort/archives/Images/2003/07",
+    "DstName": "20030706_132936_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_ww--odr--.bmp",
+    "FullDst": "/VersCoffreFort/archives/Images/2003/07/20030706_132936_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_ww--odr--.bmp",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!80162",
+    "SrcPath": "/drive/root:/Images/ensemble/Saved_Pictures",
+    "SrcName": "20190720_102408.jpg",
+    "DstDir": "/Images/2019/07",
+    "DstName": "20190720_102408_Varennes_Quebec_Canada_Images_ensemble_Saved_Pictures_102408_samsung_SM_G930W8--odr--.jpg",
+    "FullDst": "/Images/2019/07/20190720_102408_Varennes_Quebec_Canada_Images_ensemble_Saved_Pictures_102408_samsung_SM_G930W8--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s830dbfee61c347bca4952c1a6ce9b2b6",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/vinyl",
+    "SrcName": "8cd7c4e83ecb0931269a71eb319f9f3d.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2014/02",
+    "DstName": "20140210_023120_VersCoffreFort_archives_xxx_tri_img_vinyl_8cd7c4e83ecb0931269a71eb319f9f3d--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2014/02/20140210_023120_VersCoffreFort_archives_xxx_tri_img_vinyl_8cd7c4e83ecb0931269a71eb319f9f3d--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!23631",
+    "SrcPath": "/drive/root:/Images/ensemble/Saved_Pictures/Mes_images/EX-S7",
+    "SrcName": "CIMG4696.JPG",
+    "DstDir": "/Images/2014/12",
+    "DstName": "20141213_205444_Images_ensemble_Saved_Pictures_Mes_EX_S7_CIMG4696_CASIO_COMPUTER_CO_LTD--odr--.jpg",
+    "FullDst": "/Images/2014/12/20141213_205444_Images_ensemble_Saved_Pictures_Mes_EX_S7_CIMG4696_CASIO_COMPUTER_CO_LTD--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s02d1bd60bf7c427aa9d2fe51af20d8c3",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/ondrv/Nouveau_dossier/XX/BOOTS/bottes",
+    "SrcName": "j_8_4.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2009/09",
+    "DstName": "20090903_033012_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_j_8_4--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2009/09/20090903_033012_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_j_8_4--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!81214",
+    "SrcPath": "/drive/root:/JPM/Relations/justyna/just",
+    "SrcName": "20190110_205812.mp4",
+    "DstDir": "/Videos/2019/01",
+    "DstName": "20190111_015812_JPM_Relations_justyna_just_20190110_205812_duration_3s--odr--.mp4",
+    "FullDst": "/Videos/2019/01/20190111_015812_JPM_Relations_justyna_just_20190110_205812_duration_3s--odr--.mp4",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!20760",
+    "SrcPath": "/drive/root:/Images/ensemble/Saved_Pictures/Mes_images/Canon_PowerShot_S5_IS",
+    "SrcName": "IMG_2294.JPG",
+    "DstDir": "/Images/2009/11",
+    "DstName": "20091120_194535_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_2294--odr--.jpg",
+    "FullDst": "/Images/2009/11/20091120_194535_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_2294--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s230bdf9e1e3643d19020a28b092ef0d7",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-video/blow/1",
+    "SrcName": "_03.mpg",
+    "DstDir": "/VersCoffreFort/archives/Videos/2007/06",
+    "DstName": "20070612_093720_VersCoffreFort_archives_xxx_tri_video_blow_1_03_duration_20s--odr--.mpg",
+    "FullDst": "/VersCoffreFort/archives/Videos/2007/06/20070612_093720_VersCoffreFort_archives_xxx_tri_video_blow_1_03_duration_20s--odr--.mpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!28044",
+    "SrcPath": "/drive/root:/Images/ensemble/Saved_Pictures/Mes_images/SGH-T999V",
+    "SrcName": "20130105_153946.jpg",
+    "DstDir": "/Images/2013/01",
+    "DstName": "20130105_153946_Vercheres_Quebec_Canada_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_153946_SAMSUNG--odr--.jpg",
+    "FullDst": "/Images/2013/01/20130105_153946_Vercheres_Quebec_Canada_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_153946_SAMSUNG--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s6f7a672d68cd4fdab54d62625a1a084d",
+    "SrcPath": "/drive/root:/Images/jp",
+    "SrcName": "CIMG4851.JPG",
+    "DstDir": "/Images/2015/01",
+    "DstName": "20150118_163129_Images_jp_CIMG4851_CASIO_COMPUTER_CO_LTD_EX_S7--odr--.jpg",
+    "FullDst": "/Images/2015/01/20150118_163129_Images_jp_CIMG4851_CASIO_COMPUTER_CO_LTD_EX_S7--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!sf4fdc829cc854da99766e49d583266d6",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/usb/New_Folder_(5)/H7",
+    "SrcName": "MariaPineda001.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2002/02",
+    "DstName": "20020207_032946_VersCoffreFort_archives_xxx_usb_New_Folder_5_H7_MariaPineda001--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2002/02/20020207_032946_VersCoffreFort_archives_xxx_usb_New_Folder_5_H7_MariaPineda001--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!s56dd824e18ac49e0897d9f3b191413d7",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/tori",
+    "SrcName": "Tori_BlackCatsuit_10_016.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2012/04",
+    "DstName": "20120405_202246_VersCoffreFort_archives_xxx_LATEXOTICA_tori_BlackCatsuit_10_016--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2012/04/20120405_202246_VersCoffreFort_archives_xxx_LATEXOTICA_tori_BlackCatsuit_10_016--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!sfc4a7a4eaeeb431590646809f34a9028",
+    "SrcPath": "/drive/root:/VersCoffreFort/Michelle3/images",
+    "SrcName": "20240105_171750.jpg",
+    "DstDir": "/VersCoffreFort/Michelle3/Images/2024/01",
+    "DstName": "20240105_171751_Winooski_Vermont_United_States_VersCoffreFort_Michelle3_images_171750_samsung_Galaxy_S23--odr--.jpg",
+    "FullDst": "/VersCoffreFort/Michelle3/Images/2024/01/20240105_171751_Winooski_Vermont_United_States_VersCoffreFort_Michelle3_images_171750_samsung_Galaxy_S23--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!sacdf4ec9878d4213b55fe801d79f6d9a",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-video/blondes/Nouveau_dossier_(59)",
+    "SrcName": "V00013_t2_350.mpg",
+    "DstDir": "/VersCoffreFort/archives/Videos/2002/10",
+    "DstName": "20021024_003950_VersCoffreFort_archives_xxx_tri_video_blondes_Nouveau_dossier_59_V00013_t2_350_duration_10s--odr--.mpg",
+    "FullDst": "/VersCoffreFort/archives/Videos/2002/10/20021024_003950_VersCoffreFort_archives_xxx_tri_video_blondes_Nouveau_dossier_59_V00013_t2_350_duration_10s--odr--.mpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!s02f271b8fa53430393964b1ba9985ba8",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/ondrv/ai2",
+    "SrcName": "ppv65045646941200479882b6a66be-5e9a-4d72-9552-e83920d90512.mp4",
+    "DstDir": "/VersCoffreFort/archives/Videos/2024/07",
+    "DstName": "20240726_212700_VersCoffreFort_archives_xxx_ondrv_ai2_ppv65045646941200479882b6a66be_5e9a_4d72_9552_e83920d90512_duration_1s--odr--.mp4",
+    "FullDst": "/VersCoffreFort/archives/Videos/2024/07/20240726_212700_VersCoffreFort_archives_xxx_ondrv_ai2_ppv65045646941200479882b6a66be_5e9a_4d72_9552_e83920d90512_duration_1s--odr--.mp4",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!s9a7b8a3201084af4b09b1629832427ba",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/!alicia_blonde/Alicia_3",
+    "SrcName": "DSC01727.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2010/11",
+    "DstName": "20101120_170320_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_3_DSC01727--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2010/11/20101120_170320_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_3_DSC01727--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!sacdf99505c20475599ed3a9c63bf8572",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/anastacia/Anastacia_-_2010-Black_Latex_Catsuit",
+    "SrcName": "Photo_9409.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2010/02",
+    "DstName": "20100225_044140_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Black_Latex_Catsuit_Photo_9409--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2010/02/20100225_044140_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Black_Latex_Catsuit_Photo_9409--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!s9b42b02ad73f45c1b33d8564a8230174",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/dessins",
+    "SrcName": "bliss_greenpsych.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/1998/10",
+    "DstName": "19981018_080848_VersCoffreFort_archives_xxx_tri_img_dessins_bliss_greenpsych--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/1998/10/19981018_080848_VersCoffreFort_archives_xxx_tri_img_dessins_bliss_greenpsych--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!se88581aba9954edfb5f46dd251215bc5",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/bottes-sans_visages/a_classer",
+    "SrcName": "3126592811_1_3_p6oMQRpx.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2013/05",
+    "DstName": "20130519_004818_VersCoffreFort_archives_xxx_tri_img_bottes_sans_visages_classer_3126592811_1_3_p6oMQRpx--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2013/05/20130519_004818_VersCoffreFort_archives_xxx_tri_img_bottes_sans_visages_classer_3126592811_1_3_p6oMQRpx--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!s3da6c9f6d91e44fc82909e324fcee61f",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/bottes-sans_visages",
+    "SrcName": "tumblr_o6cugg1KIt1ue3a0ro2_500.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2016/05",
+    "DstName": "20160516_053506_VersCoffreFort_archives_xxx_tri_img_bottes_sans_visages_tumblr_o6cugg1KIt1ue3a0ro2_500--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2016/05/20160516_053506_VersCoffreFort_archives_xxx_tri_img_bottes_sans_visages_tumblr_o6cugg1KIt1ue3a0ro2_500--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!98828",
+    "SrcPath": "/drive/root:/JPM/Relations/justyna/!justyna",
+    "SrcName": "20200927_140647.jpg",
+    "DstDir": "/Images/2020/09",
+    "DstName": "20200927_140647_JPM_Relations_justyna_140647_samsung_SM_G930W8--odr--.jpg",
+    "FullDst": "/Images/2020/09/20200927_140647_JPM_Relations_justyna_140647_samsung_SM_G930W8--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s0faf7b01f21c449fad126f8452d98290",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/danielle",
+    "SrcName": "Danielle_BlackCatsuit_06_067.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2012/04",
+    "DstName": "20120406_101750_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_BlackCatsuit_06_067--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2012/04/20120406_101750_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_BlackCatsuit_06_067--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!25029",
+    "SrcPath": "/drive/root:/Images/ensemble/Saved_Pictures/Mes_images/FinePix2800ZOOM",
+    "SrcName": "2005-12-10_11-54-07.jpg",
+    "DstDir": "/Images/2005/12",
+    "DstName": "20051210_115407_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_12_10_11_54_07_FUJIFILM--odr--.jpg",
+    "FullDst": "/Images/2005/12/20051210_115407_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_12_10_11_54_07_FUJIFILM--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!50496",
+    "SrcPath": "/drive/root:/Finances/Autos_et_véhicules/Prochain_camion_-_évaluations/ford_explorer",
+    "SrcName": "d_96_.JPG",
+    "DstDir": "/Finances/Autos_et_véhicules/Prochain_camion_-_évaluations/ford_explorer",
+    "DstName": "20161231_005245_Finances_Autos_vehicules_Prochain_camion_evaluations_ford_explorer_d_96--odr--.jpg",
+    "FullDst": "/Finances/Autos_et_véhicules/Prochain_camion_-_évaluations/ford_explorer/20161231_005245_Finances_Autos_vehicules_Prochain_camion_evaluations_ford_explorer_d_96--odr--.jpg",
+    "Category": "only_rename"
+  },
+  {
+    "Id": "440B3E9A717E6203!s6ace54493861482b9549d976038499dd",
+    "SrcPath": "/drive/root:/Images/WhatsApp_Images",
+    "SrcName": "IMG-20250128-WA0014.jpg",
+    "DstDir": "/Images/2025/02",
+    "DstName": "20250209_210503_Images_WhatsApp_IMG_20250128_WA0014--odr--.jpg",
+    "FullDst": "/Images/2025/02/20250209_210503_Images_WhatsApp_IMG_20250128_WA0014--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s37b97c738d194128bbd6c7bbb6e604a8",
+    "SrcPath": "/drive/root:/Images/messenger",
+    "SrcName": "received_2670087143363427.jpeg",
+    "DstDir": "/Images/2026/05",
+    "DstName": "20260520_092752_Images_messenger_received_2670087143363427--odr--.jpeg",
+    "FullDst": "/Images/2026/05/20260520_092752_Images_messenger_received_2670087143363427--odr--.jpeg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s5ba732865649438eb3c3682f35420d21",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/autre",
+    "SrcName": "sophie_001.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2005/11",
+    "DstName": "20051112_035706_VersCoffreFort_archives_xxx_tri_img_autre_sophie_001--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2005/11/20051112_035706_VersCoffreFort_archives_xxx_tri_img_autre_sophie_001--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!104496",
+    "SrcPath": "/drive/root:/Images/ensemble/2021",
+    "SrcName": "20210522_162837_0_.jpg",
+    "DstDir": "/Images/2021/05",
+    "DstName": "20210522_162837_Images_ensemble_162837_0_samsung_SM_G930W8--odr--.jpg",
+    "FullDst": "/Images/2021/05/20210522_162837_Images_ensemble_162837_0_samsung_SM_G930W8--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!sf8c1a4376dd84cea9eefe4c12dd8c15f",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/anastacia/Anastacia_6",
+    "SrcName": "DSC03333.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2005/07",
+    "DstName": "20050705_173928_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_6_DSC03333--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2005/07/20050705_173928_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_6_DSC03333--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!118385",
+    "SrcPath": "/drive/root:/Images/ensemble/2022/03",
+    "SrcName": "IMG_20220312_090146501_HDR.jpg",
+    "DstDir": "/Images/2022/03",
+    "DstName": "20220312_090148_Images_ensemble_03_IMG_090146501_HDR_motorola_moto_g_stylus--odr--.jpg",
+    "FullDst": "/Images/2022/03/20220312_090148_Images_ensemble_03_IMG_090146501_HDR_motorola_moto_g_stylus--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!28031",
+    "SrcPath": "/drive/root:/Images/ensemble/Saved_Pictures/Mes_images/SGH-T999V",
+    "SrcName": "20130202_175358.jpg",
+    "DstDir": "/Images/2013/02",
+    "DstName": "20130202_175357_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_175358_SAMSUNG--odr--.jpg",
+    "FullDst": "/Images/2013/02/20130202_175357_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_175358_SAMSUNG--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!sb4deda73832242159174922cb71c6501",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/natasha",
+    "SrcName": "Natasha_BlackMinidress_08_050.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2012/04",
+    "DstName": "20120405_201438_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackMinidress_08_050--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2012/04/20120405_201438_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackMinidress_08_050--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!139966",
+    "SrcPath": "/drive/root:/Images/Pellicule/2024/06",
+    "SrcName": "20240608_114030.jpg",
+    "DstDir": "/Images/2024/06",
+    "DstName": "20240608_114030_Fontainebleau_Ile_de_France_France_Images_Pellicule_06_114030_samsung_Galaxy_S23--odr--.jpg",
+    "FullDst": "/Images/2024/06/20240608_114030_Fontainebleau_Ile_de_France_France_Images_Pellicule_06_114030_samsung_Galaxy_S23--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!sb10e8bd083864e03bf081406c7518a52",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-video/heike",
+    "SrcName": "fetish_heike.mp4",
+    "DstDir": "/VersCoffreFort/archives/Videos/2010/03",
+    "DstName": "20100314_140304_VersCoffreFort_archives_xxx_tri_video_heike_fetish_duration_138s--odr--.mp4",
+    "FullDst": "/VersCoffreFort/archives/Videos/2010/03/20100314_140304_VersCoffreFort_archives_xxx_tri_video_heike_fetish_duration_138s--odr--.mp4",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!119848",
+    "SrcPath": "/drive/root:/JPM/Relations/justyna/!justyna",
+    "SrcName": "20220820_205328.jpg",
+    "DstDir": "/Images/2022/08",
+    "DstName": "20220820_205328_Brownsburg_Chatham_Quebec_Canada_JPM_Relations_justyna_205328_samsung_SM_G930W8--odr--.jpg",
+    "FullDst": "/Images/2022/08/20220820_205328_Brownsburg_Chatham_Quebec_Canada_JPM_Relations_justyna_205328_samsung_SM_G930W8--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!51177",
+    "SrcPath": "/drive/root:/Finances/Autos_et_véhicules/Prochain_camion_-_évaluations/Nissan_Pathfinder",
+    "SrcName": "g_24_.JPG",
+    "DstDir": "/Finances/Autos_et_véhicules/Prochain_camion_-_évaluations/Nissan_Pathfinder",
+    "DstName": "20161231_024618_Finances_Autos_vehicules_Prochain_camion_evaluations_Nissan_Pathfinder_g_24--odr--.jpg",
+    "FullDst": "/Finances/Autos_et_véhicules/Prochain_camion_-_évaluations/Nissan_Pathfinder/20161231_024618_Finances_Autos_vehicules_Prochain_camion_evaluations_Nissan_Pathfinder_g_24--odr--.jpg",
+    "Category": "only_rename"
+  },
+  {
+    "Id": "440B3E9A717E6203!s3a9d8f18103a49c387bde979159df101",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/3d/Nouveau_dossier_(4)/a_(17)",
+    "SrcName": "lanavsthecock_40-me.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2014/03",
+    "DstName": "20140303_041336_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_17_lanavsthecock_40_me--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2014/03/20140303_041336_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_17_lanavsthecock_40_me--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!s50a9e71496e143a88e16dd7bffcf0e45",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/natasha",
+    "SrcName": "Natasha_BlackCatsuit_10_060.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2012/04",
+    "DstName": "20120405_201542_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackCatsuit_10_060--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2012/04/20120405_201542_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackCatsuit_10_060--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!sf8e3245db4b04fd5924572619f8dc70b",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/LATEXOTICA/danielle",
+    "SrcName": "Danielle_BlackTrousers_05_107.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2012/04",
+    "DstName": "20120406_101732_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_BlackTrousers_05_107--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2012/04/20120406_101732_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_BlackTrousers_05_107--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!84330",
+    "SrcPath": "/drive/root:/JPM/Relations/justyna/!justyna",
+    "SrcName": "1510265042618.0_1_.jpg",
+    "DstDir": "/Images/2023/01",
+    "DstName": "20230103_104552_JPM_Relations_justyna_1510265042618_0_1--odr--.jpg",
+    "FullDst": "/Images/2023/01/20230103_104552_JPM_Relations_justyna_1510265042618_0_1--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!sfac021b00dca477590585321837596f3",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-video/beauty/dossier_(19)",
+    "SrcName": "rws-phoenix_ricki_02_mnyu_02.wmv",
+    "DstDir": "/VersCoffreFort/archives/Videos/2008/08",
+    "DstName": "20080807_174202_VersCoffreFort_archives_xxx_tri_video_beauty_dossier_19_rws_phoenix_ricki_02_mnyu_duration_15s--odr--.wmv",
+    "FullDst": "/VersCoffreFort/archives/Videos/2008/08/20080807_174202_VersCoffreFort_archives_xxx_tri_video_beauty_dossier_19_rws_phoenix_ricki_02_mnyu_duration_15s--odr--.wmv",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!s0c5479c7e3964714993a6b128832e47b",
+    "SrcPath": "/drive/root:/Images/Pellicule/2023/09",
+    "SrcName": "IMG_20230916_074420125-portable_jpm.jpg",
+    "DstDir": "/Images/2023/09",
+    "DstName": "20230916_074420_Longueuil_Quebec_Canada_Images_Pellicule_09_IMG_074420125_portable_jpm_motorola_moto_g_5G_2022--odr--.jpg",
+    "FullDst": "/Images/2023/09/20230916_074420_Longueuil_Quebec_Canada_Images_Pellicule_09_IMG_074420125_portable_jpm_motorola_moto_g_5G_2022--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s76b727d4c0d749ef9e21d8dbf997b34b",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/bottes",
+    "SrcName": "14117796835_4000fb6bd3_b.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2014/05",
+    "DstName": "20140509_083900_VersCoffreFort_archives_xxx_tri_img_bottes_14117796835_4000fb6bd3_b--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2014/05/20140509_083900_VersCoffreFort_archives_xxx_tri_img_bottes_14117796835_4000fb6bd3_b--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!s72fed0e731ae40c5a54fa487b01134ff",
+    "SrcPath": "/drive/root:/Images/WhatsApp_Images",
+    "SrcName": "IMG-20260123-WA0033.jpg",
+    "DstDir": "/Images/2026/01",
+    "DstName": "20260124_023612_Images_WhatsApp_IMG_20260123_WA0033--odr--.jpg",
+    "FullDst": "/Images/2026/01/20260124_023612_Images_WhatsApp_IMG_20260123_WA0033--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s15d72267fc8343b8bba3978a3cf6137e",
+    "SrcPath": "/drive/root:/Images/WhatsApp_Images",
+    "SrcName": "IMG-20250106-WA0006.jpg",
+    "DstDir": "/Images/2025/02",
+    "DstName": "20250209_210623_Images_WhatsApp_IMG_20250106_WA0006--odr--.jpg",
+    "FullDst": "/Images/2025/02/20250209_210623_Images_WhatsApp_IMG_20250106_WA0006--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!s828c952d681542af8707512c308a3a50",
+    "SrcPath": "/drive/root:/VersCoffreFort/archives/xxx/XXX/tri-img/Beautés_Wow",
+    "SrcName": "6999531401_9c9e5580a8_o.jpg",
+    "DstDir": "/VersCoffreFort/archives/Images/2012/03",
+    "DstName": "20120320_101428_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_6999531401_9c9e5580a8_o--odr--.jpg",
+    "FullDst": "/VersCoffreFort/archives/Images/2012/03/20120320_101428_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_6999531401_9c9e5580a8_o--odr--.jpg",
+    "Category": "confidential"
+  },
+  {
+    "Id": "440B3E9A717E6203!144071",
+    "SrcPath": "/drive/root:/Images/WhatsApp_Images",
+    "SrcName": "IMG-20240913-WA0009.jpg",
+    "DstDir": "/Images/2024/09",
+    "DstName": "20240913_163443_Images_WhatsApp_IMG_WA0009--odr--.jpg",
+    "FullDst": "/Images/2024/09/20240913_163443_Images_WhatsApp_IMG_WA0009--odr--.jpg",
+    "Category": "default"
+  },
+  {
+    "Id": "440B3E9A717E6203!21208",
+    "SrcPath": "/drive/root:/Images/ensemble/Saved_Pictures/Mes_images/Canon_PowerShot_S5_IS",
+    "SrcName": "IMG_1707.JPG",
+    "DstDir": "/Images/2010/12",
+    "DstName": "20101229_111903_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_1707--odr--.jpg",
+    "FullDst": "/Images/2010/12/20101229_111903_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_1707--odr--.jpg",
+    "Category": "default"
   }
 ]

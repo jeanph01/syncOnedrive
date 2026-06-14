@@ -9,7 +9,7 @@
 
 param (
     [bool]$Execute = $true,                          # Actually performs the moves
-    [bool]$ResetCache = $true,                      # Resets internal files except GPS and OneDrive cache
+    [bool]$ResetCache = $false,                      # Resets internal files except GPS and OneDrive cache
     [string]$ConfigFile = ".\config.ini",          # Application configuration
     # === NEW PARAMETERS ===
     [bool]$Analyze = $false,          # Analyze plan.json
@@ -17,8 +17,8 @@ param (
     [bool]$Validate = $false,         # Validate OneDrive cache
     [string]$DebugId = "",            # Debug a specific file
     [bool]$ReportIgnored = $false,    # Generate ignored files report
-    [string]$ProcessRange = "1..2",       # Process only a subset of files (e.g., "1", "1..10", "10+")
-    [bool]$StepByStep = $true         # Interactive step-by-step mode with confirmation
+    [string]$ProcessRange = "1..100",       # Process only a subset of files (e.g., "1", "1..10", "10+")
+    [bool]$StepByStep = $false         # Interactive step-by-step mode with confirmation
 )
 
 # --- Force Write-Progress display in case another script disabled it

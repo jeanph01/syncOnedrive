@@ -73,8 +73,8 @@
 
   "folderRules": {
     "bureau": "default",
-    "Cuisine": "administrative",
-    "Documents": "administrative",
+    "Cuisine": "no_action",
+    "Documents": "no_action",
     "Fichiers Microsoft Copilot Chat": "default",
     "Fichiers transcrits": "no_action",
     "films": "no_action",
@@ -84,8 +84,8 @@
     "jp": "default",
     "JPM": "default",
     "Livres": "no_action",
-    "Loisirs": "administrative",
-    "Légal": "administrative",
+    "Loisirs": "no_action",
+    "Légal": "no_action",
     "Music": "default",
     "packages informatique": "no_action",
     "Pièces jointes": "no_action",
