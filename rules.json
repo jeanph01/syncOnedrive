@@ -10,8 +10,8 @@
   },
 
   "extensionMap": {
-    ".jpg": "Images", ".jpeg": "Images", ".png": "Images", ".gif": "Images",
-    ".bmp": "Images", ".webp": "Images", ".heic": "Images", ".heif": "Images",
+    ".jpg": "Images", ".jpeg": "Images", ".png": "Images",
+    ".bmp": "Images", ".heic": "Images", ".heif": "Images",
     ".tif": "Images", ".tiff": "Images", ".svg": "Images", ".psd": "Images",
     ".ai": "Images", ".xcf": "Images", ".ico": "Images", ".thm": "Images",
     ".mp4": "Videos", ".mov": "Videos", ".avi": "Videos", ".mkv": "Videos",
@@ -20,12 +20,15 @@
     ".mp3": "Audio", ".wav": "Audio", ".m4a": "Audio", ".flac": "Audio",
     ".amr": "Audio", ".opus": "Audio"
   },
+  // New: Animated image extensions
+  ".gif": "Animated", ".webp": "Animated", ".apng": "Animated"
 
   "routingRules": {
     "actionPriority": [
       "confidential",
       "administrative",
       "no_action",
+      "Animated",
       "default",
       "only_rename"
     ],
@@ -58,6 +61,12 @@
       "no_action": {
         "destination": null,
         "filename": "<original><ext>",
+        "keepLevels": 0
+      },
+
+      "Animated": {
+        "destination": "Videos/<year>/<month>/",
+        "filename": "<finalName>",
         "keepLevels": 0
       }
     },
@@ -130,6 +139,7 @@
   "mediaRules": {
     "extractCameraModel": true,
     "extractVideoDuration": true,
+    "shortVideoMaxDurationMs": 60000, // Max duration in milliseconds for camera videos to be treated as images (e.g., 60 seconds)
     "normalizeAscii": true,
     "splitPattern": "[ _-]"
   },

@@ -81,6 +81,25 @@ function Read-AzureFileInfo {
             $refDate = [DateTime]$item.fileSystemInfo.lastModifiedDateTime
         }
 
+        # Détection "Animé" (GIF, WebP animé, etc.)
+        # Priorité à l'extension, puis si Graph le rapporte comme vidéo ET image
+        $isAnimated = $false
+        if ($item.name -match '\.(gif|webp|apng)$') {
+            $isAnimated = $true
+        }
+        elseif ($item.video -and $item.image) {
+            $isAnimated = $true
+        }
+
+        # Détection "Courte vidéo de caméra"
+        $isCameraVideo = $false
+        if ($item.video -and $item.photo) {
+            $shortVideoMaxDurationMs = $Global:Rules.mediaRules.shortVideoMaxDurationMs
+            if ($item.video.duration -le $shortVideoMaxDurationMs) {
+                $isCameraVideo = $true
+            }
+        }
+
         return @{
             n   = $item.name
             s   = $item.size
@@ -92,6 +111,8 @@ function Read-AzureFileInfo {
             img = $imgInfo
             vid = $videoInfo
             aud = $audioInfo
+            ani = $isAnimated
+            isCameraVideo = $isCameraVideo
         }
     }
     catch {
@@ -515,7 +536,16 @@ function Get-DestinationPath {
     $extMap = $Global:Config.ExtensionMap
 
     # 1) Catégorie media
-    $media = if ($extMap.ContainsKey($Extension)) { $extMap[$Extension] } else { "Other" }
+    $media = "Other"
+    if ($FileMeta.ani) {
+        $media = "Animated" # Les images animées (GIF, WebP) sont traitées comme une catégorie à part
+    }
+    elseif ($FileMeta.isCameraVideo) {
+        $media = "Images" # Les courtes vidéos de caméra restent avec les images
+    }
+    elseif ($extMap.ContainsKey($Extension)) {
+        $media = $extMap[$Extension]
+    }
 
     # 2) Analyse du path source
     $srcPath = $FileMeta.p

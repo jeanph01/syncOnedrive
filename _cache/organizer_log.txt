@@ -847,3 +847,789 @@
 [13:16:27] [DEBUG] Checking Graph token validity...
 [13:16:27] [DEBUG] Get-GraphToken: checking existing token
 [13:16:27] [DEBUG] Valid token loaded from cache
+[13:16:27] [DEBUG] Checking Graph token validity...
+[13:16:27] [DEBUG] Get-GraphToken: checking existing token
+[13:16:27] [DEBUG] Valid token loaded from cache
+[13:16:28] [DEBUG] Checking Graph token validity...
+[13:16:28] [DEBUG] Get-GraphToken: checking existing token
+[13:16:28] [DEBUG] Valid token loaded from cache
+[13:16:29] [DEBUG] Checking Graph token validity...
+[13:16:29] [DEBUG] Get-GraphToken: checking existing token
+[13:16:29] [DEBUG] Valid token loaded from cache
+[13:16:29] [DEBUG] Checking Graph token validity...
+[13:16:29] [DEBUG] Get-GraphToken: checking existing token
+[13:16:29] [DEBUG] Valid token loaded from cache
+[13:16:29] [DEBUG] Checking Graph token validity...
+[13:16:29] [DEBUG] Get-GraphToken: checking existing token
+[13:16:29] [DEBUG] Valid token loaded from cache
+[13:16:29] [DEBUG] Checking Graph token validity...
+[13:16:29] [DEBUG] Get-GraphToken: checking existing token
+[13:16:29] [DEBUG] Valid token loaded from cache
+[13:16:30] [DEBUG] Checking Graph token validity...
+[13:16:30] [DEBUG] Get-GraphToken: checking existing token
+[13:16:30] [DEBUG] Valid token loaded from cache
+[13:16:31] [DEBUG] Checking Graph token validity...
+[13:16:31] [DEBUG] Get-GraphToken: checking existing token
+[13:16:31] [DEBUG] Valid token loaded from cache
+[13:16:31] [DEBUG] Checking Graph token validity...
+[13:16:31] [DEBUG] Get-GraphToken: checking existing token
+[13:16:31] [DEBUG] Valid token loaded from cache
+[13:16:31] [DEBUG] Checking Graph token validity...
+[13:16:31] [DEBUG] Get-GraphToken: checking existing token
+[13:16:31] [DEBUG] Valid token loaded from cache
+[13:16:33] [DEBUG] Folder created: /Images/2025/03
+[13:16:33] [SUCCESS] [274/332] Verified folder path '/Images/2025/03' (1 new folders created)
+[13:16:33] [DEBUG] Checking Graph token validity...
+[13:16:33] [DEBUG] Get-GraphToken: checking existing token
+[13:16:33] [DEBUG] Valid token loaded from cache
+[13:16:33] [DEBUG] Checking Graph token validity...
+[13:16:33] [DEBUG] Get-GraphToken: checking existing token
+[13:16:33] [DEBUG] Valid token loaded from cache
+[13:16:33] [DEBUG] Checking Graph token validity...
+[13:16:33] [DEBUG] Get-GraphToken: checking existing token
+[13:16:33] [DEBUG] Valid token loaded from cache
+[13:16:34] [DEBUG] Checking Graph token validity...
+[13:16:34] [DEBUG] Get-GraphToken: checking existing token
+[13:16:34] [DEBUG] Valid token loaded from cache
+[13:16:34] [DEBUG] Checking Graph token validity...
+[13:16:34] [DEBUG] Get-GraphToken: checking existing token
+[13:16:34] [DEBUG] Valid token loaded from cache
+[13:16:34] [DEBUG] Checking Graph token validity...
+[13:16:34] [DEBUG] Get-GraphToken: checking existing token
+[13:16:34] [DEBUG] Valid token loaded from cache
+[13:16:34] [DEBUG] Checking Graph token validity...
+[13:16:34] [DEBUG] Get-GraphToken: checking existing token
+[13:16:34] [DEBUG] Valid token loaded from cache
+[13:16:34] [DEBUG] Checking Graph token validity...
+[13:16:34] [DEBUG] Get-GraphToken: checking existing token
+[13:16:34] [DEBUG] Valid token loaded from cache
+[13:16:35] [DEBUG] Checking Graph token validity...
+[13:16:35] [DEBUG] Get-GraphToken: checking existing token
+[13:16:35] [DEBUG] Valid token loaded from cache
+[13:16:36] [DEBUG] Checking Graph token validity...
+[13:16:36] [DEBUG] Get-GraphToken: checking existing token
+[13:16:36] [DEBUG] Valid token loaded from cache
+[13:16:36] [DEBUG] Checking Graph token validity...
+[13:16:36] [DEBUG] Get-GraphToken: checking existing token
+[13:16:36] [DEBUG] Valid token loaded from cache
+[13:16:37] [DEBUG] Checking Graph token validity...
+[13:16:37] [DEBUG] Get-GraphToken: checking existing token
+[13:16:37] [DEBUG] Valid token loaded from cache
+[13:16:37] [DEBUG] Checking Graph token validity...
+[13:16:37] [DEBUG] Get-GraphToken: checking existing token
+[13:16:37] [DEBUG] Valid token loaded from cache
+[13:16:38] [DEBUG] Checking Graph token validity...
+[13:16:38] [DEBUG] Get-GraphToken: checking existing token
+[13:16:38] [DEBUG] Valid token loaded from cache
+[13:16:38] [DEBUG] Checking Graph token validity...
+[13:16:38] [DEBUG] Get-GraphToken: checking existing token
+[13:16:38] [DEBUG] Valid token loaded from cache
+[13:16:38] [DEBUG] Checking Graph token validity...
+[13:16:38] [DEBUG] Get-GraphToken: checking existing token
+[13:16:38] [DEBUG] Valid token loaded from cache
+[13:16:39] [DEBUG] Checking Graph token validity...
+[13:16:39] [DEBUG] Get-GraphToken: checking existing token
+[13:16:39] [DEBUG] Valid token loaded from cache
+[13:16:41] [DEBUG] Folder created: /Images/2026/02
+[13:16:41] [SUCCESS] [291/332] Verified folder path '/Images/2026/02' (1 new folders created)
+[13:16:41] [DEBUG] Checking Graph token validity...
+[13:16:41] [DEBUG] Get-GraphToken: checking existing token
+[13:16:42] [DEBUG] Valid token loaded from cache
+[13:16:42] [DEBUG] Checking Graph token validity...
+[13:16:42] [DEBUG] Get-GraphToken: checking existing token
+[13:16:42] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [INFO] [300/332] Folder check progress...
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [DEBUG] Checking Graph token validity...
+[13:16:44] [DEBUG] Get-GraphToken: checking existing token
+[13:16:44] [DEBUG] Valid token loaded from cache
+[13:16:44] [INFO] [332/332] Folder check progress...
+[13:16:44] [WARN] Starting move execution...
+[13:16:44] [INFO] [1/884] Moving: dessin0006.jpg -> /Vie des enfants/dessins/20150331_131440_Vie_enfants_dessins_dessin0006_HP_pst_p02a--odr--.jpg
+[13:16:46] [INFO] [2/884] Moving: darkc8a.jpg -> /VersCoffreFort/archives/Images/1998/07/19980725_224842_VersCoffreFort_archives_xxx_tri_img_dessins_darkc8a--odr--.jpg
+[13:16:47] [INFO] [3/884] Moving: exp1.jpg -> /VersCoffreFort/archives/Images/1999/08/19990809_184642_VersCoffreFort_archives_xxx_tri_img_dessins_exp1--odr--.jpg
+[13:16:48] [INFO] [4/884] Moving: sara4.jpg -> /VersCoffreFort/archives/Images/1999/10/19991006_141158_VersCoffreFort_archives_xxx_tri_img_dessins_sara4--odr--.jpg
+[13:16:49] [INFO] [5/884] Moving: glr1.jpg -> /VersCoffreFort/archives/Images/2000/02/20000205_200828_VersCoffreFort_archives_xxx_tri_img_dessins_glr1--odr--.jpg
+[13:16:50] [INFO] [6/884] Moving: team_wwpizza.jpg -> /VersCoffreFort/archives/Images/2000/07/20000709_145748_VersCoffreFort_archives_xxx_tri_img_dessins_team_wwpizza--odr--.jpg
+[13:16:51] [INFO] [7/884] Moving: jennifer_l14.jpg -> /VersCoffreFort/archives/Images/2000/11/20001116_000000_VersCoffreFort_archives_xxx_usb_New_Folder_5_NF4_BEST_jennifer_l14--odr--.jpg
+[13:16:52] [INFO] [8/884] Moving: NatashaHenstridge01.jpg -> /VersCoffreFort/archives/Images/2001/10/20011017_230010_VersCoffreFort_archives_xxx_usb_New_Folder_5_H7_NatashaHenstridge01--odr--.jpg
+[13:16:52] [INFO] [9/884] Moving: gml_bluehalfbt.jpg -> /VersCoffreFort/archives/Images/2002/01/20020116_012204_VersCoffreFort_archives_xxx_tri_img_bottes_gml_bluehalfbt--odr--.jpg
+[13:16:53] [INFO] [10/884] Moving: Veronica-ds-SC-01-99-13.jpg -> /VersCoffreFort/archives/Images/2002/04/20020404_015416_VersCoffreFort_archives_xxx_tri_img_bottes_porn_Veronica_ds_SC_01_99_13--odr--.jpg
+[13:16:54] [INFO] [11/884] Moving: 141_157.jpg -> /VersCoffreFort/archives/Images/2002/04/20020426_160524_VersCoffreFort_archives_xxx_tri_img_autre_141_157--odr--.jpg
+[13:16:55] [INFO] [12/884] Moving: Veronika Zemanova - Black Corset 01.jpg -> /VersCoffreFort/archives/Images/2003/01/20030111_040144_VersCoffreFort_archives_xxx_tri_img_porn_Veronika_Zemanova_Black_Corset_01--odr--.jpg
+[13:16:56] [INFO] [13/884] Moving: 15.mpg -> /VersCoffreFort/archives/Videos/2003/01/20030116_134710_VersCoffreFort_archives_xxx_tri_video_beauty_Nouveau_dossier_38_15_duration_11s--odr--.mpg
+[13:16:56] [INFO] [14/884] Moving: 01_24.jpg -> /VersCoffreFort/archives/Images/2003/02/20030203_211952_VersCoffreFort_archives_xxx_tri_img_bottes_porn_01_24--odr--.jpg
+[13:16:57] [INFO] [15/884] Moving: 03_18.jpg -> /VersCoffreFort/archives/Images/2003/02/20030205_140902_VersCoffreFort_archives_xxx_tri_img_bottes_porn_03_18--odr--.jpg
+[13:16:58] [INFO] [16/884] Moving: 0998F001.JPG -> /VersCoffreFort/archives/Images/2003/03/20030323_204336_VersCoffreFort_archives_xxx_tri_img_bottes_porn_0998F001--odr--.jpg
+[13:16:59] [INFO] [17/884] Moving: hollybody_sample1_all.mpg -> /VersCoffreFort/archives/Videos/2003/05/20030504_143618_VersCoffreFort_archives_xxx_tri_video_blow_1_3_hollybody_sample1_all_duration_30s--odr--.mpg
+[13:16:59] [INFO] [18/884] Moving: privat-lack0171.jpg -> /VersCoffreFort/archives/Images/2003/06/20030615_232222_VersCoffreFort_archives_xxx_tri_img_heike_privat_lack0171--odr--.jpg
+[13:17:00] [INFO] [19/884] Moving: privat-leder0180.jpg -> /VersCoffreFort/archives/Images/2003/06/20030615_232518_VersCoffreFort_archives_xxx_tri_img_heike_privat_leder0180--odr--.jpg
+[13:17:01] [INFO] [20/884] Moving: privat-leder0091.jpg -> /VersCoffreFort/archives/Images/2003/06/20030615_232800_VersCoffreFort_archives_xxx_tri_img_heike_privat_leder0091--odr--.jpg
+[13:17:02] [INFO] [21/884] Moving: fetisch-latex0385.jpg -> /VersCoffreFort/archives/Images/2003/06/20030615_234332_VersCoffreFort_archives_xxx_tri_img_heike_fetisch_latex0385--odr--.jpg
+[13:17:03] [INFO] [22/884] Moving: fetisch-latex0403.jpg -> /VersCoffreFort/archives/Images/2003/06/20030615_234426_VersCoffreFort_archives_xxx_tri_img_heike_fetisch_latex0403--odr--.jpg
+[13:17:04] [INFO] [23/884] Moving: fetisch-lack0086.jpg -> /VersCoffreFort/archives/Images/2003/06/20030615_234630_VersCoffreFort_archives_xxx_tri_img_heike_fetisch_lack0086--odr--.jpg
+[13:17:04] [INFO] [24/884] Moving: adult01.mpg -> /VersCoffreFort/archives/Videos/2003/09/20030922_092946_VersCoffreFort_archives_xxx_tri_video_blow_1_3_adult01_duration_10s--odr--.mpg
+[13:17:05] [INFO] [25/884] Moving: 7.mpg -> /VersCoffreFort/archives/Videos/2003/11/20031123_170336_VersCoffreFort_archives_xxx_tri_video_blow_1_25_7_duration_8s--odr--.mpg
+[13:17:06] [INFO] [26/884] Moving: 02_4.jpg -> /VersCoffreFort/archives/Images/2003/12/20031205_110528_VersCoffreFort_archives_xxx_tri_img_bottes_porn_02_4--odr--.jpg
+[13:17:07] [INFO] [27/884] Moving: j (7)_2.jpg -> /VersCoffreFort/archives/Images/2004/03/20040328_143849_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_j_7_2_Canon_EOS_10D--odr--.jpg
+[13:17:08] [INFO] [28/884] Moving: 1-003.mpg -> /VersCoffreFort/archives/Videos/2004/08/20040810_025416_VersCoffreFort_archives_xxx_tri_video_beauty_Nouveau_dossier_30_1_003_duration_22s--odr--.mpg
+[13:17:08] [INFO] [29/884] Moving: V01777_big_03.mpg -> /VersCoffreFort/archives/Videos/2004/11/20041124_175304_VersCoffreFort_archives_xxx_tri_video_bottes_porn_01_V01777_big_03_duration_30s--odr--.mpg
+[13:17:09] [INFO] [30/884] Moving: DSC04139.jpg -> /VersCoffreFort/archives/Images/2004/11/20041126_014244_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_1_DSC04139--odr--.jpg
+[13:17:10] [INFO] [31/884] Moving: garcelle02.jpg -> /VersCoffreFort/archives/Images/2005/01/20050122_153808_VersCoffreFort_archives_xxx_usb_New_Folder_5_NF4_BEST_garcelle02--odr--.jpg
+[13:17:11] [INFO] [32/884] Moving: jillian16.jpg -> /VersCoffreFort/archives/Images/2005/01/20050122_172936_VersCoffreFort_archives_xxx_usb_New_Folder_5_NF4_BEST_jillian16--odr--.jpg
+[13:17:11] [INFO] [33/884] Moving: LEANN05.JPG -> /VersCoffreFort/archives/Images/2005/01/20050129_200706_VersCoffreFort_archives_xxx_usb_New_Folder_5_NF4_BEST_LEANN05--odr--.jpg
+[13:17:12] [INFO] [34/884] Moving: DSC_0294.JPG -> /VersCoffreFort/archives/Images/2005/02/20050206_061118_VersCoffreFort_archives_xxx_usb_New_Folder_5_JJ_G_DSC_0294--odr--.jpg
+[13:17:13] [INFO] [35/884] Moving: BANKS13.JPG -> /VersCoffreFort/archives/Images/2005/02/20050206_061436_VersCoffreFort_archives_xxx_usb_New_Folder_5_JJ_G_HH_BANKS13--odr--.jpg
+[13:17:14] [INFO] [36/884] Moving: CAROL2.JPG -> /VersCoffreFort/archives/Images/2005/02/20050214_042528_VersCoffreFort_archives_xxx_usb_New_Folder_5_BOOT_TV_CAROL2--odr--.jpg
+[13:17:15] [INFO] [37/884] Moving: misc01_05.jpg -> /VersCoffreFort/archives/Images/2005/02/20050214_055104_VersCoffreFort_archives_xxx_usb_New_Folder_5_BOOT_TV_misc01_05--odr--.jpg
+[13:17:15] [INFO] [38/884] Moving: mercy021405.jpg -> /VersCoffreFort/archives/Images/2005/02/20050215_012806_VersCoffreFort_archives_xxx_usb_New_Folder_5_mercy021405--odr--.jpg
+[13:17:16] [INFO] [39/884] Moving: britney97.jpg -> /VersCoffreFort/archives/Images/2005/02/20050218_215032_VersCoffreFort_archives_xxx_usb_New_Folder_5_britney97--odr--.jpg
+[13:17:17] [INFO] [40/884] Moving: britney282.jpg -> /VersCoffreFort/archives/Images/2005/02/20050218_220720_VersCoffreFort_archives_xxx_usb_New_Folder_5_britney282--odr--.jpg
+[13:17:18] [INFO] [41/884] Moving: gfdfdm_l2.jpg -> /VersCoffreFort/archives/Images/2005/02/20050224_051302_VersCoffreFort_archives_xxx_usb_New_Folder_5_NF4_BEST_gfdfdm_l2--odr--.jpg
+[13:17:19] [INFO] [42/884] Moving: nakedinboots_808.jpg -> /VersCoffreFort/archives/Images/2005/02/20050227_053424_VersCoffreFort_archives_xxx_usb_New_Folder_5_BOOT_TV_nakedinboots_808--odr--.jpg
+[13:17:20] [INFO] [43/884] Moving: HOLLY8.JPG -> /VersCoffreFort/archives/Images/2005/03/20050302_051320_VersCoffreFort_archives_xxx_usb_New_Folder_5_HV_HOLLY8--odr--.jpg
+[13:17:21] [INFO] [44/884] Moving: DSC07214.jpg -> /VersCoffreFort/archives/Images/2005/03/20050312_182420_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_3_DSC07214--odr--.jpg
+[13:17:22] [INFO] [45/884] Moving: sandra (11).jpg -> /VersCoffreFort/archives/Images/2005/03/20050318_193052_VersCoffreFort_archives_xxx_usb_New_Folder_12_sandra_11--odr--.jpg
+[13:17:23] [INFO] [46/884] Moving: DSC07493.jpg -> /VersCoffreFort/archives/Images/2005/08/20050830_064846_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_8_part_2_DSC07493--odr--.jpg
+[13:17:24] [INFO] [47/884] Moving: 07_4.jpg -> /VersCoffreFort/archives/Images/2005/09/20050922_093634_VersCoffreFort_archives_xxx_tri_img_porn_07_4--odr--.jpg
+[13:17:25] [INFO] [48/884] Moving: fetisch-leder1951.jpg -> /VersCoffreFort/archives/Images/2005/10/20051009_193644_VersCoffreFort_archives_xxx_tri_img_heike_fetisch_leder1951--odr--.jpg
+[13:17:26] [INFO] [49/884] Moving: 3.jpg -> /VersCoffreFort/archives/Images/2005/11/20051112_032240_VersCoffreFort_archives_xxx_tri_img_maillots_3--odr--.jpg
+[13:17:27] [DEBUG] Checking Graph token validity...
+[13:17:27] [DEBUG] Get-GraphToken: checking existing token
+[13:17:27] [DEBUG] Valid token loaded from cache
+[13:17:27] [INFO] [50/884] Moving: 1d0.jpg -> /VersCoffreFort/archives/Images/2005/11/20051112_042430_VersCoffreFort_archives_xxx_tri_img_porn_1d0--odr--.jpg
+[13:17:28] [INFO] [51/884] Moving: DSC00996.jpg -> /VersCoffreFort/archives/Images/2006/01/20060120_092324_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia3_DSC00996--odr--.jpg
+[13:17:29] [INFO] [52/884] Moving: DSC04483.jpg -> /VersCoffreFort/archives/Images/2006/01/20060120_092410_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia8_DSC04483--odr--.jpg
+[13:17:30] [INFO] [53/884] Moving: DSC01289.jpg -> /VersCoffreFort/archives/Images/2006/01/20060120_162334_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia5_DSC01289--odr--.jpg
+[13:17:30] [INFO] [54/884] Moving: j (5)_6.jpg -> /VersCoffreFort/archives/Images/2006/02/20060205_230239_VersCoffreFort_archives_xxx_tri_img_bottes_porn_james_bertoni_j_5_6_Canon_EOS_400D_DIGITAL--odr--.jpg
+[13:17:32] [INFO] [55/884] Moving: 1242_m19.mpg -> /VersCoffreFort/archives/Videos/2006/02/20060206_211418_VersCoffreFort_archives_xxx_tri_video_bottes_porn_01_1242_m19_duration_15s--odr--.mpg
+[13:17:32] [INFO] [56/884] Moving: 1242_m32.mpg -> /VersCoffreFort/archives/Videos/2006/02/20060206_211516_VersCoffreFort_archives_xxx_tri_video_bottes_porn_01_1242_m32_duration_15s--odr--.mpg
+[13:17:33] [INFO] [57/884] Moving: 005_3.jpg -> /VersCoffreFort/archives/Images/2006/02/20060216_204851_VersCoffreFort_archives_xxx_tri_img_porn_005_3_NIKON_CORPORATION_D2X--odr--.jpg
+[13:17:34] [INFO] [58/884] Moving: 03_9.mpg -> /VersCoffreFort/archives/Videos/2006/02/20060226_174056_VersCoffreFort_archives_xxx_tri_video_bottes_porn_26_03_9_duration_20s--odr--.mpg
+[13:17:35] [INFO] [59/884] Moving: DSC00225.jpg -> /VersCoffreFort/archives/Images/2006/04/20060416_041838_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia10_DSC00225--odr--.jpg
+[13:17:36] [INFO] [60/884] Moving: DSC06596.jpg -> /VersCoffreFort/archives/Images/2006/05/20060520_015712_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_8_DSC06596--odr--.jpg
+[13:17:36] [INFO] [61/884] Moving: oksana.02.avi -> /VersCoffreFort/archives/Videos/2006/08/20060815_155902_VersCoffreFort_archives_xxx_tri_video_bottes_porn_01_oksana_02_duration_37s--odr--.avi
+[13:17:37] [INFO] [62/884] Moving: oksana.14.avi -> /VersCoffreFort/archives/Videos/2006/08/20060815_155914_VersCoffreFort_archives_xxx_tri_video_bottes_porn_01_oksana_14_duration_34s--odr--.avi
+[13:17:38] [INFO] [63/884] Moving: 959587431.jpg -> /VersCoffreFort/archives/Images/2006/09/20060916_013458_VersCoffreFort_archives_xxx_tri_img_bottes_porn_959587431--odr--.jpg
+[13:17:38] [INFO] [64/884] Moving: DSC04751.jpg -> /VersCoffreFort/archives/Images/2006/10/20061031_071340_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia17_DSC04751--odr--.jpg
+[13:17:39] [INFO] [65/884] Moving: DSC04794.jpg -> /VersCoffreFort/archives/Images/2006/10/20061031_072142_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia17_DSC04794--odr--.jpg
+[13:17:40] [INFO] [66/884] Moving: DSC04818.jpg -> /VersCoffreFort/archives/Images/2006/10/20061031_072328_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia17_DSC04818--odr--.jpg
+[13:17:41] [INFO] [67/884] Moving: 372952177.jpg -> /VersCoffreFort/archives/Images/2006/11/20061111_014128_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_372952177--odr--.jpg
+[13:17:42] [INFO] [68/884] Moving: club_1581-064.jpg -> /VersCoffreFort/archives/Images/2006/11/20061122_032104_VersCoffreFort_archives_xxx_tri_img_bottes_porn_club_1581_064--odr--.jpg
+[13:17:42] [INFO] [69/884] Moving: j (14)_2.jpg -> /VersCoffreFort/archives/Images/2006/12/20061204_161408_VersCoffreFort_archives_xxx_tri_img_bottes_j_14_2--odr--.jpg
+[13:17:43] [INFO] [70/884] Moving: DSC05382.jpg -> /VersCoffreFort/archives/Images/2006/12/20061231_045224_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_21_DSC05382--odr--.jpg
+[13:17:45] [INFO] [71/884] Moving: DSC05387.jpg -> /VersCoffreFort/archives/Images/2006/12/20061231_071204_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_22_DSC05387--odr--.jpg
+[13:17:45] [INFO] [72/884] Moving: DSC05499.jpg -> /VersCoffreFort/archives/Images/2006/12/20061231_071516_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_22_DSC05499--odr--.jpg
+[13:17:46] [INFO] [73/884] Moving: DSC08686.jpg -> /VersCoffreFort/archives/Images/2007/02/20070209_135114_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia19_DSC08686--odr--.jpg
+[13:17:47] [INFO] [74/884] Moving: CBB01-09_1.jpg -> /VersCoffreFort/archives/Images/2007/04/20070401_184900_VersCoffreFort_archives_xxx_tri_img_bottes_porn_james_bertoni_Nouveau_dossier_CBB01_09_1--odr--.jpg
+[13:17:47] [INFO] [75/884] Moving: dominationzone_05_x2.mpg -> /VersCoffreFort/archives/Videos/2007/04/20070424_003648_VersCoffreFort_archives_xxx_tri_video_bottes_porn_21_dominationzone_05_x2_duration_20s--odr--.mpg
+[13:17:48] [INFO] [76/884] Moving: img12.jpg -> /VersCoffreFort/archives/Images/2007/05/20070513_142706_VersCoffreFort_archives_xxx_tri_img_bottes_porn_img12_Canon_EOS_20D--odr--.jpg
+[13:17:49] [INFO] [77/884] Moving: 1427_04_15sec_00.wmv -> /VersCoffreFort/archives/Videos/2007/05/20070529_163314_VersCoffreFort_archives_xxx_tri_video_beauty_Nouveau_dossier_20_1427_04_15sec_00_duration_15s--odr--.wmv
+[13:17:50] [INFO] [78/884] Moving: DSC03242.jpg -> /VersCoffreFort/archives/Images/2007/07/20070719_021422_VersCoffreFort_archives_xxx_tri_img_bottes_porn_DSC03242--odr--.jpg
+[13:17:51] [INFO] [79/884] Moving: DSC03193.jpg -> /VersCoffreFort/archives/Images/2007/07/20070719_021714_VersCoffreFort_archives_xxx_tri_img_bottes_porn_DSC03193--odr--.jpg
+[13:17:52] [INFO] [80/884] Moving: DSC00455.jpg -> /VersCoffreFort/archives/Images/2007/07/20070719_033202_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia21_DSC00455--odr--.jpg
+[13:17:53] [INFO] [81/884] Moving: YWqyXf0Kv5.jpg -> /VersCoffreFort/archives/Images/2007/08/20070824_214158_VersCoffreFort_archives_xxx_tri_img_autre_YWqyXf0Kv5--odr--.jpg
+[13:17:53] [INFO] [82/884] Moving: videosz-nymph-fever-5-43.mpg -> /VersCoffreFort/archives/Videos/2007/10/20071031_073630_VersCoffreFort_archives_xxx_tri_video_beauty_dossier_31_videosz_nymph_fever_5_43_duration_800s--odr--.mpg
+[13:17:54] [INFO] [83/884] Moving: jc--902-31-lg.jpg -> /VersCoffreFort/archives/Images/2007/11/20071108_043432_VersCoffreFort_archives_xxx_tri_img_bottes_porn_jc_902_31_lg--odr--.jpg
+[13:17:57] [INFO] [84/884] Moving: 16_6.jpg -> /VersCoffreFort/archives/Images/2007/11/20071109_024816_VersCoffreFort_archives_xxx_tri_img_bottes_porn_16_6--odr--.jpg
+[13:17:59] [INFO] [85/884] Moving: 2142460716_6645cc23a8_o.jpg -> /VersCoffreFort/archives/Images/2007/11/20071110_170805_VersCoffreFort_archives_xxx_tri_img_bottes_2142460716_6645cc23a8_o_FUJIFILM_FinePix_F30--odr--.jpg
+[13:17:59] [INFO] [86/884] Moving: DSC09387.jpg -> /VersCoffreFort/archives/Images/2007/12/20071223_094754_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_26_DSC09387--odr--.jpg
+[13:18:00] [INFO] [87/884] Moving: DSC09455.jpg -> /VersCoffreFort/archives/Images/2007/12/20071223_095830_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_26_DSC09455--odr--.jpg
+[13:18:01] [INFO] [88/884] Moving: sophie_24164-057.jpg -> /VersCoffreFort/archives/Images/2007/12/20071231_051308_VersCoffreFort_archives_xxx_tri_img_porn_sophie_24164_057--odr--.jpg
+[13:18:02] [INFO] [89/884] Moving: 3.jpg -> /VersCoffreFort/archives/Images/2008/01/20080127_154355_VersCoffreFort_archives_xxx_tri_img_porn_3--odr--.jpg
+[13:18:03] [INFO] [90/884] Moving: 416.jpg -> /VersCoffreFort/archives/Images/2008/02/20080208_032402_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_416--odr--.jpg
+[13:18:03] [INFO] [91/884] Moving: update_1_1.jpg -> /VersCoffreFort/archives/Images/2008/04/20080427_050136_VersCoffreFort_archives_xxx_tri_img_heike_update_1--odr--.jpg
+[13:18:05] [INFO] [92/884] Moving: 368494962.jpg -> /VersCoffreFort/archives/Images/2008/05/20080514_201438_VersCoffreFort_archives_xxx_tri_img_bottes_porn_368494962--odr--.jpg
+[13:18:05] [INFO] [93/884] Moving: 1191800386.jpg -> /VersCoffreFort/archives/Images/2008/06/20080605_185308_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_1191800386--odr--.jpg
+[13:18:06] [INFO] [94/884] Moving: Kim_kardashian_pussycat_vegas_1_94.jpgKim_kardashian_pussycat_vegas_1_94_thumb_1300x0.jpg -> /VersCoffreFort/archives/Images/2008/08/20080817_141126_VersCoffreFort_archives_xxx_tri_img_autre_Kim_kardashian_pussycat_vegas_1_94_jpgKim_thumb_1300x0--odr--.jpg
+[13:18:07] [INFO] [95/884] Moving: 06_15.jpg -> /VersCoffreFort/archives/Images/2008/11/20081105_150724_VersCoffreFort_archives_xxx_tri_img_bottes_porn_06_15--odr--.jpg
+[13:18:08] [INFO] [96/884] Moving: 2905_04_07.mpg -> /VersCoffreFort/archives/Videos/2008/12/20081202_161936_VersCoffreFort_archives_xxx_tri_video_beauty_Nouveau_dossier_8_2905_04_07_duration_44s--odr--.mpg
+[13:18:09] [INFO] [97/884] Moving: 3d-hentai-02_15.wmv -> /VersCoffreFort/archives/Videos/2009/01/20090116_170000_VersCoffreFort_archives_xxx_tri_video_3d_dossier_17_hentai_02_15_duration_10s--odr--.wmv
+[13:18:09] [INFO] [98/884] Moving: Scream-01-3-1a.jpg -> /VersCoffreFort/archives/Images/2009/03/20090309_002948_VersCoffreFort_archives_xxx_tri_img_heike_Scream_01_3_1a--odr--.jpg
+[13:18:10] [INFO] [99/884] Moving: 11_7.jpg -> /VersCoffreFort/archives/Images/2009/03/20090315_034421_VersCoffreFort_archives_xxx_tri_img_vinyl_11_7_FUJIFILM_FinePix_S1000fd--odr--.jpg
+[13:18:11] [DEBUG] Checking Graph token validity...
+[13:18:11] [DEBUG] Get-GraphToken: checking existing token
+[13:18:11] [DEBUG] Valid token loaded from cache
+[13:18:11] [INFO] [100/884] Moving: dr (39).jpg -> /VersCoffreFort/archives/Images/2009/04/20090419_212136_VersCoffreFort_archives_xxx_tri_img_bottes_dr_39--odr--.jpg
+[13:18:12] [INFO] [101/884] Moving: mia003.mp4 -> /VersCoffreFort/archives/Videos/2009/05/20090522_152502_VersCoffreFort_archives_xxx_LATEXOTICA_videos_mia003_duration_160s--odr--.mp4
+[13:18:13] [INFO] [102/884] Moving: DSC09173.jpg -> /VersCoffreFort/archives/Images/2009/05/20090523_173604_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia15_DSC09173--odr--.jpg
+[13:18:14] [INFO] [103/884] Moving: DSC00817.jpg -> /VersCoffreFort/archives/Images/2009/05/20090523_173612_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia22_DSC00817--odr--.jpg
+[13:18:15] [INFO] [104/884] Moving: DSC09115.jpg -> /VersCoffreFort/archives/Images/2009/05/20090523_220638_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Black_Latex_Mini_Dress_DSC09115--odr--.jpg
+[13:18:15] [INFO] [105/884] Moving: DSC08057.jpg -> /VersCoffreFort/archives/Images/2009/05/20090523_220912_VersCoffreFort_archives_xxx_Nouveau_dossier_vynil_trier_DSC08057--odr--.jpg
+[13:18:16] [INFO] [106/884] Moving: DSC00833.jpg -> /VersCoffreFort/archives/Images/2009/06/20090615_031410_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia7_DSC00833--odr--.jpg
+[13:18:17] [INFO] [107/884] Moving: DSC08629.jpg -> /VersCoffreFort/archives/Images/2009/06/20090625_043242_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Latex_Tuxedo_Outfit_2_DSC08629--odr--.jpg
+[13:18:18] [INFO] [108/884] Moving: 01_2.wmv -> /VersCoffreFort/archives/Videos/2009/08/20090831_160800_VersCoffreFort_archives_xxx_tri_video_beauty_Nouveau_dossier_3_01_2_duration_19s--odr--.wmv
+[13:18:18] [INFO] [109/884] Moving: fetisch-leder3127.jpg -> /VersCoffreFort/archives/Images/2009/09/20090921_131224_VersCoffreFort_archives_xxx_tri_img_heike_fetisch_leder3127--odr--.jpg
+[13:18:19] [INFO] [110/884] Moving: Photo_7699.jpg -> /VersCoffreFort/archives/Images/2009/09/20090929_010730_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Turquoise_Latex_Skirt_Outfit_2_Photo_7699--odr--.jpg
+[13:18:19] [INFO] [111/884] Moving: 156_wln1.jpg -> /VersCoffreFort/archives/Images/2009/11/20091116_020620_VersCoffreFort_archives_xxx_tri_img_Beaute_escarpins_156_wln1--odr--.jpg
+[13:18:20] [INFO] [112/884] Moving: Photo_4015.jpg -> /VersCoffreFort/archives/Images/2009/12/20091207_051444_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_Black_Latex_Catsuit2_2_Photo_4015--odr--.jpg
+[13:18:21] [INFO] [113/884] Moving: silviacolloca-55284048c0.jpg -> /VersCoffreFort/archives/Images/2009/12/20091216_093236_VersCoffreFort_archives_xxx_tri_img_bottes_silviacolloca_55284048c0--odr--.jpg
+[13:18:22] [INFO] [114/884] Moving: Photo_4697.jpg -> /VersCoffreFort/archives/Images/2010/01/20100120_052646_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Black_Latex_Leggings_Turquois_Top_2_Photo_4697--odr--.jpg
+[13:18:23] [INFO] [115/884] Moving: Photo_8966.jpg -> /VersCoffreFort/archives/Images/2010/01/20100124_222236_VersCoffreFort_archives_xxx_Nouveau_dossier_vynil_trier_Photo_8966--odr--.jpg
+[13:18:23] [INFO] [116/884] Moving: DSC09027.jpg -> /VersCoffreFort/archives/Images/2010/03/20100317_181352_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia24_DSC09027--odr--.jpg
+[13:18:24] [INFO] [117/884] Moving: DSC09856.jpg -> /VersCoffreFort/archives/Images/2010/03/20100317_181622_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia16_DSC09856--odr--.jpg
+[13:18:25] [INFO] [118/884] Moving: DSC01528.jpg -> /VersCoffreFort/archives/Images/2010/03/20100317_181628_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia13_DSC01528--odr--.jpg
+[13:18:26] [INFO] [119/884] Moving: DSC01376.jpg -> /VersCoffreFort/archives/Images/2010/03/20100317_181630_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia14_DSC01376--odr--.jpg
+[13:18:27] [INFO] [120/884] Moving: DSC00633.jpg -> /VersCoffreFort/archives/Images/2010/03/20100317_181814_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia25_DSC00633--odr--.jpg
+[13:18:28] [INFO] [121/884] Moving: DSC00717.jpg -> /VersCoffreFort/archives/Images/2010/03/20100317_181814_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_Alicia25_DSC00717--odr--.jpg
+[13:18:28] [INFO] [122/884] Moving: 2.jpg -> /VersCoffreFort/archives/Images/2010/03/20100331_114754_VersCoffreFort_archives_xxx_tri_img_bottes_porn_2--odr--.jpg
+[13:18:29] [INFO] [123/884] Moving: Photo_1114.jpg -> /VersCoffreFort/archives/Images/2010/04/20100404_223248_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_23_Photo_1114--odr--.jpg
+[13:18:30] [INFO] [124/884] Moving: Photo_1143.jpg -> /VersCoffreFort/archives/Images/2010/04/20100404_223556_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_23_Photo_1143--odr--.jpg
+[13:18:30] [INFO] [125/884] Moving: jhd (2).jpg -> /VersCoffreFort/archives/Images/2010/05/20100503_024804_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_jhd_2--odr--.jpg
+[13:18:31] [INFO] [126/884] Moving: Photo_898.jpg -> /VersCoffreFort/archives/Images/2010/05/20100508_223634_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_24_Photo_898--odr--.jpg
+[13:18:32] [INFO] [127/884] Moving: 31470_l16_123_389lo.jpg -> /VersCoffreFort/archives/Images/2010/06/20100605_184244_VersCoffreFort_archives_xxx_tri_img_vinyl_31470_l16_123_389lo_SIGMA_SD14--odr--.jpg
+[13:18:33] [INFO] [128/884] Moving: Photo_792.jpg -> /VersCoffreFort/archives/Images/2010/06/20100630_043312_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_26_Photo_792--odr--.jpg
+[13:18:34] [INFO] [129/884] Moving: Photo_9896.jpg -> /VersCoffreFort/archives/Images/2010/07/20100704_161832_VersCoffreFort_archives_xxx_LATEXOTICA_lara_32_2_Photo_9896--odr--.jpg
+[13:18:35] [INFO] [130/884] Moving: 4552-clara-morgane-position-sexy-WallFizz.jpg -> /VersCoffreFort/archives/Images/2010/10/20101007_030958_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_4552_clara_morgane_position_sexy_WallFizz--odr--.jpg
+[13:18:38] [INFO] [131/884] Moving: DSC04243.jpg -> /VersCoffreFort/archives/Images/2010/11/20101120_154518_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_6_DSC04243--odr--.jpg
+[13:18:39] [INFO] [132/884] Moving: DSC04034.jpg -> /VersCoffreFort/archives/Images/2010/11/20101120_155902_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_11_DSC04034--odr--.jpg
+[13:18:40] [INFO] [133/884] Moving: DSC03965.jpg -> /VersCoffreFort/archives/Images/2010/11/20101120_160352_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_11_DSC03965--odr--.jpg
+[13:18:41] [INFO] [134/884] Moving: gvgsf (37).jpg -> /VersCoffreFort/archives/Images/2010/11/20101126_134633_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_12_gvgsf_37--odr--.jpg
+[13:18:42] [INFO] [135/884] Moving: thigh_high_boots_body_fetish_lady_ann.jpg -> /VersCoffreFort/archives/Images/2010/12/20101217_022636_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_thigh_high_body_fetish_lady_ann--odr--.jpg
+[13:18:43] [INFO] [136/884] Moving: 2.wmv -> /VersCoffreFort/archives/Videos/2011/02/20110224_070950_VersCoffreFort_archives_xxx_tri_video_beauty_Nouveau_dossier_19_2_duration_31s--odr--.wmv
+[13:18:44] [INFO] [137/884] Moving: the stiletto boots.jpg -> /VersCoffreFort/archives/Images/2011/04/20110421_012532_VersCoffreFort_archives_xxx_tri_img_bottes_the_stiletto_boots--odr--.jpg
+[13:18:45] [INFO] [138/884] Moving: voshy_sexy-chick_rppb.jpg -> /VersCoffreFort/archives/Images/2011/04/20110425_070648_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_voshy_sexy_chick_rppb--odr--.jpg
+[13:18:46] [INFO] [139/884] Moving: Ayako-Sex-Addiction_Extras_131.jpg -> /VersCoffreFort/archives/Images/2011/05/20110523_211349_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_31_Ayako_Sex_Addiction_Extras_131--odr--.jpg
+[13:18:47] [INFO] [140/884] Moving: TTFT_remake_11.jpg -> /VersCoffreFort/archives/Images/2011/06/20110606_031735_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_b_11_TTFT_remake--odr--.jpg
+[13:18:48] [INFO] [141/884] Moving: 5171756399_3781f31c22_b.jpg -> /VersCoffreFort/archives/Images/2011/06/20110617_024842_VersCoffreFort_archives_xxx_tri_img_heike_5171756399_3781f31c22_b--odr--.jpg
+[13:18:49] [INFO] [142/884] Moving: 5585060061_7820dd3a2f_b.jpg -> /VersCoffreFort/archives/Images/2011/06/20110617_030520_VersCoffreFort_archives_xxx_tri_img_heike_5585060061_7820dd3a2f_b--odr--.jpg
+[13:18:50] [INFO] [143/884] Moving: dffffff (12).jpg -> /VersCoffreFort/archives/Images/2011/06/20110623_045658_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_b_31_dffffff_12--odr--.jpg
+[13:18:51] [INFO] [144/884] Moving: eclair_studio_1.jpg -> /VersCoffreFort/archives/Images/2011/08/20110816_022230_VersCoffreFort_archives_xxx_tri_img_dessins_eclair_studio_1--odr--.jpg
+[13:18:52] [INFO] [145/884] Moving: 5885078955_494fe2c425_b.jpg -> /VersCoffreFort/archives/Images/2011/10/20111029_023158_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_5885078955_494fe2c425_b--odr--.jpg
+[13:18:53] [INFO] [146/884] Moving: 6031532827_52b5017512_b.jpg -> /VersCoffreFort/archives/Images/2011/11/20111103_003044_VersCoffreFort_archives_xxx_tri_img_heike_6031532827_52b5017512_b--odr--.jpg
+[13:18:54] [INFO] [147/884] Moving: Lara_BlackMinidress_07_068.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201026_VersCoffreFort_archives_xxx_LATEXOTICA_lara_15_BlackMinidress_07_068--odr--.jpg
+[13:18:55] [INFO] [148/884] Moving: Lara_BlackLeatherTrousers_07_047.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201028_VersCoffreFort_archives_xxx_LATEXOTICA_lara_13_BlackLeatherTrousers_07_047--odr--.jpg
+[13:18:56] [INFO] [149/884] Moving: Lara_BlackKeyholeCatsuit_08_054.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201032_VersCoffreFort_archives_xxx_LATEXOTICA_lara_12_BlackKeyholeCatsuit_08_054--odr--.jpg
+[13:18:57] [DEBUG] Checking Graph token validity...
+[13:18:57] [DEBUG] Get-GraphToken: checking existing token
+[13:18:57] [DEBUG] Valid token loaded from cache
+[13:18:57] [INFO] [150/884] Moving: Lara_BlueDress_08_041.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201034_VersCoffreFort_archives_xxx_LATEXOTICA_lara_la1_2_BlueDress_08_041--odr--.jpg
+[13:18:58] [INFO] [151/884] Moving: Lara_PoliceCatsuit_08_035.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201034_VersCoffreFort_archives_xxx_LATEXOTICA_lara_la1_3_PoliceCatsuit_08_035--odr--.jpg
+[13:18:59] [INFO] [152/884] Moving: Lara_BlackCapriPants_10_100.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201048_VersCoffreFort_archives_xxx_LATEXOTICA_lara_3_BlackCapriPants_10_100--odr--.jpg
+[13:19:00] [INFO] [153/884] Moving: Lara_BlackCatsuit_10_038.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201050_VersCoffreFort_archives_xxx_LATEXOTICA_lara_6_BlackCatsuit_10_038--odr--.jpg
+[13:19:01] [INFO] [154/884] Moving: Lara_PurpleTights_10_004.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201058_VersCoffreFort_archives_xxx_LATEXOTICA_lara_la1_4_PurpleTights_10_004--odr--.jpg
+[13:19:02] [INFO] [155/884] Moving: Lara_PurpleTights_10_027.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201100_VersCoffreFort_archives_xxx_LATEXOTICA_lara_la1_4_PurpleTights_10_027--odr--.jpg
+[13:19:03] [INFO] [156/884] Moving: Lara_BlueCatsuit_10_006.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201110_VersCoffreFort_archives_xxx_LATEXOTICA_lara_la1_BlueCatsuit_10_006--odr--.jpg
+[13:19:04] [INFO] [157/884] Moving: Lara_BlueCatsuit_10_074.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201112_VersCoffreFort_archives_xxx_LATEXOTICA_lara_la1_BlueCatsuit_10_074--odr--.jpg
+[13:19:05] [INFO] [158/884] Moving: Lara_RedSkirt_11_054.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201122_VersCoffreFort_archives_xxx_LATEXOTICA_lara_la1_7_RedSkirt_11_054--odr--.jpg
+[13:19:06] [INFO] [159/884] Moving: Lauren_PoliceCatsuit_07_041.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201140_VersCoffreFort_archives_xxx_LATEXOTICA_lauren_lau_12_PoliceCatsuit_07_041--odr--.jpg
+[13:19:07] [INFO] [160/884] Moving: Natalie_PoliceCatsuit_07_066.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201412_VersCoffreFort_archives_xxx_LATEXOTICA_natalie_PoliceCatsuit_07_066--odr--.jpg
+[13:19:08] [INFO] [161/884] Moving: Natalie_PoliceCatsuit_07_075.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201412_VersCoffreFort_archives_xxx_LATEXOTICA_natalie_PoliceCatsuit_07_075--odr--.jpg
+[13:19:09] [INFO] [162/884] Moving: Natalie_BlueDress_08_013.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201416_VersCoffreFort_archives_xxx_LATEXOTICA_natalie_BlueDress_08_013--odr--.jpg
+[13:19:10] [INFO] [163/884] Moving: Natalie_BlackHalterCatsuit_09_087.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201420_VersCoffreFort_archives_xxx_LATEXOTICA_natalie_BlackHalterCatsuit_09_087--odr--.jpg
+[13:19:11] [INFO] [164/884] Moving: Natalie_BlackDress_11_024.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201428_VersCoffreFort_archives_xxx_LATEXOTICA_natalie_BlackDress_11_024--odr--.jpg
+[13:19:12] [INFO] [165/884] Moving: Natalie_BlackDress_11_058.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201428_VersCoffreFort_archives_xxx_LATEXOTICA_natalie_BlackDress_11_058--odr--.jpg
+[13:19:13] [INFO] [166/884] Moving: Natalie_RedCatsuit_11_066.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201432_VersCoffreFort_archives_xxx_LATEXOTICA_natalie_RedCatsuit_11_066--odr--.jpg
+[13:19:14] [INFO] [167/884] Moving: Natasha_BlackCapriPants_08_053.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201434_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackCapriPants_08_053--odr--.jpg
+[13:19:14] [INFO] [168/884] Moving: Natasha_BlackKeyholeCatsuit_08_079.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201434_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackKeyholeCatsuit_08_079--odr--.jpg
+[13:19:15] [INFO] [169/884] Moving: Natasha_BlackDress_08_040.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201438_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackDress_08_040--odr--.jpg
+[13:19:17] [INFO] [170/884] Moving: Natasha_PoliceCatsuit_08_061.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201442_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_PoliceCatsuit_08_061--odr--.jpg
+[13:19:18] [INFO] [171/884] Moving: Natasha_RedTrousers_08_022.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201446_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_RedTrousers_08_022--odr--.jpg
+[13:19:18] [INFO] [172/884] Moving: Natasha_LatexTuxedo_09_070.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201516_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_LatexTuxedo_09_070--odr--.jpg
+[13:19:19] [INFO] [173/884] Moving: Natasha_RedCatsuit_09_025.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201530_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_RedCatsuit_09_025--odr--.jpg
+[13:19:20] [INFO] [174/884] Moving: Natasha_BlackCapriPants_10_092.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201540_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackCapriPants_10_092--odr--.jpg
+[13:19:22] [INFO] [175/884] Moving: Natasha_BlackCatsuit_10_067.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201542_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackCatsuit_10_067--odr--.jpg
+[13:19:23] [INFO] [176/884] Moving: Natasha_BlackCatsuit_10_100.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201544_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackCatsuit_10_100--odr--.jpg
+[13:19:24] [INFO] [177/884] Moving: Natasha_BlackDress_10_050.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201546_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackDress_10_050--odr--.jpg
+[13:19:25] [INFO] [178/884] Moving: Natasha_BlackDress_10_084.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201548_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackDress_10_084--odr--.jpg
+[13:19:26] [INFO] [179/884] Moving: Natasha_BlackSuit_10_048.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201550_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackSuit_10_048--odr--.jpg
+[13:19:27] [INFO] [180/884] Moving: Natasha_PinkCapriPants_10_015.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201610_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_PinkCapriPants_10_015--odr--.jpg
+[13:19:29] [INFO] [181/884] Moving: Natasha_RedCatsuit_10_049.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201650_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_RedCatsuit_10_049--odr--.jpg
+[13:19:29] [INFO] [182/884] Moving: Natasha_RedCatsuit_10_061.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201650_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_RedCatsuit_10_061--odr--.jpg
+[13:19:30] [INFO] [183/884] Moving: Natasha_RedDress_10_030.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201652_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_RedDress_10_030--odr--.jpg
+[13:19:31] [INFO] [184/884] Moving: Natasha_WhiteSkirt_10_033.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201700_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_WhiteSkirt_10_033--odr--.jpg
+[13:19:32] [INFO] [185/884] Moving: Natasha_BlackDress_11_057.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201704_VersCoffreFort_archives_xxx_LATEXOTICA_natasha_BlackDress_11_057--odr--.jpg
+[13:19:33] [INFO] [186/884] Moving: Olivia_BlackOutfits_withLara_10_043.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_201814_VersCoffreFort_archives_xxx_LATEXOTICA_lara_2010_Black_Latex_Catsuit_Dress_with_Olivia_BlackOutfits_withLara_10_043--odr--.jpg
+[13:19:35] [INFO] [187/884] Moving: Summer_BlackHotpants_05_065.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_202138_VersCoffreFort_archives_xxx_LATEXOTICA_summer_BlackHotpants_05_065--odr--.jpg
+[13:19:36] [INFO] [188/884] Moving: Tori_BlackCatsuit_11_055.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_202256_VersCoffreFort_archives_xxx_LATEXOTICA_tori_BlackCatsuit_11_055--odr--.jpg
+[13:19:39] [INFO] [189/884] Moving: Tori_BlackCatsuit_11_079.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_202258_VersCoffreFort_archives_xxx_LATEXOTICA_tori_BlackCatsuit_11_079--odr--.jpg
+[13:19:40] [INFO] [190/884] Moving: Tori_BlackDress_11_005.jpg -> /VersCoffreFort/archives/Images/2012/04/20120405_202258_VersCoffreFort_archives_xxx_LATEXOTICA_tori_BlackDress_11_005--odr--.jpg
+[13:19:41] [INFO] [191/884] Moving: Alicia_BlackCatsuit_06_069.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100122_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_BlackCatsuit_06_069--odr--.jpg
+[13:19:42] [INFO] [192/884] Moving: Alicia_BlackCatsuit_06_076.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100122_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_BlackCatsuit_06_076--odr--.jpg
+[13:19:43] [INFO] [193/884] Moving: Alicia_BlackCatsuit_06_085.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100122_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_blonde_BlackCatsuit_06_085--odr--.jpg
+[13:19:44] [INFO] [194/884] Moving: Alicia_PoliceDress_08_058.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100242_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_brune_PoliceDress_08_058--odr--.jpg
+[13:19:45] [INFO] [195/884] Moving: Alicia_RedCatsuit_08_040.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100246_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_brune_RedCatsuit_08_040--odr--.jpg
+[13:19:46] [INFO] [196/884] Moving: Alicia_RedCatsuit_08_058.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100248_VersCoffreFort_archives_xxx_LATEXOTICA_alicia_brune_RedCatsuit_08_058--odr--.jpg
+[13:19:47] [INFO] [197/884] Moving: Ana_BlackPolice_06_072.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100656_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackPolice_06_072--odr--.jpg
+[13:19:48] [INFO] [198/884] Moving: Ana_RedCatsuit_06_083.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100710_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_RedCatsuit_06_083--odr--.jpg
+[13:19:49] [INFO] [199/884] Moving: Ana_BlackKeyhole_07_125.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100718_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackKeyhole_07_125--odr--.jpg
+[13:19:50] [DEBUG] Checking Graph token validity...
+[13:19:50] [DEBUG] Get-GraphToken: checking existing token
+[13:19:50] [DEBUG] Valid token loaded from cache
+[13:19:50] [INFO] [200/884] Moving: Ana_BlueTop_07_096.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100728_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlueTop_07_096--odr--.jpg
+[13:19:50] [INFO] [201/884] Moving: Ana_BlackLeather_08_031.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100756_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackLeather_08_031--odr--.jpg
+[13:19:52] [INFO] [202/884] Moving: Ana_BlueDress_08_017.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100758_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlueDress_08_017--odr--.jpg
+[13:19:52] [INFO] [203/884] Moving: Ana_BlackHotpants_09_023.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100810_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackHotpants_09_023--odr--.jpg
+[13:19:54] [INFO] [204/884] Moving: Ana_BlackLeggings_09_047.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100814_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackLeggings_09_047--odr--.jpg
+[13:19:55] [INFO] [205/884] Moving: Ana_BlackDress_10_019.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100850_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackDress_10_019--odr--.jpg
+[13:19:56] [INFO] [206/884] Moving: Ana_BlackSuit_10_090.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100912_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackSuit_10_090--odr--.jpg
+[13:19:56] [INFO] [207/884] Moving: Ana_RedCatsuit_10_090.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100922_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_RedCatsuit_10_090--odr--.jpg
+[13:19:57] [INFO] [208/884] Moving: Ana_BlackSkirt_11_030.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100930_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackSkirt_11_030--odr--.jpg
+[13:19:58] [INFO] [209/884] Moving: Ana_BlackSkirt_11_050.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100932_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackSkirt_11_050--odr--.jpg
+[13:19:59] [INFO] [210/884] Moving: Ana_GreenDress_11_041.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100936_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_GreenDress_11_041--odr--.jpg
+[13:20:00] [INFO] [211/884] Moving: Ana_GreenDress_11_077.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100938_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_GreenDress_11_077--odr--.jpg
+[13:20:01] [INFO] [212/884] Moving: Ana_PurpleDress_11_022.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100942_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_PurpleDress_11_022--odr--.jpg
+[13:20:02] [INFO] [213/884] Moving: Ana_RedDress_11_047.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100948_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_RedDress_11_047--odr--.jpg
+[13:20:04] [INFO] [214/884] Moving: Ana_BlackStockings_11_034.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100950_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackStockings_11_034--odr--.jpg
+[13:20:05] [INFO] [215/884] Moving: Ana_BlackStockings_11_058.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100952_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackStockings_11_058--odr--.jpg
+[13:20:06] [INFO] [216/884] Moving: Ana_BlackStockings_11_088.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100954_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackStockings_11_088--odr--.jpg
+[13:20:06] [INFO] [217/884] Moving: Ana_BlackStockings_11_100.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_100954_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackStockings_11_100--odr--.jpg
+[13:20:07] [INFO] [218/884] Moving: Candice_BlackCatsuit_03_015.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101152_VersCoffreFort_archives_xxx_LATEXOTICA_candice_BlackCatsuit_03_015--odr--.jpg
+[13:20:08] [INFO] [219/884] Moving: Candice_BlackHotpants_03_043.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101156_VersCoffreFort_archives_xxx_LATEXOTICA_candice_BlackHotpants_03_043--odr--.jpg
+[13:20:09] [INFO] [220/884] Moving: Chloe_BlackSleeveless_09_091.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101412_VersCoffreFort_archives_xxx_LATEXOTICA_chloe_BlackSleeveless_09_091--odr--.jpg
+[13:20:10] [INFO] [221/884] Moving: Chloe_BlackCatsuit_10_047.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101424_VersCoffreFort_archives_xxx_tri_img_talon_par_main_Nouveau_dossier_Chloe_BlackCatsuit_10_047--odr--.jpg
+[13:20:11] [INFO] [222/884] Moving: Danielle_BlackCatsuit_05_076.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101708_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_BlackCatsuit_05_076--odr--.jpg
+[13:20:12] [INFO] [223/884] Moving: Danielle_BlackMinidress_05_124.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101720_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_BlackMinidress_05_124--odr--.jpg
+[13:20:12] [INFO] [224/884] Moving: Danielle_BlackPVC_05_102.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101744_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_BlackPVC_05_102--odr--.jpg
+[13:20:13] [INFO] [225/884] Moving: Danielle_BlackCatsuit_06_089.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101752_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_BlackCatsuit_06_089--odr--.jpg
+[13:20:15] [INFO] [226/884] Moving: Danielle_BlackTrousers_06_062.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101758_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_BlackTrousers_06_062--odr--.jpg
+[13:20:15] [INFO] [227/884] Moving: Danielle_PurpleOutfit_06_025.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_101800_VersCoffreFort_archives_xxx_LATEXOTICA_danielle_PurpleOutfit_06_025--odr--.jpg
+[13:20:16] [INFO] [228/884] Moving: Ella_BlackDress_10_052.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_102334_VersCoffreFort_archives_xxx_LATEXOTICA_ella_BlackDress_10_052--odr--.jpg
+[13:20:17] [INFO] [229/884] Moving: Ella_BlackMinidress_10_037.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_102334_VersCoffreFort_archives_xxx_LATEXOTICA_ella_BlackMinidress_10_037--odr--.jpg
+[13:20:18] [INFO] [230/884] Moving: Ella_LatexTuxedo_10_004.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_102346_VersCoffreFort_archives_xxx_LATEXOTICA_ella_LatexTuxedo_10_004--odr--.jpg
+[13:20:19] [INFO] [231/884] Moving: Ella_BlackTights_11_014.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_102426_VersCoffreFort_archives_xxx_LATEXOTICA_ella_BlackTights_11_014--odr--.jpg
+[13:20:20] [INFO] [232/884] Moving: Heavenly_BlackMissSixty_05_013.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_102928_VersCoffreFort_archives_xxx_LATEXOTICA_heavenly_BlackMissSixty_05_013--odr--.jpg
+[13:20:21] [INFO] [233/884] Moving: Heavenly_BlackMissSixty_05_038.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_102928_VersCoffreFort_archives_xxx_LATEXOTICA_heavenly_BlackMissSixty_05_038--odr--.jpg
+[13:20:23] [INFO] [234/884] Moving: Heavenly_BlackMissSixty_05_109.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_102930_VersCoffreFort_archives_xxx_LATEXOTICA_heavenly_BlackMissSixty_05_109--odr--.jpg
+[13:20:24] [INFO] [235/884] Moving: Holly_BlackMinidress_06_038.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_102942_VersCoffreFort_archives_xxx_LATEXOTICA_holly_BlackMinidress_06_038--odr--.jpg
+[13:20:25] [INFO] [236/884] Moving: Holly_BlackLeather_07_057.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103002_VersCoffreFort_archives_xxx_LATEXOTICA_holly_BlackLeather_07_057--odr--.jpg
+[13:20:26] [INFO] [237/884] Moving: Holly_BlackLeather_07_060.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103002_VersCoffreFort_archives_xxx_LATEXOTICA_holly_BlackLeather_07_060--odr--.jpg
+[13:20:26] [INFO] [238/884] Moving: Holly_BlackLeather_07_088.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103004_VersCoffreFort_archives_xxx_LATEXOTICA_holly_BlackLeather_07_088--odr--.jpg
+[13:20:27] [INFO] [239/884] Moving: Holly_PVCCatsuit_07_073.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103008_VersCoffreFort_archives_xxx_LATEXOTICA_holly_PVCCatsuit_07_073--odr--.jpg
+[13:20:29] [INFO] [240/884] Moving: Holly_BlueTrousers_07_054.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103012_VersCoffreFort_archives_xxx_LATEXOTICA_holly_BlueTrousers_07_054--odr--.jpg
+[13:20:29] [INFO] [241/884] Moving: Holly_BlueTrousers_07_106.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103014_VersCoffreFort_archives_xxx_LATEXOTICA_holly_BlueTrousers_07_106--odr--.jpg
+[13:20:30] [INFO] [242/884] Moving: Holly_LatexNurse_07_060.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103028_VersCoffreFort_archives_xxx_LATEXOTICA_holly_LatexNurse_07_060--odr--.jpg
+[13:20:31] [INFO] [243/884] Moving: Holly_PoliceCatsuit_07_022.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103028_VersCoffreFort_archives_xxx_LATEXOTICA_holly_PoliceCatsuit_07_022--odr--.jpg
+[13:20:32] [INFO] [244/884] Moving: Holly_PoliceCatsuit_07_051.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103036_VersCoffreFort_archives_xxx_LATEXOTICA_holly_PoliceCatsuit_07_051--odr--.jpg
+[13:20:33] [INFO] [245/884] Moving: Holly_PoliceCatsuit_07_064.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103036_VersCoffreFort_archives_xxx_LATEXOTICA_holly_PoliceCatsuit_07_064--odr--.jpg
+[13:20:34] [INFO] [246/884] Moving: Holly_PurpleDress_07_056.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103048_VersCoffreFort_archives_xxx_LATEXOTICA_holly_PurpleDress_07_056--odr--.jpg
+[13:20:35] [INFO] [247/884] Moving: Holly_RedCatsuit_07_031.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103054_VersCoffreFort_archives_xxx_LATEXOTICA_holly_RedCatsuit_07_031--odr--.jpg
+[13:20:36] [INFO] [248/884] Moving: Holly_RedCatsuit_07_036.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103054_VersCoffreFort_archives_xxx_LATEXOTICA_holly_RedCatsuit_07_036--odr--.jpg
+[13:20:37] [INFO] [249/884] Moving: Holly_PurpleTop_08_092.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_103108_VersCoffreFort_archives_xxx_LATEXOTICA_holly_PurpleTop_08_092--odr--.jpg
+[13:20:38] [DEBUG] Checking Graph token validity...
+[13:20:38] [DEBUG] Get-GraphToken: checking existing token
+[13:20:38] [DEBUG] Valid token loaded from cache
+[13:20:38] [INFO] [250/884] Moving: Ana_BlackCatsuit_05_114.jpg -> /VersCoffreFort/archives/Images/2012/04/20120406_160450_VersCoffreFort_archives_xxx_LATEXOTICA_anastacia_Ana_BlackCatsuit_05_114--odr--.jpg
+[13:20:39] [INFO] [251/884] Moving: synR13V9 test9ld.jpg -> /VersCoffreFort/archives/Images/2012/07/20120701_034354_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_b_15_synR13V9_test9ld--odr--.jpg
+[13:20:40] [INFO] [252/884] Moving: tumblr_m9qu7rpnbU1rs6scso1_500.jpg -> /VersCoffreFort/archives/Images/2012/11/20121103_021356_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_tumblr_m9qu7rpnbU1rs6scso1_500--odr--.jpg
+[13:20:41] [INFO] [253/884] Moving: 7786916870_547f0edbbb_b.jpg -> /VersCoffreFort/archives/Images/2012/11/20121109_034336_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_7786916870_547f0edbbb_b--odr--.jpg
+[13:20:42] [INFO] [254/884] Moving: 8168692086_1f062154b7_z.jpg -> /VersCoffreFort/archives/Images/2012/11/20121109_053616_VersCoffreFort_archives_xxx_tri_img_bottes_sans_visages_classer_8168692086_1f062154b7_z--odr--.jpg
+[13:20:43] [INFO] [255/884] Moving: 6_524.jpg -> /VersCoffreFort/archives/Images/2012/11/20121129_221932_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_6_524--odr--.jpg
+[13:20:44] [INFO] [256/884] Moving: 8_346.jpg -> /VersCoffreFort/archives/Images/2012/11/20121129_221934_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_8_346--odr--.jpg
+[13:20:44] [INFO] [257/884] Moving: 270833-Deman160n8.jpg -> /VersCoffreFort/archives/Images/2012/12/20121205_193822_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_270833_Deman160n8--odr--.jpg
+[13:20:45] [INFO] [258/884] Moving: 5213426741_42653275cf_z.jpg -> /VersCoffreFort/archives/Images/2013/02/20130201_024524_VersCoffreFort_archives_xxx_tri_img_bottes_5213426741_42653275cf_z--odr--.jpg
+[13:20:46] [INFO] [259/884] Moving: 4879965894_6544ce1da5_z.jpg -> /VersCoffreFort/archives/Images/2013/02/20130201_024634_VersCoffreFort_archives_xxx_tri_img_bottes_4879965894_6544ce1da5_z--odr--.jpg
+[13:20:48] [INFO] [260/884] Moving: 5581906992_7f51a20bc3_z.jpg -> /VersCoffreFort/archives/Images/2013/02/20130201_024906_VersCoffreFort_archives_xxx_tri_img_Beaute_escarpins_5581906992_7f51a20bc3_z--odr--.jpg
+[13:20:48] [INFO] [261/884] Moving: bp-ENT-Jolene_Blalock_Lay_boots.jpg -> /VersCoffreFort/archives/Images/2013/04/20130430_062546_VersCoffreFort_archives_xxx_tri_img_bottes_bp_ENT_Jolene_Blalock_Lay_boots--odr--.jpg
+[13:20:49] [INFO] [262/884] Moving: gemma_massey_6076.jpg -> /VersCoffreFort/archives/Images/2013/05/20130502_043230_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_gemma_massey_6076--odr--.jpg
+[13:20:51] [INFO] [263/884] Moving: xvideos.com_6b83c0926684c765544f4fa711e8c93f.flv -> /VersCoffreFort/archives/Videos/2013/05/20130502_043448_VersCoffreFort_archives_xxx_tri_video_bottes_porn_flv_xvideos_com_6b83c0926684c765544f4fa711e8c93f_duration_1759s--odr--.flv
+[13:20:51] [INFO] [264/884] Moving: tumblr_m2fbqxgTmb1r65wm3o1_500.jpg -> /VersCoffreFort/archives/Images/2013/05/20130502_044914_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_tumblr_m2fbqxgTmb1r65wm3o1_500--odr--.jpg
+[13:20:52] [INFO] [265/884] Moving: 3159801762_1_2_kTCCYPSC.jpg -> /VersCoffreFort/archives/Images/2013/05/20130519_002758_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_3159801762_1_2_kTCCYPSC--odr--.jpg
+[13:20:53] [INFO] [266/884] Moving: 3134128132_1_2_lsWVW2dr.jpg -> /VersCoffreFort/archives/Images/2013/05/20130519_004408_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_3134128132_1_2_lsWVW2dr--odr--.jpg
+[13:20:54] [INFO] [267/884] Moving: 3095006963_1_3_rMoOwbXT.jpg -> /VersCoffreFort/archives/Images/2013/05/20130520_002328_VersCoffreFort_archives_xxx_tri_img_vinyl_3095006963_1_3_rMoOwbXT--odr--.jpg
+[13:20:55] [INFO] [268/884] Moving: Affect3D_G4ES04P01_trans.mp4 -> /VersCoffreFort/archives/Videos/2013/07/20130710_010725_VersCoffreFort_archives_xxx_tri_video_3d_dossier_5_Affect3D_G4ES04P01_trans_duration_29s--odr--.mp4
+[13:20:56] [INFO] [269/884] Moving: 434948500.jpg -> /VersCoffreFort/archives/Images/2013/09/20130901_052550_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_434948500--odr--.jpg
+[13:20:56] [INFO] [270/884] Moving: sdfdfds«z (4).jpg -> /VersCoffreFort/archives/Images/2013/09/20130912_132639_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_14_sdfdfds_z--odr--.jpg
+[13:20:57] [INFO] [271/884] Moving: tumblr_mxluteTfOF1r81p3to1_500.jpg -> /VersCoffreFort/archives/Images/2013/12/20131224_041322_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_tumblr_mxluteTfOF1r81p3to1_500--odr--.jpg
+[13:20:58] [INFO] [272/884] Moving: tumblr_mx156uWxR61r81p3to1_1280.jpg -> /VersCoffreFort/archives/Images/2013/12/20131227_025342_VersCoffreFort_archives_xxx_tri_img_bottes_porn_tumblr_mx156uWxR61r81p3to1_1280--odr--.jpg
+[13:20:59] [INFO] [273/884] Moving: tumblr_m79hi9Hso11rtlxc9o1_1280.jpg -> /VersCoffreFort/archives/Images/2014/03/20140314_012134_VersCoffreFort_archives_xxx_tri_img_vinyl_tumblr_m79hi9Hso11rtlxc9o1_1280--odr--.jpg
+[13:21:00] [INFO] [274/884] Moving: 1_707.jpg -> /VersCoffreFort/archives/Images/2014/05/20140529_060152_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_4_14_1_707--odr--.jpg
+[13:21:01] [INFO] [275/884] Moving: 09a97489badfd04efa8a8c1ecdc16b4a.jpg -> /VersCoffreFort/archives/Images/2015/01/20150102_062208_VersCoffreFort_archives_xxx_tri_img_heike_09a97489badfd04efa8a8c1ecdc16b4a--odr--.jpg
+[13:21:02] [INFO] [276/884] Moving: 34e42ecae7c6b6eb5bc1897524c4c1ae.jpg -> /VersCoffreFort/archives/Images/2015/01/20150104_030200_VersCoffreFort_archives_xxx_tri_img_heike_34e42ecae7c6b6eb5bc1897524c4c1ae--odr--.jpg
+[13:21:03] [INFO] [277/884] Moving: d2f0d5b5a33700af7668d78434a4933f.jpg -> /VersCoffreFort/archives/Images/2015/01/20150104_030836_VersCoffreFort_archives_xxx_tri_img_heike_d2f0d5b5a33700af7668d78434a4933f--odr--.jpg
+[13:21:04] [INFO] [278/884] Moving: tumblr_inline_nfo4spE55x1qgenlz.gif -> /VersCoffreFort/archives/Images/2015/01/20150122_045022_VersCoffreFort_archives_xxx_tri_img_gif_anime_blow_tumblr_inline_nfo4spE55x1qgenlz--odr--.gif
+[13:21:05] [INFO] [279/884] Moving: BxNKAY7IAAAQHJm.jpg -> /VersCoffreFort/archives/Images/2015/02/20150221_041716_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_BxNKAY7IAAAQHJm--odr--.jpg
+[13:21:06] [INFO] [280/884] Moving: Bs-cSlJCIAEZ2F5.jpg -> /VersCoffreFort/archives/Images/2015/02/20150221_041924_VersCoffreFort_archives_xxx_tri_img_vinyl_Bs_cSlJCIAEZ2F5--odr--.jpg
+[13:21:07] [INFO] [281/884] Moving: tumblr_nfrjh7kYsr1t2i0m4o1_500.jpg -> /VersCoffreFort/archives/Images/2015/05/20150526_015336_VersCoffreFort_archives_xxx_tri_img_Beaute_escarpins_tumblr_nfrjh7kYsr1t2i0m4o1_500--odr--.jpg
+[13:21:08] [INFO] [282/884] Moving: sgg5mpzoldci.jpg -> /VersCoffreFort/archives/Images/2015/07/20150711_041504_VersCoffreFort_archives_xxx_tri_img_nails_sgg5mpzoldci--odr--.jpg
+[13:21:09] [INFO] [283/884] Moving: tumblr_no0oxmstVv1r4qswno1_500.jpg -> /VersCoffreFort/archives/Images/2015/08/20150822_042934_VersCoffreFort_archives_xxx_tri_img_heike_tumblr_no0oxmstVv1r4qswno1_500--odr--.jpg
+[13:21:10] [INFO] [284/884] Moving: 66388_f-latex2674_123_595lo.jpg -> /VersCoffreFort/archives/Images/2015/08/20150822_051144_VersCoffreFort_archives_xxx_tri_img_heike_66388_f_latex2674_123_595lo--odr--.jpg
+[13:21:11] [INFO] [285/884] Moving: tumblr_mqps0bAZic1s2akhso1_250.gif -> /VersCoffreFort/archives/Images/2015/09/20150902_054054_VersCoffreFort_archives_xxx_tri_img_gif_anime_double_tumblr_mqps0bAZic1s2akhso1_250--odr--.gif
+[13:21:12] [INFO] [286/884] Moving: [048245].jpg -> /VersCoffreFort/relations/Images/2015/10/20151023_233348_VersCoffreFort_relations_Aurelia_the_goddess_048245_samsung_SGH_M919V--odr--.jpg
+[13:21:13] [INFO] [287/884] Moving: tumblr_nyqwmyCT5O1sgwnlto1_1280.jpg -> /VersCoffreFort/archives/Images/2015/12/20151203_034736_VersCoffreFort_archives_xxx_tri_img_Beautes_Wow_tumblr_nyqwmyCT5O1sgwnlto1_1280--odr--.jpg
+[13:21:14] [INFO] [288/884] Moving: 2016-10-29 11.26.42-1.jpg -> /VersCoffreFort/relations/Images/2016/10/20161029_112642_Boucherville_Quebec_Canada_VersCoffreFort_relations_chrystine_10_29_11_26_42_1_samsung_SM_G930W8--odr--.jpg
+[13:21:15] [INFO] [289/884] Moving: 14877762_10154105836923107_916999199_n.jpg -> /VersCoffreFort/relations/Images/2017/02/20170212_210226_VersCoffreFort_relations_chrystine_14877762_10154105836923107_916999199_n--odr--.jpg
+[13:21:16] [INFO] [290/884] Moving: 770a3549276f8e2eab9f4937c5a3c7bc.jpg -> /VersCoffreFort/archives/Images/2017/02/20170214_031402_VersCoffreFort_archives_xxx_tri_img_nails_770a3549276f8e2eab9f4937c5a3c7bc--odr--.jpg
+[13:21:16] [INFO] [291/884] Moving: 9b1e31decdf99128c8fd68ec7bac510f.jpg -> /VersCoffreFort/archives/Images/2017/03/20170327_234358_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_XX_BOOTS_bottes_9b1e31decdf99128c8fd68ec7bac510f--odr--.jpg
+[13:21:17] [INFO] [292/884] Moving: tumblr_orhg5qODVb1u63d9uo1_1280.jpg -> /VersCoffreFort/archives/Images/2018/03/20180320_063044_VersCoffreFort_archives_xxx_ondrv_classer_Nouveau_dossier_New_folder_dossiers_4_tumblr_orhg5qODVb1u63d9uo1_1280--odr--.jpg
+[13:21:19] [INFO] [293/884] Moving: 20181217_005841.jpg -> /VersCoffreFort/relations/Images/2018/12/20181217_005841_Varennes_Quebec_Canada_VersCoffreFort_relations_justyna_autres_005841_samsung_SM_G930W8--odr--.jpg
+[13:21:20] [INFO] [294/884] Moving: 20181217_010219.jpg -> /VersCoffreFort/relations/Images/2018/12/20181217_010219_Varennes_Quebec_Canada_VersCoffreFort_relations_justyna_autres_010219_samsung_SM_G930W8--odr--.jpg
+[13:21:21] [INFO] [295/884] Moving: tumblr_phx5lwwupA1tlpasuo1_1280.jpg -> /VersCoffreFort/archives/Images/2018/12/20181224_053542_VersCoffreFort_archives_xxx_tri_img_bottes_tumblr_phx5lwwupA1tlpasuo1_1280--odr--.jpg
+[13:21:22] [INFO] [296/884] Moving: dcuhebf-4be1eacf-bed4-445e-ac35-8a5b7c65b06b.jpg -> /VersCoffreFort/archives/Images/2019/06/20190628_234818_VersCoffreFort_archives_xxx_tri_img_3d_sivv_dcuhebf_4be1eacf_bed4_445e_ac35_8a5b7c65b06b--odr--.jpg
+[13:21:23] [INFO] [297/884] Moving: commission__26_3_2_by_csmchowhk_dakpjzn-fullview.jpg -> /VersCoffreFort/archives/Images/2019/06/20190629_033154_VersCoffreFort_archives_xxx_tri_img_3d_Nouveau_dossier_25_commission_26_3_2_by_csmchowhk_dakpjzn_fullview--odr--.jpg
+[13:21:25] [INFO] [298/884] Moving: DSC09947.jpg -> /VersCoffreFort/archives/Images/2019/09/20190925_184030_VersCoffreFort_archives_xxx_LATEXOTICA_lauren_12_DSC09947--odr--.jpg
+[13:21:26] [INFO] [299/884] Moving: DSC04234.jpg -> /VersCoffreFort/archives/Images/2019/09/20190925_204030_VersCoffreFort_archives_xxx_LATEXOTICA_holly_3_DSC04234--odr--.jpg
+[13:21:26] [DEBUG] Checking Graph token validity...
+[13:21:26] [DEBUG] Get-GraphToken: checking existing token
+[13:21:26] [DEBUG] Valid token loaded from cache
+[13:21:26] [INFO] [300/884] Moving: aa4ou-6g8h3.gif -> /VersCoffreFort/archives/Images/2020/03/20200313_041312_VersCoffreFort_archives_xxx_ondrv_gif_aa4ou_6g8h3--odr--.gif
+[13:21:27] [INFO] [301/884] Moving: 20701678.gif -> /VersCoffreFort/archives/Images/2020/03/20200319_031826_VersCoffreFort_archives_xxx_ondrv_gif_20701678--odr--.gif
+[13:21:28] [INFO] [302/884] Moving: Jill-Valentine-Niisath-Resident-Evil-Animated-Hentai-3D-CGI-Video_T1_C1.mp4 -> /VersCoffreFort/archives/Videos/2020/04/20200419_220649_VersCoffreFort_archives_xxx_vid_Jill_Valentine_Niisath_Resident_Evil_Animated_Hentai_3D_CGI_Video_T1_C1_duration_275s--odr--.mp4
+[13:21:29] [INFO] [303/884] Moving: ezgif-3-686e165eef0a.gif -> /VersCoffreFort/archives/Images/2020/10/20201006_032052_VersCoffreFort_archives_xxx_tri_img_gif_anime_bottes_ezgif_3_686e165eef0a--odr--.gif
+[13:21:30] [INFO] [304/884] Moving: 1545027622077.0 (1).jpg -> /VersCoffreFort/relations/Images/2021/01/20210105_003814_VersCoffreFort_relations_justyna_autres_1545027622077_0_1--odr--.jpg
+[13:21:31] [INFO] [305/884] Moving: 1545050358044.0 (2).jpg -> /VersCoffreFort/relations/Images/2021/01/20210105_003856_VersCoffreFort_relations_justyna_autres_1545050358044_0_2--odr--.jpg
+[13:21:31] [INFO] [306/884] Moving: devushki-v-kozhanyh-brjukah-80-foto-43.jpg -> /VersCoffreFort/archives/Images/2021/01/20210105_133634_VersCoffreFort_archives_xxx_Nouveau_dossier_2_devushki_v_kozhanyh_brjukah_80_foto_43--odr--.jpg
+[13:21:33] [INFO] [307/884] Moving: 1f1ac1880efc4a74dd0e8b4b20a08fb7.jpg -> /VersCoffreFort/archives/Images/2021/05/20210522_031956_VersCoffreFort_archives_xxx_Nouveau_dossier_4_1f1ac1880efc4a74dd0e8b4b20a08fb7--odr--.jpg
+[13:21:34] [INFO] [308/884] Moving: fox on Instagram_ “Follow me for more amazing fur content @foxfurlover94 #furfetishmistress #furfetish #furporn #foxfurporn #foxfurcoat #silverfoxcoat…”.jpg -> /VersCoffreFort/archives/Images/2021/06/20210603_021438_VersCoffreFort_archives_xxx_Nouveau_dossier_2_fox_on_Instagram_Follow_me_for_more_amazing_fur_content_foxfurlover94_furfetishmistress_furfetish_furporn_f--odr--.jpg
+[13:21:34] [INFO] [309/884] Moving: media92283_200222_154032.jpg -> /VersCoffreFort/archives/Images/2021/07/20210705_230232_VersCoffreFort_archives_xxx_Nouveau_dossier_2_4_media92283_200222_154032--odr--.jpg
+[13:21:36] [INFO] [310/884] Moving: tumblr_9a52f34ff7254f5415ce1193eaf42a23_5ce9e1e3_1280.jpg -> /VersCoffreFort/archives/Images/2022/06/20220615_030312_VersCoffreFort_archives_xxx_ondrv_Nouveau_dossier_xxxY_5_tumblr_9a52f34ff7254f5415ce1193eaf42a23_5ce9e1e3_1280--odr--.jpg
+[13:21:37] [INFO] [311/884] Moving: 2dd3dd700a6695453eba2d16cf49dbbb.jpg -> /VersCoffreFort/archives/Images/2023/04/20230401_003310_VersCoffreFort_archives_xxx_Nouveau_dossier_3_5_2dd3dd700a6695453eba2d16cf49dbbb--odr--.jpg
+[13:21:37] [INFO] [312/884] Moving: 877a9a5b_4d9b_4495_bc6b_58a3ca3a5af8_by_neomars_dftaif2-fullview.jpg -> /VersCoffreFort/archives/Images/2023/05/20230516_063426_VersCoffreFort_archives_xxx_Nouveau_dossier_3_13_877a9a5b_4d9b_4495_bc6b_58a3ca3a5af8_by_neomars_dftaif2_fullview--odr--.jpg
+[13:21:39] [INFO] [313/884] Moving: th.jpg -> /VersCoffreFort/archives/Images/2024/03/20240310_004450_VersCoffreFort_archives_xxx_ondrv_classer_Nouveau_dossier_3_th--odr--.jpg
+[13:21:39] [INFO] [314/884] Moving: dbhwgrm-6f041c69-6816-405d-b097-a3b97267bab8.jpg -> /VersCoffreFort/archives/Images/2024/03/20240310_005136_VersCoffreFort_archives_xxx_ondrv_classer_Nouveau_dossier_2_dbhwgrm_6f041c69_6816_405d_b097_a3b97267bab8--odr--.jpg
+[13:21:40] [INFO] [315/884] Moving: d9ik9en-2c5f726b-fc69-481f-9d8a-70d1fb93225d.jpg -> /VersCoffreFort/archives/Images/2024/03/20240310_011122_VersCoffreFort_archives_xxx_ondrv_classer_Nouveau_dossier_2_14_d9ik9en_2c5f726b_fc69_481f_9d8a_70d1fb93225d--odr--.jpg
+[13:21:41] [INFO] [316/884] Moving: d965ycg-6fb4a08d-58cc-4ed2-9fec-fa2ef9c12ff3.jpg -> /VersCoffreFort/archives/Images/2024/03/20240310_011204_VersCoffreFort_archives_xxx_ondrv_classer_Nouveau_dossier_2_sivv_d965ycg_6fb4a08d_58cc_4ed2_9fec_fa2ef9c12ff3--odr--.jpg
+[13:21:43] [INFO] [317/884] Moving: ppv143954716227959960d9c9e5ec-ebb5-41f3-b355-df9151341bf5.jpg -> /VersCoffreFort/archives/Images/2024/04/20240422_014508_VersCoffreFort_archives_xxx_ondrv_Ai2_1_ppv143954716227959960d9c9e5ec_ebb5_41f3_b355_df9151341bf5--odr--.jpg
+[13:21:43] [INFO] [318/884] Moving: ppv3106614323202229453c98f101d-1ac5-46fb-991a-e93f826f4d8d.jpg -> /VersCoffreFort/archives/Images/2024/04/20240422_014512_VersCoffreFort_archives_xxx_ondrv_Ai2_1_ppv3106614323202229453c98f101d_1ac5_46fb_991a_e93f826f4d8d--odr--.jpg
+[13:21:44] [INFO] [319/884] Moving: ppv1029620895030753624a732607a-6fdc-46d7-9d7b-0f6e5895115a.jpg -> /VersCoffreFort/archives/Images/2024/04/20240422_014530_VersCoffreFort_archives_xxx_ondrv_Ai2_1_ppv1029620895030753624a732607a_6fdc_46d7_9d7b_0f6e5895115a--odr--.jpg
+[13:21:45] [INFO] [320/884] Moving: ppv6591150907695808687520c6444-8218-417f-be00-e51a10070268.jpg -> /VersCoffreFort/archives/Images/2024/07/20240726_121558_VersCoffreFort_archives_xxx_ondrv_ai2_ai_ppv6591150907695808687520c6444_8218_417f_be00_e51a10070268--odr--.jpg
+[13:21:46] [INFO] [321/884] Moving: ppv23181897431338211419a95f273-fde9-4975-a793-b0e78f4a4462.jpg -> /VersCoffreFort/archives/Images/2024/07/20240726_123404_VersCoffreFort_archives_xxx_ondrv_ai2_ai_1_ppv23181897431338211419a95f273_fde9_4975_a793_b0e78f4a4462--odr--.jpg
+[13:21:47] [INFO] [322/884] Moving: ppv75547179278407055690e0d28df-cfc2-4af6-9338-378e966bd08f.jpg -> /VersCoffreFort/archives/Images/2024/07/20240726_123404_VersCoffreFort_archives_xxx_ondrv_ai2_ai_1_ppv75547179278407055690e0d28df_cfc2_4af6_9338_378e966bd08f--odr--.jpg
+[13:21:48] [INFO] [323/884] Moving: woman_in_paris_church_dressed_with_sophistication_praying_with_sophistication_caucasian_dressed_in_white_w..._and_designers_clothing_eating_a_french_baguette_kneeling_to_pray_tasting_the_baguette_with_white_and_tall_and_pointy_boo (8).jpeg -> /VersCoffreFort/archives/Images/2024/07/20240726_225326_VersCoffreFort_archives_xxx_ondrv_ai2_Nouveau_dossier_woman_in_paris_church_dressed_with_sophistication_praying_caucasian_white_w_and_designers_clothing--odr--.jpeg
+[13:21:49] [INFO] [324/884] Moving: woman_in_paris_church_dressed_with_sophistication_praying_with_sophistication_caucasian_dressed_in_white_w...s_and_designers_clothing_eating_a_french_baguette_kneeling_to_pray_tasting_the_baguette_with_white_and_tall_and_pointy_boo (24).mp4 -> /VersCoffreFort/archives/Videos/2024/07/20240726_225326_VersCoffreFort_archives_xxx_ondrv_ai2_Nouveau_dossier_woman_in_paris_church_dressed_with_sophistication_praying_caucasian_white_w_s_and_designers_clothin--odr--.mp4
+[13:21:50] [INFO] [325/884] Moving: a_slim_and_slender_woman_dressed_in_white_shiny_latex_with_tall_stiletto_boots_and_designers_clothing_knee...church_in_paris_swallowing_a_french_baguette_given_to_her_by_a_priest_with_a_devious_smile_and_long_wavy_hair_putting_the_ (26).mp4 -> /VersCoffreFort/archives/Videos/2024/07/20240727_040938_VersCoffreFort_archives_xxx_ondrv_ai2_ai_Nouveau_dossier_slim_and_slender_woman_dressed_in_white_shiny_latex_with_tall_stiletto_boots_designers_clothing_--odr--.mp4
+[13:21:51] [INFO] [326/884] Moving: AQOJNsl6pkdJZlB2ypa5apCJeV78mxicUZn30QjzNYLj4FcpC2iw4ywEutb_bc7bylGFCzFsRLwwLH-kdxbonLGQnW5x-xUKKNV81CY.mp4 -> /VersCoffreFort/archives/Videos/2026/01/20260110_185013_VersCoffreFort_archives_xxx_AQOJNsl6pkdJZlB2ypa5apCJeV78mxicUZn30QjzNYLj4FcpC2iw4ywEutb_bc7bylGFCzFsRLwwLH_kdxbonLGQnW5x_xUKKNV81CY_duration_5s--odr--.mp4
+[13:21:51] [INFO] [327/884] Moving: 696d845dd348f5ffecbb8fe1.mp4 -> /VersCoffreFort/archives/Videos/2026/01/20260127_051032_VersCoffreFort_archives_xxx_696d845dd348f5ffecbb8fe1_duration_5s--odr--.mp4
+[13:21:52] [INFO] [328/884] Moving: NOEMIE.MOV -> /Videos/2004/02/20040214_114945_Videos_NOEMIE_duration_98s--odr--.mov
+[13:21:53] [INFO] [329/884] Moving: DSCF0003i.JPG -> /Images/2004/03/20040310_170841_Images_jp_DSCF0003i_FUJIFILM_FinePix2600Zoom--odr--.jpg
+[13:21:54] [INFO] [330/884] Moving: gDSCF0014.JPG -> /Images/2004/03/20040328_152622_Images_jp_gDSCF0014_FUJIFILM_FinePix2600Zoom--odr--.jpg
+[13:21:55] [INFO] [331/884] Moving: 2004-03-24 19-27-12 (Bain Noemie).jpg -> /Images/2004/12/20041222_104428_Images_ensemble_Saved_Pictures_Mes_TRIER_03_24_19_27_12_Bain_Noemie--odr--.jpg
+[13:22:19] [INFO] [332/884] Moving: 2004-05-01 15-37-00.jpg -> /Images/2004/12/20041222_104626_Images_ensemble_Saved_Pictures_Mes_TRIER_05_01_15_37_00--odr--.jpg
+[13:22:21] [INFO] [333/884] Moving: 2004-05-02 04-49-58.jpg -> /Images/2004/12/20041222_104632_Images_ensemble_Saved_Pictures_Mes_TRIER_05_02_04_49_58--odr--.jpg
+[13:22:22] [INFO] [334/884] Moving: 2004-11-21 15-37-22.jpg -> /Images/2004/12/20041222_105326_Images_ensemble_Saved_Pictures_Mes_TRIER_11_21_15_37_22--odr--.jpg
+[13:22:23] [INFO] [335/884] Moving: 2004-12-24 21-34-45 .jpg -> /Images/2004/12/20041224_213445_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_12_24_21_34_45_FUJIFILM--odr--.jpg
+[13:22:24] [INFO] [336/884] Moving: 2005-03-04 18-15-31 (Noemie).jpg -> /Images/2005/03/20050304_181531_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_03_04_18_15_31_Noemie_FUJIFILM--odr--.jpg
+[13:22:26] [INFO] [337/884] Moving: 2005-07-08 18-19-53.jpg -> /Images/2005/07/20050708_181953_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_07_08_18_19_53_FUJIFILM--odr--.jpg
+[13:22:28] [INFO] [338/884] Moving: 2005-10-19 07-30-32 (Noemie Oct 2005 Belle).jpg -> /Images/2005/10/20051019_073032_Images_ensemble_Saved_Pictures_Mes_TRIER_10_19_07_30_32_Noemie_Oct_Belle--odr--.jpg
+[13:22:30] [INFO] [339/884] Moving: 2005-12-10 11-53-37.jpg -> /Images/2005/12/20051210_115337_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_12_10_11_53_37_FUJIFILM--odr--.jpg
+[13:22:32] [INFO] [340/884] Moving: 2005-12-26 13-52-01.jpg -> /Images/2005/12/20051226_135201_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_12_26_13_52_01_FUJIFILM--odr--.jpg
+[13:22:34] [INFO] [341/884] Moving: 2006-06-24 11-27-32.jpg -> /Images/2006/06/20060624_112732_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_06_24_11_27_32_FUJIFILM--odr--.jpg
+[13:22:36] [INFO] [342/884] Moving: DSCF0088.JPG -> /Images/2006/09/20060917_142337_Images_ensemble_18_septembre_DSCF0088_FUJIFILM_FinePix2800ZOOM--odr--.jpg
+[13:22:37] [INFO] [343/884] Moving: DSCF0105.JPG -> /Images/2006/09/20060918_170536_Images_ensemble_18_septembre_DSCF0105_FUJIFILM_FinePix2800ZOOM--odr--.jpg
+[13:22:39] [INFO] [344/884] Moving: 2006-12-24 16-54-22.jpg -> /Images/2006/12/20061224_165422_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_A510_12_24_16_54_22--odr--.jpg
+[13:22:40] [INFO] [345/884] Moving: 2007-02-12 17-56-12.jpg -> /Images/2007/02/20070212_175612_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_02_12_17_56_FUJIFILM--odr--.jpg
+[13:22:42] [INFO] [346/884] Moving: 2007-06-04 06-36-21.jpg -> /Images/2007/06/20070604_063621_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_06_04_36_21_FUJIFILM--odr--.jpg
+[13:22:43] [INFO] [347/884] Moving: CIMG8536.WAV -> /Audio/2007/06/20070606_223932_Images_jp_CIMG8536--odr--.wav
+[13:22:44] [INFO] [348/884] Moving: 2007-06-22 14-39-11.jpg -> /Images/2007/06/20070622_143911_Images_ensemble_Saved_Pictures_Mes_EX_Z1000_06_22_14_39_11_CASIO_COMPUTER_CO_LTD--odr--.jpg
+[13:22:46] [INFO] [349/884] Moving: famille JP 2007-09.jpg -> /Images/2007/09/20070930_035102_Images_jp_famille_09--odr--.jpg
+[13:22:47] [DEBUG] Checking Graph token validity...
+[13:22:47] [DEBUG] Get-GraphToken: checking existing token
+[13:22:47] [DEBUG] Valid token loaded from cache
+[13:22:47] [INFO] [350/884] Moving: 2007-10-31 18-27-50.jpg -> /Images/2007/10/20071031_182750_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_10_31_18_27_50_FUJIFILM--odr--.jpg
+[13:22:48] [INFO] [351/884] Moving: 2008-02-09 12-35-41.jpg -> /Images/2008/02/20080209_123541_Images_ensemble_Saved_Pictures_Mes_FinePix2800ZOOM_02_09_12_35_41_FUJIFILM--odr--.jpg
+[13:22:52] [INFO] [352/884] Moving: 2008-08-30 19-29-50.jpg -> /Images/2008/08/20080830_192950_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_08_30_19_29_50--odr--.jpg
+[13:22:53] [INFO] [353/884] Moving: 2008-10-11 13-09-33 (Écurieexterieur Oct 2008).jpg -> /Images/2008/10/20081011_130933_Images_ensemble_Saved_Pictures_Mes_EX_Z1000_10_11_13_09_33_Ecurieexterieur_Oct_CASIO_COMPUTER_CO_LTD--odr--.jpg
+[13:22:55] [INFO] [354/884] Moving: 2008-10-23 12-48-01.jpg -> /Images/2008/10/20081023_124801_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_10_23_12_48_01--odr--.jpg
+[13:22:57] [INFO] [355/884] Moving: Noémie et sa nouvelle poupée de son gpp 2008-11-01.JPG -> /Images/2008/11/20081101_143927_Images_jp_Noemie_sa_nouvelle_poupee_son_gpp_11_01_Canon_PowerShot_G9--odr--.jpg
+[13:22:58] [INFO] [356/884] Moving: 2009-01-31 19-54-30 (Bb Felix).jpg -> /Images/2009/01/20090131_195430_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_01_31_19_54_30_Bb_Felix--odr--.jpg
+[13:23:00] [INFO] [357/884] Moving: IMG_1027.jpg -> /Images/2009/03/20090328_161032_Images_jp_IMG_1027_Canon_PowerShot_S5_IS--odr--.jpg
+[13:23:01] [INFO] [358/884] Moving: CIMG3623.JPG -> /Images/2009/04/20090428_184308_Images_jp_CIMG3623_CASIO_COMPUTER_CO_LTD_EX_Z1000--odr--.jpg
+[13:23:02] [INFO] [359/884] Moving: CIMG3645.JPG -> /Images/2009/04/20090428_213545_Images_ensemble_Saved_Pictures_JP_Noemie_Equitation_Cavalia_CIMG3645_CASIO_COMPUTER_CO_LTD_EX_Z1000--odr--.jpg
+[13:23:05] [INFO] [360/884] Moving: IMG_0298.JPG -> /Images/2009/05/20090503_152848_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_A510_IMG_0298--odr--.jpg
+[13:23:07] [INFO] [361/884] Moving: IMG_1161.JPG -> /Images/2009/05/20090521_074017_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_1161--odr--.jpg
+[13:23:09] [INFO] [362/884] Moving: IMG_1479.JPG -> /Images/2009/06/20090619_184612_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_1479--odr--.jpg
+[13:23:12] [INFO] [363/884] Moving: 11juillet 2009 030.jpg -> /Images/2009/07/20090709_085835_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_11juillet_030--odr--.jpg
+[13:23:14] [INFO] [364/884] Moving: IMG_189.JPG -> /Images/2010/04/20100404_174532_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_189--odr--.jpg
+[13:23:17] [INFO] [365/884] Moving: IMG_606.JPG -> /Images/2010/06/20100605_162824_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_606--odr--.jpg
+[13:23:19] [INFO] [366/884] Moving: IMG_0566.JPG -> /Images/2010/07/20100707_182418_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_0566--odr--.jpg
+[13:23:22] [INFO] [367/884] Moving: IMG_0787.JPG -> /Images/2010/08/20100809_180206_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_0787--odr--.jpg
+[13:23:25] [INFO] [368/884] Moving: IMG_1007.JPG -> /Images/2010/08/20100818_135831_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_1007--odr--.jpg
+[13:23:28] [INFO] [369/884] Moving: IMG_1089.JPG -> /Images/2010/08/20100818_145818_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_1089--odr--.jpg
+[13:23:32] [INFO] [370/884] Moving: IMG_2071.JPG -> /Images/2011/03/20110308_083333_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_2071--odr--.jpg
+[13:23:34] [INFO] [371/884] Moving: IMG_2486.JPG -> /Images/2011/06/20110606_160646_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_2486--odr--.jpg
+[13:23:36] [INFO] [372/884] Moving: IMG_2574.JPG -> /Images/2011/07/20110701_121742_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_2574--odr--.jpg
+[13:23:40] [INFO] [373/884] Moving: p_00030.jpg -> /Images/2011/07/20110710_175026_Candiac_Quebec_Canada_Images_ensemble_Saved_Pictures_Mes_LG_Rumour_2_p_00030_Electronics_Inc--odr--.jpg
+[13:23:42] [INFO] [374/884] Moving: IMG_2677.JPG -> /Images/2011/07/20110724_202719_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_2677--odr--.jpg
+[13:23:45] [INFO] [375/884] Moving: Nouvelle image (5).bmp -> /Images/2011/07/20110725_180624_Images_ensemble_Saved_Pictures_JP_Maisons_Vercheres_72_Rue_Andre_Beauregard_Nouvelle_image_5--odr--.bmp
+[13:23:47] [INFO] [376/884] Moving: IMG_1195.JPG -> /Images/2012/08/20120814_093924_Images_ensemble_Saved_Pictures_Mes_Canon_PowerShot_S5_IS_IMG_1195--odr--.jpg
+[13:23:49] [INFO] [377/884] Moving: 20121013_132856.jpg -> /Images/2012/10/20121013_132855_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_132856_SAMSUNG--odr--.jpg
+[13:23:52] [INFO] [378/884] Moving: 20121119_195223.jpg -> /Images/2012/11/20121119_195223_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_195223_SAMSUNG--odr--.jpg
+[13:23:54] [INFO] [379/884] Moving: 2013-06-29 12.41.55.jpg -> /Images/2013/06/20130629_124155_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_06_29_12_41_55_SAMSUNG--odr--.jpg
+[13:23:57] [INFO] [380/884] Moving: 2013-10-16 17.00.41-3.jpg -> /Images/2013/10/20131016_170041_Images_ensemble_Saved_Pictures_Mes_SGH_T999_10_16_17_00_41_3_SAMSUNG--odr--.jpg
+[13:23:59] [INFO] [381/884] Moving: 2014-08-17 16.16.00.jpg -> /Images/2014/08/20140817_161600_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_08_17_16_00_SAMSUNG--odr--.jpg
+[13:24:01] [INFO] [382/884] Moving: 2014-08-30 11.15.58.jpg -> /Images/2014/08/20140830_111558_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_08_30_11_15_58_SAMSUNG--odr--.jpg
+[13:24:03] [INFO] [383/884] Moving: 20140830_121245.jpg -> /Images/2014/08/20140830_121245_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_121245_SAMSUNG--odr--.jpg
+[13:24:06] [INFO] [384/884] Moving: 2014-08-30 12.25.45.jpg -> /Images/2014/08/20140830_122545_Images_ensemble_Saved_Pictures_Mes_SGH_T999V_08_30_12_25_45_SAMSUNG--odr--.jpg
+[13:24:10] [INFO] [385/884] Moving: 2014-10-11 09.39.02.jpg -> /Images/2014/10/20141011_093902_Vercheres_Quebec_Canada_Images_ensemble_Saved_Pictures_Mes_SGH_M919V_10_11_09_39_02_SAMSUNG--odr--.jpg
+[13:24:12] [INFO] [386/884] Moving: 2014-10-23 08.05.38.jpg -> /Images/2014/10/20141023_080538_Sorel_Tracy_Quebec_Canada_Images_ensemble_Saved_Pictures_Mes_SGH_M919V_10_23_08_05_38_SAMSUNG--odr--.jpg
+[13:24:13] [INFO] [387/884] Moving: 2014-11-13 Carte  Hopital Charles Lemoyne JPM.jpg -> /Images/2014/11/20141113_122929_JPM_Documents_Sante_assurance_testament_11_13_Carte_Hopital_Charles_Lemoyne_HP_pst_p02a--odr--.jpg
+[13:24:15] [INFO] [388/884] Moving: CIMG4560.JPG -> /Images/2014/11/20141122_105132_JPM_photos_activites_CIMG4560_CASIO_COMPUTER_CO_LTD_EX_S7--odr--.jpg
+[13:24:18] [INFO] [389/884] Moving: CIMG4575.JPG -> /Images/2014/11/20141122_110206_Images_jp_CIMG4575_CASIO_COMPUTER_CO_LTD_EX_S7--odr--.jpg
+[13:24:19] [INFO] [390/884] Moving: CIMG4602.JPG -> /Images/2014/11/20141122_113710_Images_jp_CIMG4602_CASIO_COMPUTER_CO_LTD_EX_S7--odr--.jpg
+[13:24:20] [INFO] [391/884] Moving: 20150510_112908_Rue Paul Vi.jpg -> /Images/2015/05/20150510_112908_Terrebonne_Quebec_Canada_Images_ensemble_Saved_Pictures_Mes_SGH_M919V_112908_Rue_Paul_Vi_samsung--odr--.jpg
+[13:24:23] [INFO] [392/884] Moving: 20150510_113958_Rue Paul Vi.jpg -> /Images/2015/05/20150510_113957_Terrebonne_Quebec_Canada_Images_ensemble_Saved_Pictures_Mes_SGH_M919V_113958_Rue_Paul_Vi_samsung--odr--.jpg
+[13:24:24] [INFO] [393/884] Moving: 8c49b95d.png -> /Images/2015/07/20150725_034201_JPM_Moto_photos_droles_8c49b95d--odr--.png
+[13:24:25] [INFO] [394/884] Moving: 11823099_822100034526452_3006433342560070694_o.jpg -> /Images/2015/08/20150808_192417_JPM_Moto_circuit_ferme_11823099_822100034526452_3006433342560070694_o--odr--.jpg
+[13:24:27] [INFO] [395/884] Moving: 2015-09-27 17.05.52.jpg -> /Images/2015/09/20150927_170552_Images_ensemble_Saved_Pictures_Mes_SGH_M919V_09_27_17_05_52_samsung--odr--.jpg
+[13:24:33] [INFO] [396/884] Moving: IMG_9094.JPG -> /Images/2015/10/20151010_134017_Images_ensemble_Saved_Pictures_st_hilaire_10_best_IMG_9094_Canon_PowerShot_SX280_HS--odr--.jpg
+[13:24:37] [INFO] [397/884] Moving: IMG_9171.JPG -> /Images/2015/10/20151010_150717_Images_ensemble_Saved_Pictures_st_hilaire_10_IMG_9171_Canon_PowerShot_SX280_HS--odr--.jpg
+[13:24:40] [INFO] [398/884] Moving: ecole ludger duvernay.jpg -> /Images/2015/11/20151120_070639_Images_ensemble_Saved_Pictures_photos_ecole_ludger_duvernay_HP_pst_p02a--odr--.jpg
+[13:24:44] [INFO] [399/884] Moving: 18.moon.PNG -> /Images/2016/05/20160529_043406_JPM_Vie_spirituelle_Kabbale_crowley_symboles_hebr_18_moon--odr--.png
+[13:24:46] [DEBUG] Checking Graph token validity...
+[13:24:46] [DEBUG] Get-GraphToken: checking existing token
+[13:24:46] [DEBUG] Valid token loaded from cache
+[13:24:46] [INFO] [400/884] Moving: 2016-06-24 18_43_21.08.jpg -> /Images/2016/11/20161129_161341_JPM_reflexions_personnelles_06_24_18_43_21_08--odr--.jpg
+[13:24:49] [INFO] [401/884] Moving: 2016-12-17 06.35.25-1.jpg -> /Images/2016/12/20161217_063525_Images_ensemble_Saved_Pictures_12_17_06_35_25_1_samsung_SM_G930W8--odr--.jpg
+[13:24:51] [INFO] [402/884] Moving: IMG_8857.JPG -> /Images/2017/05/20170520_021442_Images_ensemble_Felix_IMG_8857_Canon_EOS_60D--odr--.jpg
+[13:24:55] [INFO] [403/884] Moving: 20170528_152735.jpg -> /Images/2017/05/20170528_152735_Montreal_Quebec_Canada_JPM_Relations_justyna_moments_festival_bd_152735_samsung_SM_G930W8--odr--.jpg
+[13:24:58] [INFO] [404/884] Moving: 2017-06-01 20.42.45-1.jpg -> /Images/2017/06/20170601_204245_Varennes_Quebec_Canada_Images_ensemble_Saved_Pictures_vieux_06_01_20_42_45_1_samsung_SM_G930W8--odr--.jpg
+[13:25:00] [INFO] [405/884] Moving: 2017-06-25 07.45.57.jpg -> /Images/2017/06/20170625_074557_Brownsburg_Chatham_Quebec_Canada_Images_ensemble_Saved_Pictures_vieux_06_25_07_45_57_samsung_SM_G930W8--odr--.jpg
+[13:25:03] [INFO] [406/884] Moving: 20170826_173101.jpg -> /Images/2017/08/20170826_173100_Quebec_Quebec_Canada_JPM_Relations_justyna_moments_sejour_173101_samsung_SM_G930W8--odr--.jpg
+[13:25:07] [INFO] [407/884] Moving: 20170826_215331.mp4 -> /Videos/2017/08/20170827_133029_JPM_Relations_justyna_20170826_215331_duration_3s--odr--.mp4
+[13:25:08] [INFO] [408/884] Moving: 2017-09-10 21.01.15.jpg -> /Images/2017/09/20170910_210115_Sainte_Catherine_Quebec_Canada_JPM_Relations_justyna_09_10_21_01_15_samsung_SM_G930W8--odr--.jpg
+[13:25:11] [INFO] [409/884] Moving: 2017-09-16 11.00.50.jpg -> /Images/2017/09/20170916_110050_Brownsburg_Chatham_Quebec_Canada_JPM_Relations_justyna_09_16_11_00_50_samsung_SM_G930W8--odr--.jpg
+[13:25:16] [INFO] [410/884] Moving: 20170924_224000.jpg -> /Images/2017/09/20170924_224000_Sainte_Catherine_Quebec_Canada_JPM_Relations_justyna_just_224000_samsung_SM_G930W8--odr--.jpg
+[13:25:19] [INFO] [411/884] Moving: 20170924_224204.jpg -> /Images/2017/09/20170924_224204_Sainte_Catherine_Quebec_Canada_JPM_Relations_justyna_just_224204_samsung_SM_G930W8--odr--.jpg
+[13:25:22] [INFO] [412/884] Moving: 2017-10-02 06.18.04.jpg -> /Images/2017/10/20171002_061804_Varennes_Quebec_Canada_Images_ensemble_Saved_Pictures_vieux_10_02_06_18_04_samsung_SM_G930W8--odr--.jpg
+[13:25:24] [INFO] [413/884] Moving: JP et Justyna, Th et JPK, chez Daniel 2017-08.JPG -> /Images/2017/10/20171002_155619_Images_jp_Justyna_Th_JPK_chez_Daniel_08--odr--.jpg
+[13:25:26] [INFO] [414/884] Moving: 20171006_224614.jpg -> /Images/2017/10/20171006_224614_Sainte_Catherine_Quebec_Canada_JPM_Relations_justyna_224614_samsung_SM_G930W8--odr--.jpg
+[13:25:29] [INFO] [415/884] Moving: 2017-11-06 20.58.22.jpg -> /Images/2017/11/20171106_205822_Montreal_Quebec_Canada_JPM_Relations_justyna_11_06_20_58_22_samsung_SM_G930W8--odr--.jpg
+[13:25:31] [INFO] [416/884] Moving: 2017-12-21 13.24.02-2.jpeg -> /Images/2017/12/20171222_144054_Images_ensemble_Saved_Pictures_vieux_12_21_13_24_02_2--odr--.jpeg
+[13:25:32] [INFO] [417/884] Moving: 2017-12-24 22.25.11.jpg -> /Images/2017/12/20171224_222511_Brownsburg_Chatham_Quebec_Canada_JPM_Relations_justyna_12_24_22_25_11_samsung_SM_G930W8--odr--.jpg
+[13:25:35] [INFO] [418/884] Moving: 2018-02-24 22.24.32.jpg -> /Images/2018/02/20180224_222432_Montreal_Quebec_Canada_JPM_Relations_justyna_moments_Photos_favorites_02_24_22_32_samsung_SM_G930W8--odr--.jpg
+[13:25:37] [INFO] [419/884] Moving: 2018-02-27 20.16.37.jpg -> /Images/2018/02/20180227_201637_Varennes_Quebec_Canada_Images_ensemble_Saved_Pictures_vieux_02_27_20_16_37_samsung_SM_G930W8--odr--.jpg
+[13:25:41] [INFO] [420/884] Moving: 2018-03-25 15.59.42.jpg -> /Images/2018/03/20180325_155942_Piedmont_Quebec_Canada_JPM_Relations_justyna_moments_polar_bear_spa_03_25_15_59_42_samsung_SM_G930W8--odr--.jpg
+[13:25:44] [INFO] [421/884] Moving: 2018-03-25 17.32.40-1.jpg -> /Images/2018/03/20180325_173240_Piedmont_Quebec_Canada_JPM_Relations_justyna_moments_polar_bear_spa_03_25_17_32_40_1_samsung_SM_G930W8--odr--.jpg
+[13:25:48] [INFO] [422/884] Moving: 2018-03-25 16.00.32.jpg -> /Images/2018/03/20180325_200017_Piedmont_Quebec_Canada_JPM_Relations_justyna_03_25_16_00_32_samsung_SM_G930W8--odr--.jpg
+[13:25:49] [INFO] [423/884] Moving: 2018-04-01 15.37.01.jpg -> /Images/2018/04/20180401_153701_Brownsburg_Chatham_Quebec_Canada_JPM_Relations_justyna_moments_via_Veneto_paques_04_01_15_37_samsung_SM_G930W8--odr--.jpg
+[13:25:51] [INFO] [424/884] Moving: 2018-04-01 16.32.56.jpg -> /Images/2018/04/20180401_163256_Brownsburg_Chatham_Quebec_Canada_JPM_Relations_justyna_moments_via_Veneto_paques_04_01_16_32_56_samsung_SM_G930W8--odr--.jpg
+[13:25:54] [INFO] [425/884] Moving: 2018-07-02 13.05.26.jpg -> /Images/2018/07/20180702_130526_Brownsburg_Chatham_Quebec_Canada_Images_ensemble_Saved_Pictures_classer_07_02_13_05_26_samsung_SM_G930W8--odr--.jpg
+[13:25:59] [INFO] [426/884] Moving: 2018-07-02 19.15.38.jpg -> /Images/2018/07/20180702_191538_Brownsburg_Chatham_Quebec_Canada_Images_ensemble_Saved_Pictures_classer_07_02_19_15_38_samsung_SM_G930W8--odr--.jpg
+[13:26:05] [INFO] [427/884] Moving: 2018-07-17 19.13.32.jpg -> /Images/2018/07/20180717_191332_Varennes_Quebec_Canada_Images_ensemble_Saved_Pictures_classer_07_17_19_13_32_samsung_SM_G930W8--odr--.jpg
+[13:26:13] [INFO] [428/884] Moving: IMG_1166.JPG -> /Images/2018/08/20180817_160635_Images_ensemble_Saved_Pictures_hockey_felix_IMG_1166_Canon_PowerShot_SX280_HS--odr--.jpg
+[13:26:15] [INFO] [429/884] Moving: IMG_1239.JPG -> /Images/2018/08/20180817_162136_Images_ensemble_Saved_Pictures_hockey_felix_IMG_1239_Canon_PowerShot_SX280_HS--odr--.jpg
+[13:26:17] [INFO] [430/884] Moving: IMG_1264.JPG -> /Images/2018/08/20180817_162255_Images_ensemble_Saved_Pictures_hockey_felix_IMG_1264_Canon_PowerShot_SX280_HS--odr--.jpg
+[13:26:18] [INFO] [431/884] Moving: MVI_1162.MP4 -> /Videos/2018/08/20180817_200040_Videos_MVI_1162_duration_1s--odr--.mp4
+[13:26:19] [INFO] [432/884] Moving: 2018-09-15 11.53.36.jpg -> /Images/2018/09/20180915_115336_Saint_Jean_Baptiste_Quebec_Canada_Images_ensemble_Saved_Pictures_classer_09_15_11_53_36_samsung_SM_G930W8--odr--.jpg
+[13:26:23] [INFO] [433/884] Moving: 2018-09-15 12.46.04.jpg -> /Images/2018/09/20180915_124604_Mont_Saint_Hilaire_Quebec_Canada_Images_ensemble_Saved_Pictures_classer_09_15_12_46_04_samsung_SM_G930W8--odr--.jpg
+[13:26:27] [INFO] [434/884] Moving: 20181202_131650.jpg -> /Images/2018/12/20181202_131650_Saint_Bruno_de_Montarville_Quebec_Canada_JPM_Relations_justyna_swimsuit_essaiyage_131650_samsung_SM_G930W8--odr--.jpg
+[13:26:30] [INFO] [435/884] Moving: 2019-01-14 11.08.30-7.mp4 -> /Videos/2019/01/20190107_055754_JPM_Relations_justyna_just_01_14_11_08_30_7_duration_3s--odr--.mp4
+[13:26:31] [INFO] [436/884] Moving: 1-2019-01-07 13.58.10.jpg -> /Images/2019/01/20190107_135810_Playa_del_Carmen_Quintana_Roo_Mexico_JPM_Relations_justyna_moments_Mexique_100_meilleures_1_01_07_13_58_10_samsung_SM_G930W8--odr--.jpg
+[13:26:33] [INFO] [437/884] Moving: 20190108_151524.jpg -> /Images/2019/01/20190108_151523_Playa_del_Carmen_Quintana_Roo_Mexico_JPM_Relations_justyna_151524_samsung_SM_G930W8--odr--.jpg
+[13:26:35] [INFO] [438/884] Moving: 2019-01-08 23.13.41.jpg -> /Images/2019/01/20190108_231341_Playa_del_Carmen_Quintana_Roo_Mexico_JPM_Relations_justyna_moments_Mexique_Voyage_mon_cellulaire_01_08_23_13_41_samsung_SM_G930W8--odr--.jpg
+[13:26:38] [INFO] [439/884] Moving: IMG_1581.JPG -> /Images/2019/01/20190108_232451_JPM_Relations_justyna_moments_Mexique_voyage_appareil_IMG_1581_Canon_EOS_60D--odr--.jpg
+[13:26:43] [INFO] [440/884] Moving: IMG_1596.JPG -> /Images/2019/01/20190108_232956_JPM_Relations_justyna_moments_Mexique_voyage_appareil_IMG_1596_Canon_EOS_60D--odr--.jpg
+[13:26:48] [INFO] [441/884] Moving: 20190109_110139.jpg -> /Images/2019/01/20190109_110139_Temozon_Yucatan_Mexico_JPM_Relations_justyna_110139_samsung_SM_G930W8--odr--.jpg
+[13:26:52] [INFO] [442/884] Moving: 2019-01-10 13.58.03.jpg -> /Images/2019/01/20190110_135803_Playa_del_Carmen_Quintana_Roo_Mexico_JPM_Relations_justyna_01_10_13_58_03_samsung_SM_G930W8--odr--.jpg
+[13:26:55] [INFO] [443/884] Moving: 20190110_142140.jpg -> /Images/2019/01/20190110_142140_Playa_del_Carmen_Quintana_Roo_Mexico_JPM_Relations_justyna_142140_samsung_SM_G930W8--odr--.jpg
+[13:26:59] [INFO] [444/884] Moving: 20190110_123515.mp4 -> /Videos/2019/01/20190110_173516_JPM_Relations_justyna_just_123515_duration_2s--odr--.mp4
+[13:27:00] [INFO] [445/884] Moving: 20190110_141642.mp4 -> /Videos/2019/01/20190110_191644_JPM_Relations_justyna_just_141642_duration_3s--odr--.mp4
+[13:27:01] [INFO] [446/884] Moving: 2-2019-01-10 20.58.08.jpg -> /Images/2019/01/20190110_205808_Playa_del_Carmen_Quintana_Roo_Mexico_JPM_Relations_justyna_moments_Mexique_100_meilleures_2_01_10_20_58_08_samsung_SM_G930W8--odr--.jpg
+[13:27:03] [INFO] [447/884] Moving: IMG_1667.JPG -> /Images/2019/01/20190111_200929_JPM_Relations_justyna_moments_Mexique_voyage_appareil_IMG_1667_Canon_EOS_60D--odr--.jpg
+[13:27:06] [INFO] [448/884] Moving: IMG_1731.JPG -> /Images/2019/01/20190111_234951_JPM_Relations_justyna_moments_Mexique_voyage_appareil_IMG_1731_Canon_EOS_60D--odr--.jpg
+[13:27:09] [INFO] [449/884] Moving: IMG_1863.JPG -> /Images/2019/01/20190112_011027_JPM_Relations_justyna_moments_Mexique_voyage_appareil_IMG_1863_Canon_EOS_60D--odr--.jpg
+[13:27:11] [DEBUG] Checking Graph token validity...
+[13:27:11] [DEBUG] Get-GraphToken: checking existing token
+[13:27:11] [DEBUG] Valid token loaded from cache
+[13:27:11] [INFO] [450/884] Moving: 5-IMG_1889.JPG -> /Images/2019/01/20190112_013320_JPM_Relations_justyna_moments_Mexique_100_meilleures_5_IMG_1889_Canon_EOS_60D--odr--.jpg
+[13:27:14] [INFO] [451/884] Moving: IMG_1939.JPG -> /Images/2019/01/20190112_015804_JPM_Relations_justyna_moments_Mexique_voyage_appareil_IMG_1939_Canon_EOS_60D--odr--.jpg
+[13:27:15] [INFO] [452/884] Moving: IMG_1599.JPG -> /Images/2019/01/20190112_131722_Images_jp_IMG_1599_Canon_PowerShot_SX280_HS--odr--.jpg
+[13:27:16] [INFO] [453/884] Moving: DSC_2270.JPG -> /Images/2019/01/20190112_141806_JPM_Relations_justyna_moments_Mexique_3_friendly_canadian_justinagm_yahoo_com_DSC_2270_NIKON_CORPORATION_D750--odr--.jpg
+[13:27:18] [INFO] [454/884] Moving: 20190112_171015.jpg -> /Images/2019/01/20190112_171015_Cozumel_Quintana_Roo_Mexico_JPM_Relations_justyna_171015_samsung_SM_G930W8--odr--.jpg
+[13:27:21] [INFO] [455/884] Moving: 20190112_165206.mp4 -> /Videos/2019/01/20190112_215209_JPM_Relations_justyna_just_165206_duration_3s--odr--.mp4
+[13:27:22] [INFO] [456/884] Moving: IMG_1988.JPG -> /Images/2019/01/20190112_235213_JPM_Relations_justyna_moments_Mexique_voyage_appareil_IMG_1988_Canon_EOS_60D--odr--.jpg
+[13:27:25] [INFO] [457/884] Moving: 20190113_160916.jpg -> /Images/2019/01/20190113_160915_Playa_del_Carmen_Quintana_Roo_Mexico_JPM_Relations_justyna_160916_samsung_SM_G930W8--odr--.jpg
+[13:27:28] [INFO] [458/884] Moving: 20190113_161020.jpg -> /Images/2019/01/20190113_161019_Playa_del_Carmen_Quintana_Roo_Mexico_JPM_Relations_justyna_161020_samsung_SM_G930W8--odr--.jpg
+[13:27:32] [INFO] [459/884] Moving: 20190113_161338.mp4 -> /Videos/2019/01/20190113_211340_JPM_Relations_justyna_just_161338_duration_3s--odr--.mp4
+[13:27:32] [INFO] [460/884] Moving: 20190113_174423.mp4 -> /Videos/2019/01/20190113_224424_JPM_Relations_justyna_just_174423_duration_3s--odr--.mp4
+[13:27:33] [INFO] [461/884] Moving: 20190113_174437.mp4 -> /Videos/2019/01/20190113_224438_JPM_Relations_justyna_just_174437_duration_3s--odr--.mp4
+[13:27:34] [INFO] [462/884] Moving: 2019-03-30 12.29.42.jpg -> /Images/2019/03/20190330_122942_Longueuil_Quebec_Canada_Images_ensemble_Saved_Pictures_03_30_12_29_42_samsung_SM_G930W8--odr--.jpg
+[13:27:38] [INFO] [463/884] Moving: 2019-03-30 12.30.09.jpg -> /Images/2019/03/20190330_123009_Longueuil_Quebec_Canada_Images_ensemble_Saved_Pictures_03_30_12_09_samsung_SM_G930W8--odr--.jpg
+[13:27:41] [INFO] [464/884] Moving: 2019-06-01 16.56.27.jpg -> /Images/2019/06/20190601_165627_Images_ensemble_Saved_Pictures_fleurs_mont_st_hilaire_06_01_16_56_27_samsung_SM_G930W8--odr--.jpg
+[13:27:44] [INFO] [465/884] Moving: RSM_Agd_1996-0005.jpg -> /Images/2019/06/20190630_215956_Images_jp_RSM_Agd_1996_0005--odr--.jpg
+[13:27:44] [INFO] [466/884] Moving: 2019-07-02 Félix s'élance 03.png -> /Images/2019/07/20190703_024451_Images_ensemble_Saved_Pictures_soccer_07_02_Felix_s_elance_03--odr--.png
+[13:27:47] [INFO] [467/884] Moving: VM_Agd_1963-0028.jpg -> /Images/2019/07/20190717_005148_Images_jp_VM_Agd_1963_0028--odr--.jpg
+[13:27:49] [INFO] [468/884] Moving: VM_Agd_1963-0092.jpg -> /Images/2019/07/20190717_005206_Images_jp_VM_Agd_1963_0092--odr--.jpg
+[13:27:50] [INFO] [469/884] Moving: VM_Agd_1963-0102.jpg -> /Images/2019/07/20190717_005209_Images_jp_VM_Agd_1963_0102--odr--.jpg
+[13:27:51] [INFO] [470/884] Moving: 20190720_131408(0).jpg -> /Images/2019/07/20190720_131408_Terrebonne_Quebec_Canada_Images_ensemble_Saved_Pictures_131408_0_samsung_SM_G930W8--odr--.jpg
+[13:27:53] [INFO] [471/884] Moving: 1462028531164jpg.0.jpg -> /Images/2019/07/20190728_013624_Images_ensemble_doublons_backup3_1462028531164jpg_0--odr--.jpg
+[13:27:54] [INFO] [472/884] Moving: 1458860116851jpg.0.jpg -> /Images/2019/07/20190728_013629_Images_ensemble_doublons_backup3_1458860116851jpg_0--odr--.jpg
+[13:27:56] [INFO] [473/884] Moving: 1458778499801jpg.0.jpg -> /Images/2019/07/20190728_013634_Images_ensemble_doublons_backup3_1458778499801jpg_0--odr--.jpg
+[13:27:56] [INFO] [474/884] Moving: 20190809_124518.jpg -> /Images/2019/08/20190809_124518_Bar_Harbor_Maine_United_States_JPM_Relations_justyna_sejour_ete_124518_samsung_SM_G930W8--odr--.jpg
+[13:28:00] [INFO] [475/884] Moving: 20190809_132430.mp4 -> /Videos/2019/08/20190809_172431_JPM_Relations_justyna_just_132430_duration_3s--odr--.mp4
+[13:28:01] [INFO] [476/884] Moving: 20190809_160011.mp4 -> /Videos/2019/08/20190809_200013_JPM_Relations_justyna_just_160011_duration_3s--odr--.mp4
+[13:28:02] [INFO] [477/884] Moving: 20190810_092227.jpg -> /Images/2019/08/20190810_092227_JPM_Relations_justyna_sejour_ete_Maine_092227_samsung_SM_A520W--odr--.jpg
+[13:28:04] [INFO] [478/884] Moving: 20190810_145304.jpg -> /Images/2019/08/20190810_145304_Bar_Harbor_Maine_United_States_JPM_Relations_justyna_sejour_ete_145304_samsung_SM_G930W8--odr--.jpg
+[13:28:07] [INFO] [479/884] Moving: 20190810_145615.mp4 -> /Videos/2019/08/20190810_185617_JPM_Relations_justyna_just_145615_duration_3s--odr--.mp4
+[13:28:08] [INFO] [480/884] Moving: IMG_2181.JPG -> /Images/2019/08/20190816_162503_Images_ensemble_mexique_felix_161_08_IMG_2181_Canon_PowerShot_SX280_HS--odr--.jpg
+[13:28:12] [INFO] [481/884] Moving: IMG_2215.JPG -> /Images/2019/08/20190816_163236_Images_ensemble_Felix_IMG_2215_Canon_PowerShot_SX280_HS--odr--.jpg
+[13:28:14] [INFO] [482/884] Moving: 20190826_123919.jpg -> /Images/2019/08/20190826_123919_Images_ensemble_123919_samsung_SM_G930W8--odr--.jpg
+[13:28:18] [INFO] [483/884] Moving: 20190827_101722.jpg -> /Images/2019/08/20190827_101722_Playa_del_Carmen_Quintana_Roo_Mexico_Images_ensemble_1_101722_samsung_SM_G930W8--odr--.jpg
+[13:28:22] [INFO] [484/884] Moving: 20190828_082252.jpg -> /Images/2019/08/20190828_082252_Playa_del_Carmen_Quintana_Roo_Mexico_Images_ensemble_082252_samsung_SM_G930W8--odr--.jpg
+[13:28:28] [INFO] [485/884] Moving: 20190828_082259.jpg -> /Images/2019/08/20190828_082259_Playa_del_Carmen_Quintana_Roo_Mexico_Images_ensemble_082259_samsung_SM_G930W8--odr--.jpg
+[13:28:31] [INFO] [486/884] Moving: IMG_2219.JPG -> /Images/2019/08/20190830_121431_Images_ensemble_mexique_felix_161_08_IMG_2219_Canon_PowerShot_SX280_HS--odr--.jpg
+[13:28:33] [INFO] [487/884] Moving: 20190831_111656.jpg -> /Images/2019/08/20190831_111656_Playa_del_Carmen_Quintana_Roo_Mexico_Images_ensemble_111656_samsung_SM_G930W8--odr--.jpg
+[13:28:38] [INFO] [488/884] Moving: 20190831_112018.jpg -> /Images/2019/08/20190831_112018_Playa_del_Carmen_Quintana_Roo_Mexico_Images_ensemble_112018_samsung_SM_G930W8--odr--.jpg
+[13:28:43] [INFO] [489/884] Moving: 20190901_114500.jpg -> /Images/2019/09/20190901_114500_Mexico_NA_Mexico_Images_ensemble_114500_samsung_SM_G930W8--odr--.jpg
+[13:28:51] [INFO] [490/884] Moving: 20191202_070016.mp4 -> /Videos/2019/12/20191202_120248_Sainte_Catherine_Quebec_Canada_JPM_Relations_justyna_just_070016_duration_150s--odr--.mp4
+[13:28:52] [INFO] [491/884] Moving: 20191230_180118.jpg -> /Images/2019/12/20191230_180118_Varennes_Quebec_Canada_Images_ensemble_180118_samsung_SM_G930W8--odr--.jpg
+[13:28:57] [INFO] [492/884] Moving: 20200226_190417.mp4 -> /Videos/2020/02/20200227_000419_Videos_20200226_190417_duration_3s--odr--.mp4
+[13:28:58] [INFO] [493/884] Moving: 20200518_124048.jpg -> /Images/2020/05/20200518_124048_JPM_Relations_justyna_124048_samsung_SM_G930W8--odr--.jpg
+[13:29:03] [INFO] [494/884] Moving: 20200528_152341.jpg -> /Images/2020/05/20200528_152341_JPM_Relations_justyna_152341_samsung_SM_G930W8--odr--.jpg
+[13:29:06] [INFO] [495/884] Moving: Screenshot_20200607-145123_Brave.jpg -> /Images/2020/06/20200607_185123_Images_ensemble_screenshot_145123_Brave--odr--.jpg
+[13:29:08] [INFO] [496/884] Moving: JP 20150611 105305 preparation.mp4 -> /Videos/2020/06/20200613_074348_Videos_JP_20150611_105305_preparation_duration_81s--odr--.mp4
+[13:29:09] [INFO] [497/884] Moving: 20200719_204737.jpg -> /Images/2020/07/20200719_204737_Images_ensemble_204737_samsung_SM_G930W8--odr--.jpg
+[13:29:13] [INFO] [498/884] Moving: 20200719_204811.jpg -> /Images/2020/07/20200719_204811_Images_ensemble_204811_samsung_SM_G930W8--odr--.jpg
+[13:29:17] [INFO] [499/884] Moving: 20200731_231132.jpg -> /Images/2020/07/20200731_231132_JPM_Relations_justyna_231132_samsung_SM_G930W8--odr--.jpg
+[13:29:20] [DEBUG] Checking Graph token validity...
+[13:29:20] [DEBUG] Get-GraphToken: checking existing token
+[13:29:20] [DEBUG] Valid token loaded from cache
+[13:29:20] [INFO] [500/884] Moving: 20200927_140653.jpg -> /Images/2020/09/20200927_140653_JPM_Relations_justyna_140653_samsung_SM_G930W8--odr--.jpg
+[13:29:24] [INFO] [501/884] Moving: 20201012_190317.jpg -> /Images/2020/10/20201012_190317_Images_ensemble_190317_samsung_SM_G930W8--odr--.jpg
+[13:29:28] [INFO] [502/884] Moving: 20201012_190319.jpg -> /Images/2020/10/20201012_190319_Images_ensemble_190319_samsung_SM_G930W8--odr--.jpg
+[13:29:32] [INFO] [503/884] Moving: 20201030_223643.jpg -> /Images/2020/10/20201030_223643_JPM_Relations_justyna_223643_samsung_SM_G930W8--odr--.jpg
+[13:29:36] [INFO] [504/884] Moving: 20201112_194559.jpg -> /Images/2020/11/20201112_194558_JPM_Relations_justyna_194559_samsung_SM_G930W8--odr--.jpg
+[13:29:39] [INFO] [505/884] Moving: 20201220_150934.mp4 -> /Videos/2020/12/20201220_200936_Videos_150934_duration_3s--odr--.mp4
+[13:29:40] [INFO] [506/884] Moving: 20201220_160050.mp4 -> /Videos/2020/12/20201220_210052_JPM_Relations_justyna_just_160050_duration_3s--odr--.mp4
+[13:29:41] [INFO] [507/884] Moving: 20210101_013748.jpg -> /Images/2021/01/20210101_013748_JPM_Relations_justyna_013748_samsung_SM_G930W8--odr--.jpg
+[13:29:44] [INFO] [508/884] Moving: 20210321_152333.jpg -> /Images/2021/03/20210321_152333_JPM_Relations_justyna_152333_samsung_SM_G930W8--odr--.jpg
+[13:29:48] [INFO] [509/884] Moving: 20210321_154309.jpg -> /Images/2021/03/20210321_154308_JPM_Relations_justyna_154309_samsung_SM_G930W8--odr--.jpg
+[13:29:54] [INFO] [510/884] Moving: 20210518_115001.jpg -> /Images/2021/05/20210518_115001_Images_ensemble_Felix_115001_samsung_SM_G930W8--odr--.jpg
+[13:29:59] [INFO] [511/884] Moving: 20210620_122443.jpg -> /Images/2021/06/20210620_122443_Images_ensemble_Felix_select1_choix_final_vertical_122443_samsung_SM_G930W8--odr--.jpg
+[13:30:00] [INFO] [512/884] Moving: 20210715_062026.jpg -> /Images/2021/07/20210715_062026_Images_ensemble_Felix_062026_samsung_SM_G930W8--odr--.jpg
+[13:30:04] [INFO] [513/884] Moving: 20210715_081458.jpg -> /Images/2021/07/20210715_081458_Images_ensemble_081458_samsung_SM_G930W8--odr--.jpg
+[13:30:08] [INFO] [514/884] Moving: 20210715_082227.jpg -> /Images/2021/07/20210715_082227_Images_ensemble_082227_samsung_SM_G930W8--odr--.jpg
+[13:30:12] [INFO] [515/884] Moving: 20210715_083756.jpg -> /Images/2021/07/20210715_083756_Images_ensemble_083756_samsung_SM_G930W8--odr--.jpg
+[13:30:16] [INFO] [516/884] Moving: 20210715_101001.jpg -> /Images/2021/07/20210715_101001_Images_ensemble_101001_samsung_SM_G930W8--odr--.jpg
+[13:30:20] [INFO] [517/884] Moving: GH010098.MP4 -> /Videos/2021/07/20210715_132056_Videos_GH010098_duration_27s--odr--.mp4
+[13:30:21] [INFO] [518/884] Moving: IMG_20210716_134424.jpg -> /Images/2021/07/20210716_134423_Images_ensemble_IMG_134424_BlackBerry_Z30--odr--.jpg
+[13:30:23] [INFO] [519/884] Moving: 20210717_122053_002.jpg -> /Images/2021/07/20210717_122053_Images_ensemble_Felix_122053_002_samsung_SM_G930W8--odr--.jpg
+[13:30:28] [INFO] [520/884] Moving: Screenshot_20210723-211748_Gallery.jpg -> /Images/2021/07/20210724_011748_JPM_Relations_justyna_Screenshot_20210723_211748_Gallery--odr--.jpg
+[13:30:30] [INFO] [521/884] Moving: 20210725_152614.jpg -> /Images/2021/07/20210725_152614_Images_ensemble_1_152614_samsung_SM_G930W8--odr--.jpg
+[13:30:36] [INFO] [522/884] Moving: 20210828_183521.mp4 -> /Videos/2021/08/20210828_223526_Videos_183521_duration_4s--odr--.mp4
+[13:30:36] [INFO] [523/884] Moving: 20210919_123552.jpg -> /Images/2021/09/20210919_163552_JPM_Relations_justyna_123552--odr--.jpg
+[13:30:40] [INFO] [524/884] Moving: 1640189452514.jpg -> /Images/2021/12/20211222_161052_Images_ensemble_Pictures_1640189452514--odr--.jpg
+[13:30:41] [INFO] [525/884] Moving: 20211228_163833.jpg -> /Images/2021/12/20211228_163833_Images_ensemble_Felix_163833_samsung_SM_G930W8--odr--.jpg
+[13:30:49] [INFO] [526/884] Moving: IMG_20211231_222733.jpg -> /Images/2022/01/20220123_220113_Images_ensemble_Felix_IMG_20211231_222733--odr--.jpg
+[13:30:51] [INFO] [527/884] Moving: 20220217_233526.jpg -> /Images/2022/02/20220217_233526_JPM_Relations_justyna_233526_samsung_SM_G930W8--odr--.jpg
+[13:30:55] [INFO] [528/884] Moving: IMG_20220312_090844792_BURST001.jpg -> /Images/2022/03/20220312_090845_Images_ensemble_03_IMG_090844792_BURST001_motorola_moto_g_stylus--odr--.jpg
+[14:02:57] [INFO] OneDriveTools.psm1 loaded
+[14:02:57] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[14:02:57] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[14:02:57] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\organizer_log.txt
+[14:02:57] [DEBUG] OneDriveCacheUtils.psm1 loaded
+[14:02:57] [INFO] === STARTING ANIMATED FILES CLEANUP ===
+[14:02:57] [INFO] Loading OneDrive cache C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cache.json ...
+[14:03:03] [INFO] Loading already processed IDs (C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log) ...
+[14:03:03] [INFO] Already processed files : 2168
+[14:03:03] [INFO] Discovering already processed files containing marker '--odr--' ...
+[14:03:04] [INFO] Discovery summary: 2168 skipped (via processed log), 1 skipped (via filename marker).
+[14:03:04] [INFO] Indexing complete. Files to process: 113104
+[14:03:04] [INFO] Initial processed_ids.log entries: 2169
+[14:03:04] [SUCCESS] Removed 0 animated file IDs from processed_ids.log.
+[14:03:04] [INFO] Final processed_ids.log entries: 2169
+[14:03:04] [SUCCESS] Animated files cleanup completed.
+[14:03:04] [INFO] === SCRIPT END ===
