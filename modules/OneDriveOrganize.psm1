@@ -82,12 +82,10 @@ function Read-AzureFileInfo {
         }
 
         # Détection "Animé" (GIF, WebP animé, etc.)
-        # Priorité à l'extension, puis si Graph le rapporte comme vidéo ET image
+        # Un fichier est considéré animé seulement si Graph rapporte une facette 'video' (frames/durée)
+        # ET qu'il s'agit d'un format d'image supportant l'animation (ou détecté comme image+vidéo).
         $isAnimated = $false
-        if ($item.name -match '\.(gif|webp|apng)$') {
-            $isAnimated = $true
-        }
-        elseif ($item.video -and $item.image) {
+        if ($item.video -and ($item.image -or $item.name -match '\.(gif|webp|apng)$')) {
             $isAnimated = $true
         }
 
@@ -154,7 +152,7 @@ function Normalize-AsciiString {
     try {
         # Strip "New folder (99)" and "Nouveau dossier (99)" patterns before splitting
         $Text = $Text -replace '(?i)(new[ _-]folder|nouveau[ _-]dossier)(\s*\(\d+\))?', ''
-        $normalized = $Text.Normalize([System.Text.NormalizationForm]::FormD)
+ma        $normalized = $Text.Normalize([System.Text.NormalizationForm]::FormD)
         $clean = ($normalized.ToCharArray() | Where-Object {
                 [System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($_) -ne
                 [System.Globalization.UnicodeCategory]::NonSpacingMark
@@ -463,7 +461,8 @@ function Resolve-FinalName {
 function Get-RoutingAction {
     param(
         [string]$Path,
-        [string]$Extension
+        [string]$Extension,
+        [bool]$IsAnimated = $false
     )
 
     $rules = $Global:Rules.routingRules
@@ -479,7 +478,12 @@ function Get-RoutingAction {
         }
     }
 
-    # 2) Règles basées sur les dossiers (folderRules)
+    # 2) Règle pour les fichiers animés (priorité sur le défaut)
+    if ($IsAnimated) {
+        $candidates += 'Animated'
+    }
+
+    # 3) Règles basées sur les dossiers (folderRules)
     $relativePath = $Path -replace '^/drive/root:', ''
     $segments = $relativePath.Trim('/') -split '/'
     foreach ($seg in $segments) {
@@ -587,7 +591,7 @@ function Get-DestinationPath {
     }
 
     # 3) Déterminer l'action
-    $actionName = Get-RoutingAction -Path $srcPath -Extension $Extension
+    $actionName = Get-RoutingAction -Path $srcPath -Extension $Extension -IsAnimated $FileMeta.ani
     if (-not $rules.actions.ContainsKey($actionName)) {
         $actionName = 'default'
     }
@@ -655,10 +659,11 @@ function Get-DestinationPath {
 function Get-SmartCategory {
     param(
         [string]$Path,
-        [string]$Extension
+        [string]$Extension,
+        [bool]$IsAnimated = $false
     )
 
-    return (Get-RoutingAction -Path $Path -Extension $Extension)
+    return (Get-RoutingAction -Path $Path -Extension $Extension -IsAnimated $IsAnimated)
 }
 
 # =====================================================================
@@ -744,7 +749,7 @@ function New-Plan {
                 Write-Log "File date      : $($fileMeta.d)" "DEBUG"
                 Write-Log "GPS            : $($fileMeta.GPS)" "DEBUG"
 
-                $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension
+                $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension -IsAnimated $fileMeta.ani
                 Write-Log "Smart classification = ($category)" "DEBUG"
 
                 # 1) EXTENSION NON SUPPORTEE
