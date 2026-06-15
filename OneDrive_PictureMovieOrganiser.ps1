@@ -379,7 +379,8 @@ function Invoke-MovesInteractive {
             }
         }
 
-        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $global:IndexFile
+        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content "$($global:IndexFile).tmp"
+        Move-Item -Path "$($global:IndexFile).tmp" -Destination $global:IndexFile -Force
         Write-Host "`n" -NoNewline
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host "Summary: $processedCount processed, $skippedCount skipped" -ForegroundColor Cyan
@@ -423,8 +424,13 @@ function Invoke-Moves {
         foreach ($action in $Global:State.PlannedActions) {
 
             $index++
-            # Vérifier et rafraîchir le jeton si nécessaire tous les 50 fichiers
-            if ($index % 50 -eq 0) { Connect-AzureGraph }
+            # Refresh token and save intermediate cache state every 50 files
+            if ($index % 50 -eq 0) {
+                Connect-AzureGraph
+                Write-Log "Saving intermediate cache state ($index/$total)..." "DEBUG"
+                $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content "$($global:IndexFile).tmp"
+                Move-Item -Path "$($global:IndexFile).tmp" -Destination $global:IndexFile -Force
+            }
 
             # Mise à jour fluide de la barre de progression
             Write-Progress -Activity "OneDrive move" `
@@ -462,7 +468,8 @@ function Invoke-Moves {
             }
         }
 
-        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content $global:IndexFile
+        $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content "$($global:IndexFile).tmp"
+        Move-Item -Path "$($global:IndexFile).tmp" -Destination $global:IndexFile -Force
         Write-Log "Move execution completed." "SUCCESS"
         Write-Progress -Activity "OneDrive move" -Completed
     }
@@ -602,6 +609,13 @@ function Start-OneDriveOrganizer {
         if ($null -eq $plan) {
             Write-Log "No valid plan found. Starting full analysis..." "INFO"
             New-Plan
+
+            # Save the plan immediately using a safe atomic write
+            $cacheFolder = Split-Path $global:IndexFile -Parent
+            $planPath = Join-Path $cacheFolder "plan.json"
+            Write-Log "Saving plan to disk..." "INFO"
+            $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content "$planPath.tmp"
+            Move-Item -Path "$planPath.tmp" -Destination $planPath -Force
 
             # After New-Plan, save the current hash for next time
             if ($hash) {

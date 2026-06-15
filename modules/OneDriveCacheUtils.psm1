@@ -100,7 +100,15 @@ function Get-ExistingPlan {
 
         if ($oldHash -eq $CurrentHash) {
             Write-Log "Plan existant valide - reprise sans analyse." "SUCCESS"
-            return (Get-Content $planFile -Raw | ConvertFrom-Json)
+            $content = Get-Content $planFile -Raw
+            if ([string]::IsNullOrWhiteSpace($content)) { return $null }
+            try {
+                return ($content | ConvertFrom-Json)
+            }
+            catch {
+                Write-Log "Existing plan.json is corrupted or truncated. Ignoring." "WARN"
+                return $null
+            }
         }
 
         Write-Log "Existing plan invalid (hash mismatch)." "WARN"
@@ -418,6 +426,31 @@ function Repair-Cache {
     }
 }
 
+function Repair-Paths {
+    Write-Log "Repair-Paths: skip (logic handled by Repair-Cache)" "DEBUG"
+}
+
+function Repair-Names {
+    Write-Log "Repair-Names: skip (logic handled by Repair-Cache)" "DEBUG"
+}
+
+function Repair-Collisions {
+    Write-Log "=== FIX COLLISIONS: Resolving name conflicts in plan ===" "INFO"
+
+    $plan = $Global:State.PlannedActions
+    if (-not $plan -or $plan.Count -eq 0) { return }
+
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($action in $plan) {
+        if ($seen.Contains($action.FullDst)) {
+            $resolved = Resolve-DuplicateName -DstName $action.DstName -DstDir $action.DstDir -ExistingDsts @($seen)
+            $action.DstName = $resolved.DstName
+            $action.FullDst = $resolved.FullDst
+        }
+        $null = $seen.Add($action.FullDst)
+    }
+}
 
 
 function Repair-GPS {

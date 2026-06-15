@@ -1,29 +1,181 @@
-[14:06:17] [INFO] [1/4] Loading / scanning OneDrive (V15.1)
-[14:06:17] [DEBUG] Get-GraphToken: checking existing token
-[14:06:17] [DEBUG] Valid token loaded from cache
-[14:06:25] [INFO] Existing cache loaded (115273 files)
-[14:06:25] [INFO] Incremental delta scan from last deltaToken
-[14:06:26] [INFO] Graph: 153 items → total 115273
-[14:06:28] [INFO] Graph: 145 items → total 115273
-[14:06:29] [INFO] Graph: 124 items → total 115273
-[14:06:30] [INFO] Graph: 90 items → total 115273
-[14:06:31] [INFO] Graph: 99 items → total 115273
-[14:06:32] [INFO] Graph: 153 items → total 115273
-[14:06:33] [INFO] Graph: 133 items → total 115273
-[14:06:34] [INFO] Graph: 115 items → total 115273
-[14:06:35] [INFO] Graph: 92 items → total 115273
-[14:06:36] [INFO] Graph: 64 items → total 115273
-[14:06:36] [INFO] Final deltaLink received -> end of scan
-[14:06:37] [INFO] OneDrive cache saved
-[14:06:37] [INFO] [2/4] Analyzing OneDrive duplicates
-[14:07:02] [INFO] Cloud duplicate groups: 2
-[14:07:02] [INFO] [3/4] Local analysis
-[14:07:24] [INFO] Local cleanup completed
-[14:07:24] [INFO] [4/4] Cleaning empty folders
-[14:07:24] [INFO] === FINAL SUMMARY ===
-[14:07:24] [INFO] Elapsed time: 1m 7s
-[14:07:24] [INFO] Local files: 0
-[14:07:24] [INFO] Ignored (size mismatch): 0
-[14:07:24] [INFO] Cloud duplicate groups: 2
-[14:07:24] [INFO] Local duplicates moved: 0
-[14:07:24] [INFO] Files deleted (disallowed extensions): 0
+[21:05:58] [INFO] [1/4] Loading / scanning OneDrive (V15.1)
+[21:05:58] [DEBUG] Get-GraphToken: checking existing token
+[21:05:58] [INFO] [AUTH] Token expired or expiring soon. Attempting silent refresh...
+[21:05:59] [DEBUG] Graph token saved
+[21:05:59] [SUCCESS] [AUTH] Silent refresh successful
+[21:06:04] [INFO] Existing cache loaded (115273 files)
+[21:06:04] [INFO] Incremental delta scan from last deltaToken
+[21:06:06] [INFO] Graph: 146 items → total 115273
+[21:06:08] [INFO] Graph: 140 items → total 115273
+[21:06:09] [INFO] Graph: 125 items → total 115273
+[21:06:11] [INFO] Graph: 91 items → total 115273
+[21:06:12] [INFO] Graph: 137 items → total 115273
+[21:06:14] [INFO] Graph: 173 items → total 115273
+[21:06:16] [INFO] Graph: 149 items → total 115273
+[21:06:17] [INFO] Graph: 91 items → total 115273
+[21:06:18] [INFO] Graph: 88 items → total 115273
+[21:06:19] [INFO] Graph: 87 items → total 115273
+[21:06:21] [INFO] Graph: 85 items → total 115273
+[21:06:22] [INFO] Graph: 72 items → total 115273
+[21:06:23] [INFO] Graph: 102 items → total 115273
+[21:06:25] [INFO] Graph: 144 items → total 115273
+[21:06:26] [INFO] Graph: 128 items → total 115273
+[21:06:28] [INFO] Graph: 137 items → total 115273
+[21:06:28] [INFO] Graph: 137 items → total 115273
+[21:06:29] [INFO] Graph: 142 items → total 115273
+[21:06:30] [INFO] Graph: 114 items → total 115273
+[21:06:32] [INFO] Graph: 100 items → total 115273
+[21:06:33] [INFO] Graph: 129 items → total 115273
+[21:06:34] [INFO] Graph: 109 items → total 115273
+[21:06:36] [INFO] Graph: 123 items → total 115273
+[21:06:37] [INFO] Graph: 96 items → total 115273
+[21:06:38] [INFO] Graph: 84 items → total 115273
+[21:06:40] [INFO] Graph: 107 items → total 115273
+[21:06:41] [INFO] Graph: 129 items → total 115273
+[21:06:42] [INFO] Graph: 95 items → total 115273
+[21:06:44] [INFO] Graph: 87 items → total 115273
+[21:06:45] [INFO] Graph: 88 items → total 115273
+[21:06:46] [INFO] Graph: 92 items → total 115273
+[21:06:48] [INFO] Graph: 92 items → total 115273
+[21:06:50] [INFO] Graph: 93 items → total 115273
+[21:06:51] [INFO] Graph: 103 items → total 115273
+[21:06:52] [INFO] Graph: 96 items → total 115273
+[21:06:53] [INFO] Graph: 86 items → total 115273
+[21:06:55] [INFO] Graph: 99 items → total 115273
+[21:06:56] [INFO] Graph: 92 items → total 115273
+[21:06:57] [INFO] Graph: 101 items → total 115273
+[21:06:58] [INFO] Graph: 107 items → total 115273
+[21:07:00] [INFO] Graph: 103 items → total 115273
+[21:07:01] [INFO] Graph: 104 items → total 115273
+[21:07:03] [INFO] Graph: 103 items → total 115273
+[21:07:04] [INFO] Graph: 151 items → total 115273
+[21:07:06] [INFO] Graph: 137 items → total 115273
+[21:07:08] [INFO] Graph: 116 items → total 115273
+[21:07:09] [INFO] Graph: 118 items → total 115273
+[21:07:11] [INFO] Graph: 104 items → total 115273
+[21:07:12] [INFO] Graph: 104 items → total 115273
+[21:07:13] [INFO] Graph: 91 items → total 115273
+[21:07:14] [INFO] Graph: 102 items → total 115273
+[21:07:15] [INFO] Graph: 91 items → total 115273
+[21:07:17] [INFO] Graph: 86 items → total 115273
+[21:07:19] [INFO] Graph: 101 items → total 115273
+[21:07:20] [INFO] Graph: 110 items → total 115273
+[21:07:21] [INFO] Graph: 111 items → total 115273
+[21:07:22] [INFO] Graph: 94 items → total 115273
+[21:07:23] [INFO] Graph: 89 items → total 115273
+[21:07:25] [INFO] Graph: 81 items → total 115273
+[21:07:26] [INFO] Graph: 81 items → total 115273
+[21:07:27] [INFO] Graph: 80 items → total 115273
+[21:07:29] [INFO] Graph: 77 items → total 115273
+[21:07:30] [INFO] Graph: 82 items → total 115273
+[21:07:31] [INFO] Graph: 82 items → total 115273
+[21:07:33] [INFO] Graph: 83 items → total 115273
+[21:07:34] [INFO] Graph: 77 items → total 115273
+[21:07:36] [INFO] Graph: 82 items → total 115273
+[21:07:37] [INFO] Graph: 80 items → total 115273
+[21:07:38] [INFO] Graph: 80 items → total 115273
+[21:07:39] [INFO] Graph: 89 items → total 115273
+[21:07:41] [INFO] Graph: 83 items → total 115273
+[21:07:42] [INFO] Graph: 79 items → total 115273
+[21:07:44] [INFO] Graph: 83 items → total 115273
+[21:07:45] [INFO] Graph: 82 items → total 115273
+[21:07:46] [INFO] Graph: 78 items → total 115273
+[21:07:48] [INFO] Graph: 76 items → total 115273
+[21:07:49] [INFO] Graph: 75 items → total 115273
+[21:07:50] [INFO] Graph: 83 items → total 115273
+[21:07:51] [INFO] Graph: 79 items → total 115273
+[21:07:53] [INFO] Graph: 78 items → total 115273
+[21:07:54] [INFO] Graph: 80 items → total 115273
+[21:07:55] [INFO] Graph: 84 items → total 115273
+[21:07:56] [INFO] Graph: 90 items → total 115273
+[21:07:58] [INFO] Graph: 104 items → total 115273
+[21:07:59] [INFO] Graph: 109 items → total 115273
+[21:08:00] [INFO] Graph: 119 items → total 115273
+[21:08:01] [INFO] Graph: 100 items → total 115273
+[21:08:03] [INFO] Graph: 102 items → total 115273
+[21:08:05] [INFO] Graph: 115 items → total 115273
+[21:08:06] [INFO] Graph: 128 items → total 115273
+[21:08:07] [INFO] Graph: 130 items → total 115273
+[21:08:09] [INFO] Graph: 131 items → total 115273
+[21:08:10] [INFO] Graph: 120 items → total 115273
+[21:08:12] [INFO] Graph: 122 items → total 115273
+[21:08:13] [INFO] Graph: 125 items → total 115273
+[21:08:15] [INFO] Graph: 113 items → total 115273
+[21:08:16] [INFO] Graph: 113 items → total 115273
+[21:08:17] [INFO] Graph: 176 items → total 115273
+[21:08:19] [INFO] Graph: 153 items → total 115273
+[21:08:21] [INFO] Graph: 135 items → total 115273
+[21:08:22] [INFO] Graph: 125 items → total 115273
+[21:08:23] [INFO] Graph: 151 items → total 115273
+[21:08:25] [INFO] Graph: 157 items → total 115273
+[21:08:26] [INFO] Graph: 155 items → total 115273
+[21:08:28] [INFO] Graph: 135 items → total 115273
+[21:08:29] [INFO] Graph: 120 items → total 115273
+[21:08:29] [INFO] Graph: 89 items → total 115273
+[21:08:31] [INFO] Graph: 77 items → total 115273
+[21:08:32] [INFO] Graph: 77 items → total 115273
+[21:08:33] [INFO] Graph: 73 items → total 115273
+[21:08:34] [INFO] Graph: 82 items → total 115273
+[21:08:35] [INFO] Graph: 79 items → total 115273
+[21:08:36] [INFO] Graph: 74 items → total 115273
+[21:08:37] [INFO] Graph: 80 items → total 115273
+[21:08:38] [INFO] Graph: 78 items → total 115273
+[21:08:39] [INFO] Graph: 80 items → total 115273
+[21:08:40] [INFO] Graph: 76 items → total 115273
+[21:08:41] [INFO] Graph: 81 items → total 115273
+[21:08:42] [INFO] Graph: 73 items → total 115273
+[21:08:43] [INFO] Graph: 72 items → total 115273
+[21:08:45] [INFO] Graph: 75 items → total 115273
+[21:08:46] [INFO] Graph: 78 items → total 115273
+[21:08:47] [INFO] Graph: 74 items → total 115273
+[21:08:48] [INFO] Graph: 69 items → total 115273
+[21:08:49] [INFO] Graph: 78 items → total 115273
+[21:08:50] [INFO] Graph: 62 items → total 115273
+[21:08:51] [INFO] Graph: 79 items → total 115273
+[21:08:51] [INFO] Graph: 74 items → total 115273
+[21:08:53] [INFO] Graph: 101 items → total 115273
+[21:08:54] [INFO] Graph: 108 items → total 115273
+[21:08:56] [INFO] Graph: 80 items → total 115273
+[21:08:56] [INFO] Graph: 75 items → total 115273
+[21:08:58] [INFO] Graph: 86 items → total 115273
+[21:08:59] [INFO] Graph: 78 items → total 115273
+[21:09:00] [INFO] Graph: 70 items → total 115273
+[21:09:01] [INFO] Graph: 84 items → total 115273
+[21:09:03] [INFO] Graph: 88 items → total 115273
+[21:09:04] [INFO] Graph: 75 items → total 115273
+[21:09:05] [INFO] Graph: 71 items → total 115273
+[21:09:06] [INFO] Graph: 75 items → total 115273
+[21:09:07] [INFO] Graph: 77 items → total 115273
+[21:09:08] [INFO] Graph: 83 items → total 115273
+[21:09:09] [INFO] Graph: 85 items → total 115273
+[21:09:10] [INFO] Graph: 77 items → total 115273
+[21:09:12] [INFO] Graph: 71 items → total 115273
+[21:09:13] [INFO] Graph: 63 items → total 115273
+[21:09:15] [INFO] Graph: 74 items → total 115273
+[21:09:16] [INFO] Graph: 74 items → total 115273
+[21:09:17] [INFO] Graph: 76 items → total 115273
+[21:09:18] [INFO] Graph: 105 items → total 115273
+[21:09:19] [INFO] Graph: 100 items → total 115273
+[21:09:20] [INFO] Graph: 97 items → total 115273
+[21:09:21] [INFO] Graph: 96 items → total 115273
+[21:09:23] [INFO] Graph: 121 items → total 115273
+[21:09:24] [INFO] Graph: 99 items → total 115273
+[21:09:25] [INFO] Graph: 123 items → total 115273
+[21:09:26] [INFO] Graph: 110 items → total 115273
+[21:09:28] [INFO] Graph: 99 items → total 115273
+[21:09:29] [INFO] Graph: 109 items → total 115273
+[21:09:30] [INFO] Graph: 124 items → total 115273
+[21:09:30] [INFO] Final deltaLink received -> end of scan
+[21:09:31] [INFO] OneDrive cache saved
+[21:09:31] [INFO] [2/4] Analyzing OneDrive duplicates
+[21:09:54] [INFO] Cloud duplicate groups: 2
+[21:09:54] [INFO] [3/4] Local analysis
+[21:10:16] [INFO] Local cleanup completed
+[21:10:16] [INFO] [4/4] Cleaning empty folders
+[21:10:16] [INFO] === FINAL SUMMARY ===
+[21:10:16] [INFO] Elapsed time: 4m 17s
+[21:10:16] [INFO] Local files: 0
+[21:10:16] [INFO] Ignored (size mismatch): 0
+[21:10:16] [INFO] Cloud duplicate groups: 2
+[21:10:16] [INFO] Local duplicates moved: 0
+[21:10:16] [INFO] Files deleted (disallowed extensions): 0

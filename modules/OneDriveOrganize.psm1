@@ -101,17 +101,17 @@ function Read-AzureFileInfo {
         }
 
         return @{
-            n   = $item.name
-            s   = $item.size
-            h   = $item.file.hashes.sha1Hash.ToLower()
-            d   = $refDate
-            p   = $item.parentReference.path
-            GPS = $GPS
-            cam = $camera
-            img = $imgInfo
-            vid = $videoInfo
-            aud = $audioInfo
-            ani = $isAnimated
+            n             = $item.name
+            s             = $item.size
+            h             = $item.file.hashes.sha1Hash.ToLower()
+            d             = $refDate
+            p             = $item.parentReference.path
+            GPS           = $GPS
+            cam           = $camera
+            img           = $imgInfo
+            vid           = $videoInfo
+            aud           = $audioInfo
+            ani           = $isAnimated
             isCameraVideo = $isCameraVideo
         }
     }
@@ -691,127 +691,117 @@ function New-Plan {
         if (Test-Path $log2) { Remove-Item $log2 -Force }
 
         foreach ($fileId in $FileIds) {
+            try {
+                $count++
+                $fileMeta = $Global:State.Cache.Files[$fileId]
+                $extension = [System.IO.Path]::GetExtension($fileMeta.n).ToLower()
 
-            $count++
-            $fileMeta = $Global:State.Cache.Files[$fileId]
-            $extension = [System.IO.Path]::GetExtension($fileMeta.n).ToLower()
+                $elapsed = (Get-Date) - $StartTime
+                $avgTime = $elapsed.TotalSeconds / [math]::Max($count, 1)
+                $remainingStr = "{0:hh\:mm\:ss}" -f [TimeSpan]::FromSeconds($avgTime * ($FilteredTotal - $count))
 
-            $elapsed = (Get-Date) - $StartTime
-            $avgTime = $elapsed.TotalSeconds / [math]::Max($count, 1)
-            $remainingStr = "{0:hh\:mm\:ss}" -f [TimeSpan]::FromSeconds($avgTime * ($FilteredTotal - $count))
+                Write-Progress -Activity "Analyse OneDrive" `
+                    -Status "$count / $FilteredTotal | Restant: $remainingStr" `
+                    -PercentComplete (($count / $FilteredTotal) * 100)
 
-            Write-Progress -Activity "Analyse OneDrive" `
-                -Status "$count / $FilteredTotal | Restant: $remainingStr" `
-                -PercentComplete (($count / $FilteredTotal) * 100)
+                Write-Log "----------------------------------------------" "DEBUG"
+                Write-Log "Analyzing file [$count/$FilteredTotal]" "DEBUG"
+                Write-Log "ID             : $fileId" "DEBUG"
+                Write-Log "Original name  : $($fileMeta.n)" "DEBUG"
+                Write-Log "Source path    : $($fileMeta.p)" "DEBUG"
+                Write-Log "Extension      : $extension" "DEBUG"
+                Write-Log "File date      : $($fileMeta.d)" "DEBUG"
+                Write-Log "GPS            : $($fileMeta.GPS)" "DEBUG"
 
-            Write-Log "----------------------------------------------" "DEBUG"
-            Write-Log "Analyzing file" "DEBUG"
-            Write-Log "ID             : $fileId" "DEBUG"
-            Write-Log "Original name  : $($fileMeta.n)" "DEBUG"
-            Write-Log "Source path    : $($fileMeta.p)" "DEBUG"
-            Write-Log "Extension      : $extension" "DEBUG"
-            Write-Log "File date      : $($fileMeta.d)" "DEBUG"
-            Write-Log "GPS            : $($fileMeta.GPS)" "DEBUG"
+                $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension
+                Write-Log "Smart classification = ($category)" "DEBUG"
 
-            $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension
-            Write-Log "Smart classification = ($category)" "DEBUG"
+                # 1) EXTENSION NON SUPPORTEE
+                if (-not $Config.ExtensionMap.ContainsKey($extension)) {
+                    Write-Log "Ignored: unsupported extension ($extension)" "DEBUG"
+                    $Global:State.ProcessedIds[$fileId] = $true
+                    Save-ProcessedIds -Id $fileId
+                    continue
+                }
 
-            #
-            # 1) EXTENSION NON SUPPORTEE → marquer comme traité
-            #
-            if (-not $Config.ExtensionMap.ContainsKey($extension)) {
-                Write-Log "Ignored: unsupported extension ($extension)" "DEBUG"
+                $fileDate = [DateTime]$fileMeta.d
 
-                $Global:State.ProcessedIds[$fileId] = $true
-                Save-ProcessedIds -Id $fileId
+                # GPS
+                $GPSLocation = $null
+                if ($fileMeta.GPS) {
+                    $GPSLocation = Get-LocationName $fileMeta.GPS
+                    Write-Log "GPS location : $GPSLocation" "DEBUG"
+                }
 
-                continue
+                # Tags
+                $pathTags = Get-PathTags $fileMeta.p
+                Write-Log "Tags de Path : $pathTags" "DEBUG"
+
+                # Camera
+                $camera = $fileMeta.cam
+
+                # Nouveau nom
+                $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($fileMeta.n)
+                if ([string]::IsNullOrWhiteSpace($originalNameNoExt)) {
+                    Write-Log "Empty filename, skipping file: $($fileMeta.p)/$($fileMeta.n)" "WARN"
+                    continue
+                }
+
+                $newName = Resolve-FinalName `
+                    -FileMeta   $fileMeta `
+                    -Extension  $extension `
+                    -GPSLocation $GPSLocation `
+                    -PathTags   $pathTags `
+                    -Camera     $camera
+
+                Write-Log "Generated new name: $newName" "DEBUG"
+
+                $dest = Get-DestinationPath `
+                    -FileMeta  $fileMeta `
+                    -Extension $extension `
+                    -NewName   $newName `
+                    -FileDate  $fileDate
+
+                $logFile = Join-Path (Split-Path $IndexFile -Parent) "log2.txt"
+                "[$category] $($fileMeta.p)/$($fileMeta.n) --> $($dest.FullDestination)" | Add-Content -Path $logFile
+
+                # 2) CAS no_action
+                if ($null -eq $dest) {
+                    Write-Log "File ignored (no_action category): $($fileMeta.n)" "DEBUG"
+                    $Global:State.ProcessedIds[$fileId] = $true
+                    Save-ProcessedIds -Id $fileId
+                    continue
+                }
+
+                Write-Log "Destination path = ($($dest.CleanDestination))" "DEBUG"
+                $cleanDestination = $dest.CleanDestination
+                $fullDestination = $dest.FullDestination
+
+                $srcDirClean = $fileMeta.p -replace "^/drive/root:", ""
+                $currentPath = "$($srcDirClean.Trim('/'))/$($fileMeta.n)"
+
+                # 3) Déjà à la bonne place
+                if ($currentPath -eq $fullDestination.Trim('/')) {
+                    Write-Log "Already in correct place: $($fileMeta.n)" "DEBUG"
+                    $Global:State.ProcessedIds[$fileId] = $true
+                    Save-ProcessedIds -Id $fileId
+                    continue
+                }
+
+                # 4) Sinon → ajouter au plan
+                $Global:State.PlannedActions.Add([PSCustomObject]@{
+                        Id       = $fileId
+                        SrcPath  = $fileMeta.p
+                        SrcName  = $fileMeta.n
+                        DstDir   = "/$($cleanDestination.Trim('/'))"
+                        DstName  = $newName
+                        FullDst  = $fullDestination
+                        Category = $category
+                    })
             }
-
-            $fileDate = [DateTime]$fileMeta.d
-
-            # GPS
-            $GPSLocation = $null
-            if ($fileMeta.GPS) {
-                $GPSLocation = Get-LocationName $fileMeta.GPS
-                Write-Log "GPS location : $GPSLocation" "DEBUG"
+            catch {
+                Write-Log "Error analyzing file $fileId : $($_.Exception.Message)" "ERROR"
             }
-
-            # Tags
-            $pathTags = Get-PathTags $fileMeta.p
-            Write-Log "Tags de Path : $pathTags" "DEBUG"
-
-            # Camera
-            $camera = $fileMeta.cam
-
-            # Nouveau nom
-            $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($fileMeta.n)
-            if ([string]::IsNullOrWhiteSpace($originalNameNoExt)) {
-                Write-Log "Empty filename, skipping file: $($fileMeta.p)/$($fileMeta.n)" "WARN"
-                continue
-            }
-
-            $newName = Resolve-FinalName `
-                -FileMeta   $fileMeta `
-                -Extension  $extension `
-                -GPSLocation $GPSLocation `
-                -PathTags   $pathTags `
-                -Camera     $camera
-
-            Write-Log "Generated new name: $newName" "DEBUG"
-
-            $dest = Get-DestinationPath `
-                -FileMeta  $fileMeta `
-                -Extension $extension `
-                -NewName   $newName `
-                -FileDate  $fileDate
-
-            $logFile = Join-Path (Split-Path $IndexFile -Parent) "log2.txt"
-            "[$category] $($fileMeta.p)/$($fileMeta.n) --> $($dest.FullDestination)" | Add-Content -Path $logFile
-
-            #
-            # 2) CAS no_action → marquer comme traité
-            #
-            if ($null -eq $dest) {
-                Write-Log "File ignored (no_action category): $($fileMeta.n)" "DEBUG"
-
-                $Global:State.ProcessedIds[$fileId] = $true
-                Save-ProcessedIds -Id $fileId
-
-                continue
-            }
-
-            Write-Log "Destination path = ($($dest.CleanDestination))" "DEBUG"
-            $cleanDestination = $dest.CleanDestination
-            $fullDestination = $dest.FullDestination
-
-            $srcDirClean = $fileMeta.p -replace "^/drive/root:", ""
-            $currentPath = "$($srcDirClean.Trim('/'))/$($fileMeta.n)"
-
-            #
-            # 3) Déjà à la bonne place → marquer comme traité
-            #
-            if ($currentPath -eq $fullDestination.Trim('/')) {
-                Write-Log "Already in correct place: $($fileMeta.n)" "DEBUG"
-
-                $Global:State.ProcessedIds[$fileId] = $true
-                Save-ProcessedIds -Id $fileId
-
-                continue
-            }
-
-            #
-            # 4) Sinon → ajouter au plan
-            #
-            $Global:State.PlannedActions.Add([PSCustomObject]@{
-                    Id       = $fileId
-                    SrcPath  = $fileMeta.p
-                    SrcName  = $fileMeta.n
-                    DstDir   = "/$($cleanDestination.Trim('/'))"
-                    DstName  = $newName
-                    FullDst  = $fullDestination
-                    Category = $category
-                })
         }
 
         if (Test-Path $logFile) {
