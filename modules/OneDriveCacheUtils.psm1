@@ -1,4 +1,4 @@
-﻿﻿if ($script:ModuleLoaded) {
+﻿﻿﻿﻿if ($script:ModuleLoaded) {
     return
 }
 $script:ModuleLoaded = $true
@@ -403,6 +403,10 @@ function Repair-Cache {
                 $f.ext = $ext
                 $fixedExt++
             }
+
+            # Ensure boolean flags are properly typed to avoid binding errors during analysis
+            $f.ani = [bool]$f.ani
+            $f.isCameraVideo = [bool]$f.isCameraVideo
         }
 
         Write-Log "Fix complete: $removed entries removed, $fixedExt extensions corrected." "SUCCESS"

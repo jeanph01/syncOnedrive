@@ -152,7 +152,7 @@ function Normalize-AsciiString {
     try {
         # Strip "New folder (99)" and "Nouveau dossier (99)" patterns before splitting
         $Text = $Text -replace '(?i)(new[ _-]folder|nouveau[ _-]dossier)(\s*\(\d+\))?', ''
-ma        $normalized = $Text.Normalize([System.Text.NormalizationForm]::FormD)
+        $normalized = $Text.Normalize([System.Text.NormalizationForm]::FormD)
         $clean = ($normalized.ToCharArray() | Where-Object {
                 [System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($_) -ne
                 [System.Globalization.UnicodeCategory]::NonSpacingMark
@@ -591,7 +591,7 @@ function Get-DestinationPath {
     }
 
     # 3) Déterminer l'action
-    $actionName = Get-RoutingAction -Path $srcPath -Extension $Extension -IsAnimated $FileMeta.ani
+    $actionName = Get-RoutingAction -Path $srcPath -Extension $Extension -IsAnimated ([bool]$FileMeta.ani)
     if (-not $rules.actions.ContainsKey($actionName)) {
         $actionName = 'default'
     }
@@ -749,7 +749,7 @@ function New-Plan {
                 Write-Log "File date      : $($fileMeta.d)" "DEBUG"
                 Write-Log "GPS            : $($fileMeta.GPS)" "DEBUG"
 
-                $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension -IsAnimated $fileMeta.ani
+                $category = Get-SmartCategory -Path $fileMeta.p -Extension $extension -IsAnimated ([bool]$fileMeta.ani)
                 Write-Log "Smart classification = ($category)" "DEBUG"
 
                 # 1) EXTENSION NON SUPPORTEE
