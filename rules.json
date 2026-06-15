@@ -16,7 +16,7 @@
     ".mp4": "Videos", ".mov": "Videos", ".avi": "Videos", ".mkv": "Videos",
     ".wmv": "Videos", ".webm": "Videos", ".m4v": "Videos", ".3gp": "Videos", ".mpg": "Videos", ".mpeg": "Videos", ".flv": "Videos",
     ".mp3": "Audio", ".wav": "Audio", ".m4a": "Audio", ".flac": "Audio", ".amr": "Audio", ".opus": "Audio",
-    ".gif": "Animated", ".webp": "Animated", ".apng": "Animated"
+    ".gif": "Images", ".webp": "Images", ".apng": "Images"
   },
 
   "routingRules": {
@@ -135,7 +135,7 @@
   "mediaRules": {
     "extractCameraModel": true,
     "extractVideoDuration": true,
-    "shortVideoMaxDurationMs": 60000, 
+    "shortVideoMaxDurationMs": 60000,
     "normalizeAscii": true,
     "splitPattern": "[ _-]"
   },

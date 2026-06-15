@@ -152,6 +152,8 @@ function Normalize-AsciiString {
     if ([string]::IsNullOrWhiteSpace($Text)) { return "" }
 
     try {
+        # Strip "New folder (99)" and "Nouveau dossier (99)" patterns before splitting
+        $Text = $Text -replace '(?i)(new[ _-]folder|nouveau[ _-]dossier)(\s*\(\d+\))?', ''
         $normalized = $Text.Normalize([System.Text.NormalizationForm]::FormD)
         $clean = ($normalized.ToCharArray() | Where-Object {
                 [System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($_) -ne
@@ -187,7 +189,10 @@ function Remove-StopWordsFromList {
     if (-not $Words) { return @() }
     if (-not $StopWords) { return $Words }
 
-    $stop = $StopWords | ForEach-Object { $_.ToLower() }
+    # Ensure common folder noise is included in stop words
+    $noise = @("new", "folder", "nouveau", "dossier")
+    $stop = ($StopWords + $noise) | ForEach-Object { $_.ToLower() }
+
     return $Words | Where-Object { $stop -notcontains $_.ToLower() }
 }
 
@@ -208,6 +213,27 @@ function Remove-DuplicatesFromList {
     return $result
 }
 
+function Remove-NoiseFromList {
+    param([string[]]$Words)
+    if (-not $Words) { return @() }
+
+    return $Words | Where-Object {
+        $w = $_
+        $isNoise = $false
+
+        # 1. Base64 / Hash / Random strings (long alphanumeric > 12 chars with mix of letters and numbers)
+        if ($w.Length -gt 12 -and $w -match '[a-zA-Z]' -and $w -match '\d') { $isNoise = $true }
+
+        # 2. Long list of numbers (not date/time typical lengths, > 10 chars)
+        if ($w.Length -gt 10 -and $w -match '^\d+$') { $isNoise = $true }
+
+        # 3. MAC address kinda string (12 hex chars)
+        if ($w.Length -eq 12 -and $w -match '^[0-9a-fA-F]{12}$') { $isNoise = $true }
+
+        -not $isNoise
+    }
+}
+
 function Remove-DateWordsFromList {
     param(
         [string[]]$Words,
@@ -217,11 +243,14 @@ function Remove-DateWordsFromList {
     if (-not $Words) { return @() }
 
     $year = $DateRef.ToString("yyyy")
+    $month = $DateRef.ToString("MM")
+    $day = $DateRef.ToString("dd")
     $yearMonth = $DateRef.ToString("yyyyMM")
     $dateRaw = $DateRef.ToString("yyyyMMdd")
     $timestamp = $DateRef.ToString("yyyyMMdd_HHmmss")
+    $timeRaw = $DateRef.ToString("HHmmss")
 
-    $toRemove = @($year, $yearMonth, $dateRaw, $timestamp) | ForEach-Object { $_.ToLower() }
+    $toRemove = @($year, $month, $day, $yearMonth, $dateRaw, $timestamp, $timeRaw) | ForEach-Object { $_.ToLower() }
 
     return $Words | Where-Object { $toRemove -notcontains $_.ToLower() }
 }
@@ -246,6 +275,7 @@ function Extract-TagWords {
     $words = Split-Words $PathTags
     $words = Remove-StopWordsFromList -Words $words -StopWords $StopWords
     $words = Remove-DateWordsFromList -Words $words -DateRef $DateRef
+    $words = Remove-NoiseFromList -Words $words
 
     if ($GpsWords) {
         $gpsSet = $GpsWords | ForEach-Object { $_.ToLower() }
@@ -271,6 +301,7 @@ function Extract-OrigWords {
     $words = Split-Words $name
     $words = Remove-StopWordsFromList -Words $words -StopWords $StopWords
     $words = Remove-DateWordsFromList -Words $words -DateRef $DateRef
+    $words = Remove-NoiseFromList -Words $words
 
     if ($ExistingWords) {
         $existingSet = $ExistingWords | ForEach-Object { $_.ToLower() }

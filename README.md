@@ -224,6 +224,7 @@ En résumé : le nom est déterministe, lisible, sans accents, priorise la date,
 - Supports dry‑run and execution modes
 - **Intelligent Media Classification**:
     - **Animated Images (GIF, WebP, APNG)**: Automatically detected and routed to the `Videos` folder structure.
+    - **Actually Animated Images**: Only GIFs, WebPs, or APNGs containing multi-frame data (detected via the Graph `video` facet) are routed to the `Videos` folder structure. Static versions remain in the `Images` structure.
     - **Short Camera Videos**: Videos taken by a camera (identified by `video` and `photo` metadata) with a duration below a configurable threshold (e.g., 60 seconds) are treated as `Images` and remain within the `Images` folder structure. This prevents short clips from being separated from their associated photos.
 
 
