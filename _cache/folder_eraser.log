@@ -1,0 +1,31 @@
+[08:28:47] [INFO] OneDriveTools.psm1 loaded
+[08:28:47] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[08:28:47] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[08:28:47] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\folder_eraser.log
+[08:28:47] [INFO] === FOLDER ERASER START: 06/16/2026 08:28:47 ===
+[08:28:47] [WARN] MODE: DRY-RUN (No folders will be deleted). Use -Execute $true to apply changes.
+[08:28:47] [DEBUG] Checking Graph token validity...
+[08:28:47] [DEBUG] Get-GraphToken: checking existing token
+[08:28:47] [DEBUG] Valid token loaded from cache
+[08:28:47] [ERROR] Erreur Connect-AzureGraph : The property 'Headers' cannot be found on this object. Verify that the property exists and can be set.
+[08:28:47] [ERROR] FATAL ERROR in FolderEraser: The property 'Headers' cannot be found on this object. Verify that the property exists and can be set.
+[08:28:47] [DEBUG] Stack: at Connect-AzureGraph, C:\Users\jeanp\github\syncOnedrive\modules\OneDriveTools.psm1: line 355
+at Start-FolderEraser, C:\Users\jeanp\github\syncOnedrive\folder_eraser.ps1: line 54
+at <ScriptBlock>, C:\Users\jeanp\github\syncOnedrive\folder_eraser.ps1: line 186
+at <ScriptBlock>, <No file>: line 1
+[08:28:47] [INFO] === SESSION END ===
+[09:52:16] [INFO] OneDriveTools.psm1 loaded
+[09:52:16] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[09:52:16] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[09:52:16] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\folder_eraser.log
+[09:52:16] [INFO] === FOLDER ERASER START: 06/16/2026 09:52:16 ===
+[09:52:16] [WARN] MODE: DRY-RUN (No folders will be deleted). Use -Execute $true to apply changes.
+[09:52:16] [DEBUG] Checking Graph token validity...
+[09:52:16] [DEBUG] Get-GraphToken: checking existing token
+[09:52:16] [DEBUG] Valid token loaded from cache
+[09:52:16] [INFO] Scanning OneDrive structure...
+[09:52:17] [ERROR] FATAL ERROR in FolderEraser: Invalid URI: The hostname could not be parsed.
+[09:52:17] [DEBUG] Stack: at Start-FolderEraser, C:\Users\jeanp\github\syncOnedrive\folder_eraser.ps1: line 81
+at <ScriptBlock>, C:\Users\jeanp\github\syncOnedrive\folder_eraser.ps1: line 200
+at <ScriptBlock>, <No file>: line 1
+[09:52:17] [INFO] === SESSION END ===
