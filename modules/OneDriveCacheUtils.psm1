@@ -1,4 +1,4 @@
-﻿﻿﻿﻿if ($script:ModuleLoaded) {
+if ($script:ModuleLoaded) {
     return
 }
 $script:ModuleLoaded = $true

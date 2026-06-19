@@ -7,7 +7,7 @@
 # =====================================================================
 
 param (
-    [bool]$Execute = $false,                          # Actually performs the deletions
+    [bool]$Execute = $true,                          # Actually performs the deletions
     [string]$ConfigFile = ".\config.ini"            # Application configuration
 )
 

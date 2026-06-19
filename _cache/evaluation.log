@@ -1,0 +1,15 @@
+[07:29:54] [INFO] OneDriveTools.psm1 loaded
+[07:29:54] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[07:29:54] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[07:29:54] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\evaluation.log
+[07:29:54] [DEBUG] OneDriveCacheUtils.psm1 loaded
+[07:57:38] [INFO] OneDriveTools.psm1 loaded
+[07:57:38] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[07:57:38] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[07:57:38] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\evaluation.log
+[07:57:38] [DEBUG] OneDriveCacheUtils.psm1 loaded
+[08:40:01] [INFO] OneDriveTools.psm1 loaded
+[08:40:01] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[08:40:01] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[08:40:01] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\evaluation.log
+[08:40:01] [DEBUG] OneDriveCacheUtils.psm1 loaded
