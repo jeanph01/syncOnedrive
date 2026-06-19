@@ -9,6 +9,7 @@
 
 param (
     [bool]$Execute = $true,                          # Actually performs the moves
+    [bool]$Execute = $false,                         # Actually performs the moves
     [bool]$ResetCache = $false,                      # Resets internal files except GPS and OneDrive cache
     [string]$ConfigFile = ".\config.ini",          # Application configuration
     # === NEW PARAMETERS ===
@@ -479,6 +480,72 @@ function Invoke-Moves {
     }
 } # Invoke-Moves
 
+function Start-Analysis {
+    Write-Log "=== MODE: ANALYSIS ===" "INFO"
+    try {
+        # Load the plan from disk without performing a full analysis
+        $cacheFolder = Split-Path $global:IndexFile -Parent
+        $planPath = Join-Path $cacheFolder "plan.json"
+        if (-not (Test-Path $planPath)) {
+            Write-Log "plan.json not found. Run the script without parameters to generate it first." "WARN"
+            return
+        }
+
+        $planContent = Get-Content $planPath -Raw
+        if ([string]::IsNullOrWhiteSpace($planContent)) {
+            Write-Log "plan.json is empty. Nothing to analyze." "WARN"
+            return
+        }
+
+        $Global:State.PlannedActions = $planContent | ConvertFrom-Json
+        Test-Plan
+    }
+    catch {
+        Write-Log "Start-Analysis error: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Start-Validation {
+    Write-Log "=== MODE: VALIDATION ===" "INFO"
+    try {
+        # Load cache and then run validation checks
+        Import-Set-Cache
+        Test-Cache
+    }
+    catch {
+        Write-Log "Start-Validation error: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Start-Debug {
+    param([string]$Id)
+    Write-Log "=== MODE: DEBUG ===" "INFO"
+    try {
+        if ([string]::IsNullOrWhiteSpace($Id)) {
+            Write-Log "Debug mode requires a file ID. Use -DebugId <ID>." "WARN"
+            return
+        }
+        # Load cache and then debug the specific file
+        Import-Set-Cache
+        Debug-File -Id $Id
+    }
+    catch {
+        Write-Log "Start-Debug error: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Start-DryRunMode {
+    Write-Log "=== MODE: DRY-RUN ===" "INFO"
+    try {
+        # This function is a placeholder for a more detailed dry-run if needed.
+        # Currently, the main pipeline handles this by checking -Execute.
+        Write-Log "Detailed dry-run simulation. No changes will be made." "INFO"
+        Start-OneDriveOrganizer
+    }
+    catch {
+        Write-Log "Start-DryRunMode error: $($_.Exception.Message)" "ERROR"
+    }
+}
 
 
 # =====================================================================
@@ -652,6 +719,7 @@ function Start-OneDriveOrganizer {
 
         # 5. EXECUTION MODE CHECK
         if (-not $Execute) {
+        if (-not $Execute -and -not $StepByStep) {
             Write-Log "DRY-RUN MODE: Rerun the script with -Execute `$true to apply changes." "INFO"
             return
         }
@@ -698,3 +766,22 @@ function Start-OneDriveOrganizer {
 }
 
 Start-OneDriveOrganizer
+if ($Analyze) {
+    Start-Analysis
+}
+elseif ($Validate) {
+    Start-Validation
+}
+elseif (-not [string]::IsNullOrWhiteSpace($DebugId)) {
+    Start-Debug -Id $DebugId
+}
+elseif ($DryRun) {
+    # Set Execute to false to ensure no changes are made
+    $Execute = $false
+    $StepByStep = $false
+    Start-DryRunMode
+}
+else {
+    # Default execution pipeline (generates plan, and executes if -Execute or -StepByStep is true)
+    Start-OneDriveOrganizer
+}

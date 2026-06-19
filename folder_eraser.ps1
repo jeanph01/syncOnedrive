@@ -26,6 +26,7 @@ $app = Get-AppConfiguration -ConfigFile $ConfigFile
 $global:IndexFile = $app.IndexFile
 $global:TokenFile = $app.TokenFile
 $global:LogFile = Join-Path (Split-Path $app.OrganizerLogFile -Parent) "folder_eraser.log"
+$global:DeletedFoldersLogFile = Join-Path (Split-Path $app.OrganizerLogFile -Parent) "deleted_folders.log"
 $Global:Rules = $app.Rules
 
 $Config = [PSCustomObject]@{
@@ -54,6 +55,28 @@ $Global:State = @{
 # =====================================================================
 
 function Start-FolderEraser {
+    # 0. LOG CLEANUP (single run at startup)
+    if (Test-Path $global:LogFile) {
+        try {
+            Remove-Item $global:LogFile -Force -ErrorAction SilentlyContinue
+            # Recreate an empty log file so Write-Log can write immediately (main log)
+            New-Item -Path $global:LogFile -ItemType File -Force | Out-Null
+        }
+        catch {
+            Write-Log "Unable to reset the main log: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
+    # NEW: Clear the deleted folders log file at startup
+    if (Test-Path $global:DeletedFoldersLogFile) {
+        try {
+            Remove-Item $global:DeletedFoldersLogFile -Force -ErrorAction SilentlyContinue
+            New-Item -Path $global:DeletedFoldersLogFile -ItemType File -Force | Out-Null
+        }
+        catch {
+            Write-Log "Unable to reset the deleted folders log: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
+
     Write-Log "=== FOLDER ERASER START: $(Get-Date) ===" "INFO"
 
     if (-not $Execute) {
@@ -72,12 +95,13 @@ function Start-FolderEraser {
         $items = @{}         # ID -> Item Object
         $childCounts = @{}   # ID -> Count of children (files or folders)
         $folders = @()       # List of folder objects
+        $deletedFolderPaths = New-Object System.Collections.Generic.List[string] # Collect paths for sorted logging
 
-        $uri = "<https://graph.microsoft.com/v1.0/me/drive/root/delta>?`$select=id,name,parentReference,folder"
+        $uri = "https://graph.microsoft.com/v1.0/me/drive/root/delta?`$select=id,name,parentReference,folder"
         $page = 1
 
         while ($uri) {
-            Write-Progress -Activity "Scanning OneDrive" -Status "Fetching page $page..."
+            Write-Progress -Activity "Scanning OneDrive" -Status "Fetching page $page... ($($items.Count) items discovered)"
             $response = Invoke-RestMethod -Headers $Global:State.Headers -Uri $uri -Method Get
 
             foreach ($item in $response.value) {
@@ -108,13 +132,20 @@ function Start-FolderEraser {
         # 3. Calculate Path Depths
         # We need to delete deepest folders first so parents become empty
         Write-Log "Calculating folder depths..." "INFO"
+        $fCount = 0
+        $fTotal = $folders.Count
         $sortedFolders = $folders | ForEach-Object {
+            $fCount++
+            if ($fCount % 100 -eq 0) {
+                Write-Progress -Activity "Calculating depths" -Status "Folder $fCount / $fTotal" -PercentComplete (($fCount / $fTotal) * 100)
+            }
             $depth = 0
             if ($_.parentReference -and $_.parentReference.path) {
                 $depth = ($_.parentReference.path -split '/').Count
             }
             $_ | Add-Member -MemberType NoteProperty -Name "Depth" -Value $depth -PassThru
         } | Sort-Object Depth -Descending
+        Write-Progress -Activity "Calculating depths" -Completed
 
         # 4. Processing
         $deletedCount = 0
@@ -129,7 +160,7 @@ function Start-FolderEraser {
             $folderPath = if ($folder.parentReference.path) { "$($folder.parentReference.path)/$folderName" } else { "/$folderName" }
 
             Write-Progress -Activity "Cleaning folders" `
-                -Status "Checking: $folderName" `
+                -Status "Folder $index / ${total}: $folderName" `
                 -PercentComplete (($index / $total) * 100)
 
             # Check if current folder has any children
@@ -144,6 +175,7 @@ function Start-FolderEraser {
                         $deleteUri = "https://graph.microsoft.com/v1.0/me/drive/items/$folderId"
                         Invoke-RestMethod -Headers $Global:State.Headers -Uri $deleteUri -Method DELETE
 
+                        $deletedFolderPaths.Add($folderPath) # Add to list for sorted logging
                         $deletedCount++
 
                         # Update parent's count so the parent can potentially be deleted too
@@ -161,6 +193,7 @@ function Start-FolderEraser {
                     }
                 }
                 else {
+                    $deletedFolderPaths.Add($folderPath) # Add to list for sorted logging
                     Write-Log "[DRY-RUN] Would delete empty folder: $folderPath" "INFO"
                     $deletedCount++
 
@@ -176,6 +209,10 @@ function Start-FolderEraser {
         }
 
         Write-Progress -Activity "Cleaning folders" -Completed
+
+        # Write collected deleted folder paths to log, sorted alphabetically
+        $deletedFolderPaths | Sort-Object | Add-Content -Path $global:DeletedFoldersLogFile -Encoding UTF8
+        Write-Log "Logged $($deletedFolderPaths.Count) folders to '$($global:DeletedFoldersLogFile)' (sorted)." "INFO"
 
         Write-Host "`n"
         Write-Log "=== CLEANUP SUMMARY ===" "SUCCESS"
