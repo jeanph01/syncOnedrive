@@ -8,8 +8,7 @@
 # =====================================================================
 
 param (
-    [bool]$Execute = $true,                          # Actually performs the moves
-    [bool]$Execute = $false,                         # Actually performs the moves
+    [bool]$Execute = $false,                          # Actually performs the moves
     [bool]$ResetCache = $false,                      # Resets internal files except GPS and OneDrive cache
     [string]$ConfigFile = ".\config.ini",          # Application configuration
     # === NEW PARAMETERS ===
@@ -719,69 +718,69 @@ function Start-OneDriveOrganizer {
 
         # 5. EXECUTION MODE CHECK
         if (-not $Execute) {
-        if (-not $Execute -and -not $StepByStep) {
-            Write-Log "DRY-RUN MODE: Rerun the script with -Execute `$true to apply changes." "INFO"
-            return
-        }
+            if (-not $Execute -and -not $StepByStep) {
+                Write-Log "DRY-RUN MODE: Rerun the script with -Execute `$true to apply changes." "INFO"
+                return
+            }
 
-        # 6. REAL EXECUTION (GRAPH API)
-        Write-Log "SWITCHING TO REAL EXECUTION MODE..." "WARN"
-        Connect-AzureGraph
-
-        # Proactively create destination folders to avoid 404 errors
-        Write-Log "Checking OneDrive folder hierarchy..." "INFO"
-        $uniqueDirs = $Global:State.PlannedActions.DstDir | Select-Object -Unique
-        $dirTotal = $uniqueDirs.Count
-        $dirIdx = 0
-        foreach ($dir in $uniqueDirs) {
-            $dirIdx++
-            # Vérifier la validité du jeton avant chaque vérification de chemin
+            # 6. REAL EXECUTION (GRAPH API)
+            Write-Log "SWITCHING TO REAL EXECUTION MODE..." "WARN"
             Connect-AzureGraph
 
-            Write-Progress -Activity "Checking OneDrive folder hierarchy" `
-                -Status "Folder $dirIdx / $dirTotal" `
-                -PercentComplete (($dirIdx / $dirTotal) * 100)
+            # Proactively create destination folders to avoid 404 errors
+            Write-Log "Checking OneDrive folder hierarchy..." "INFO"
+            $uniqueDirs = $Global:State.PlannedActions.DstDir | Select-Object -Unique
+            $dirTotal = $uniqueDirs.Count
+            $dirIdx = 0
+            foreach ($dir in $uniqueDirs) {
+                $dirIdx++
+                # Vérifier la validité du jeton avant chaque vérification de chemin
+                Connect-AzureGraph
 
-            $newFolders = Test-OneDrivePath $dir
-            if ($newFolders -gt 0) {
-                Write-Log "[$dirIdx/$dirTotal] Verified folder path '$dir' ($newFolders new folders created)" "SUCCESS"
+                Write-Progress -Activity "Checking OneDrive folder hierarchy" `
+                    -Status "Folder $dirIdx / $dirTotal" `
+                    -PercentComplete (($dirIdx / $dirTotal) * 100)
+
+                $newFolders = Test-OneDrivePath $dir
+                if ($newFolders -gt 0) {
+                    Write-Log "[$dirIdx/$dirTotal] Verified folder path '$dir' ($newFolders new folders created)" "SUCCESS"
+                }
             }
-        }
-        Write-Progress -Activity "Checking OneDrive folder hierarchy" -Completed
+            Write-Progress -Activity "Checking OneDrive folder hierarchy" -Completed
 
-        # Actual file move execution
-        if ($StepByStep) {
-            Invoke-MovesInteractive
-        }
-        else {
-            Invoke-Moves
-        }
+            # Actual file move execution
+            if ($StepByStep) {
+                Invoke-MovesInteractive
+            }
+            else {
+                Invoke-Moves
+            }
 
-        Write-Log "Organization process completed successfully." "SUCCESS"
+            Write-Log "Organization process completed successfully." "SUCCESS"
+        }
+        catch {
+            Write-Log "FATAL ERROR in Start-OneDriveOrganizer: $($_.Exception.Message)" "ERROR"
+            Write-Log "Details: $($_.ScriptStackTrace)" "DEBUG"
+        }
     }
-    catch {
-        Write-Log "FATAL ERROR in Start-OneDriveOrganizer: $($_.Exception.Message)" "ERROR"
-        Write-Log "Details: $($_.ScriptStackTrace)" "DEBUG"
-    }
-}
 
-Start-OneDriveOrganizer
-if ($Analyze) {
-    Start-Analysis
-}
-elseif ($Validate) {
-    Start-Validation
-}
-elseif (-not [string]::IsNullOrWhiteSpace($DebugId)) {
-    Start-Debug -Id $DebugId
-}
-elseif ($DryRun) {
-    # Set Execute to false to ensure no changes are made
-    $Execute = $false
-    $StepByStep = $false
-    Start-DryRunMode
-}
-else {
-    # Default execution pipeline (generates plan, and executes if -Execute or -StepByStep is true)
     Start-OneDriveOrganizer
-}
+    if ($Analyze) {
+        Start-Analysis
+    }
+    elseif ($Validate) {
+        Start-Validation
+    }
+    elseif (-not [string]::IsNullOrWhiteSpace($DebugId)) {
+        Start-Debug -Id $DebugId
+    }
+    elseif ($DryRun) {
+        # Set Execute to false to ensure no changes are made
+        $Execute = $false
+        $StepByStep = $false
+        Start-DryRunMode
+    }
+    else {
+        # Default execution pipeline (generates plan, and executes if -Execute or -StepByStep is true)
+        Start-OneDriveOrganizer
+    }

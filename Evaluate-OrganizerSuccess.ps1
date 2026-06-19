@@ -1,9 +1,7 @@
 # =====================================================================
-# Evaluate-OrganizerSuccess.ps1
-# Generates a detailed CSV report of all files in the OneDrive cache,
-# showing their original paths, resolved actions, proposed new names/paths,
-# and organization status. This helps evaluate the success and check
-# for miscategorized files.
+# Evaluate-OrganizerSuccess.ps1 (Optimized Version)
+# Generates a detailed CSV report of files in the watched folders on OneDrive.
+# High performance: filters out non-media/unwatched files early and caches folder actions.
 # =====================================================================
 
 param (
@@ -44,8 +42,8 @@ $Config = [PSCustomObject]@{
 $global:Config = $Config
 
 # Import core tools
-Import-Module "$PSScriptRoot\modules\OneDriveTools.psm1" -ArgumentList $Config.ClientId, $global:TokenFile, $global:LogFile -Force
-Import-Module "$PSScriptRoot\modules\OneDriveOrganize.psm1" -ArgumentList $Config.ClientId, $global:TokenFile, $global:LogFile -Force -DisableNameChecking
+Import-Module "$PSScriptRoot\modules\OneDriveTools.psm1" -ArgumentList $Config.ClientId, $TokenFile, $LogFile -Force
+Import-Module "$PSScriptRoot\modules\OneDriveOrganize.psm1" -ArgumentList $Config.ClientId, $TokenFile, $LogFile -Force -DisableNameChecking
 Import-Module "$PSScriptRoot\modules\OneDriveCacheUtils.psm1" -Force -DisableNameChecking
 Import-Module "$PSScriptRoot\modules\GpsTools.psm1" -ArgumentList $GpsCacheFile -Force
 
@@ -64,6 +62,21 @@ Write-Host "Loading OneDrive cache ($global:IndexFile)..." -ForegroundColor Cyan
 if (-not (Test-Path $global:IndexFile)) {
     Write-Error "OneDrive cache file not found at $global:IndexFile. Please run OneDrive_Sync.ps1 -Mode Online first."
     return
+}
+
+# Load Adult Keywords
+$adultKeywords = @()
+$adultKeywordsFile = Join-Path $PSScriptRoot "adult_keywords.json"
+if (Test-Path $adultKeywordsFile) {
+    try {
+        $adultData = Get-Content $adultKeywordsFile -Raw | ConvertFrom-Json
+        if ($adultData.adultKeywords) {
+            $adultKeywords = $adultData.adultKeywords
+            Write-Host "Loaded $($adultKeywords.Count) adult keywords for filtering." -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Warning "Failed to load adult_keywords.json"
+    }
 }
 
 $Global:State.Cache = ConvertFrom-JsonOptimized -JsonString (Get-Content $global:IndexFile -Raw) -AsHashtable
@@ -117,29 +130,89 @@ function Get-LocationNameEvaluation {
     return $null
 }
 
-# 3. Analyze all files
+# 3. Analyze files in watched folders
 $files = $Global:State.Cache.Files
 $total = $files.Count
-Write-Host "Analyzing $total files..." -ForegroundColor Cyan
+Write-Host "Pre-filtering and analyzing $total files in cache..." -ForegroundColor Cyan
 
 $report = New-Object System.Collections.Generic.List[PSCustomObject]
+$adultReport = New-Object System.Collections.Generic.List[PSCustomObject]
 $count = 0
+$matchedCount = 0
+$StartTime = Get-Date
+
+# Cache for folder actions: parentPath_isAnimated -> Action
+$folderActionCache = @{}
 
 foreach ($id in $files.Keys) {
     $count++
-    if ($count % 500 -eq 0 -or $count -eq $total) {
-        Write-Progress -Activity "Evaluating files" -Status "$count / $total" -PercentComplete (($count / $total) * 100)
+    if ($count % 1000 -eq 0 -or $count -eq $total) {
+        $elapsed = (Get-Date) - $StartTime
+        $elapsedSec = $elapsed.TotalSeconds
+        if ($elapsedSec -lt 0.1) { $elapsedSec = 0.1 }
+        $fps = [math]::Round($count / $elapsedSec, 1)
+        $remainingSeconds = ($total - $count) / $fps
+        $remainingStr = "{0:hh\:mm\:ss}" -f [TimeSpan]::FromSeconds($remainingSeconds)
+
+        Write-Progress -Activity "Evaluating files" `
+            -Status "$count / $total ($matchedCount matched) | Throughput: $fps files/sec | Est: $remainingStr" `
+            -PercentComplete (($count / $total) * 100)
     }
 
     $fileMeta = $files[$id]
+    
+    # Optimization 1: Skip if name or parent path is empty
+    if (-not $fileMeta.n -or -not $fileMeta.p) {
+        continue
+    }
+
+    # Optimization 2: Fast extension filter (Skip unsupported files immediately)
     $extension = [System.IO.Path]::GetExtension($fileMeta.n).ToLower()
-    
-    # Determine basic attributes
-    $isSupported = $Config.ExtensionMap.ContainsKey($extension)
-    
-    $isProcessed = $false
-    if ($Global:State.ProcessedIds.ContainsKey($id) -or $fileMeta.n -like "*$($Config.RenameMarker)*") {
-        $isProcessed = $true
+    if (-not $Config.ExtensionMap.ContainsKey($extension)) {
+        continue
+    }
+
+    $isAnimated = [bool]$fileMeta.ani
+
+    # Optimization 3: Cache folder actions to avoid running rules for every single file
+    $cacheKey = "$($fileMeta.p)_$isAnimated"
+    $action = $folderActionCache[$cacheKey]
+    if ($null -eq $action) {
+        $action = Get-SmartCategory -Path $fileMeta.p -Extension $extension -IsAnimated $isAnimated
+        $folderActionCache[$cacheKey] = $action
+    }
+
+    # Optimization 4: Skip if folder action is no_action (unwatched folders)
+    if ($action -eq "no_action") {
+        continue
+    }
+
+    $matchedCount++
+
+    # Adult Content Filter (Pre-analysis)
+    $isAdult = $false
+    $matchedKeyword = ""
+    if ($adultKeywords) {
+        $textToCheck = "$($fileMeta.p)/$($fileMeta.n)".ToLower()
+        foreach ($kw in $adultKeywords) {
+            if ($textToCheck -match "\b$([regex]::Escape($kw))\b" -or $textToCheck -match "$([regex]::Escape($kw))") {
+                $isAdult = $true
+                $matchedKeyword = $kw
+                break
+            }
+        }
+    }
+
+    if ($isAdult) {
+        $action = "no_action"
+        $status = "Adult Content (No Action)"
+    } else {
+        # Determine if already processed
+        $isProcessed = $false
+        if ($Global:State.ProcessedIds.ContainsKey($id) -or $fileMeta.n -like "*$($Config.RenameMarker)*") {
+            $isProcessed = $true
+        }
+        $status = if ($isProcessed) { "Already Organized" } else { "Pending Organization" }
     }
 
     # Resolve GPS Location offline
@@ -148,34 +221,34 @@ foreach ($id in $files.Keys) {
     # Path Tags
     $pathTags = Get-PathTags $fileMeta.p
 
-    # Resolved routing action
-    $action = Get-SmartCategory -Path $fileMeta.p -Extension $extension -IsAnimated ([bool]$fileMeta.ani)
-
-    # Status classification
-    $status = "Pending Organization"
-    if ($isProcessed) {
-        $status = "Already Organized"
-    } elseif (-not $isSupported) {
-        $status = "Unsupported Extension"
-    } elseif ($action -eq "no_action") {
-        $status = "No Action Folder"
-    }
-
-    # Calculate proposed names and destinations if supported and not processed
+    # Calculate proposed names and destinations if not processed and not adult
     $proposedName = ""
     $proposedDest = ""
     $fullProposedDest = ""
 
-    if ($isSupported -and $action -ne "no_action") {
+    if (-not $isProcessed -and -not $isAdult) {
         try {
+            # Compute dynamic destination folder stop words first
+            $fileDate = if ($fileMeta.d) { [DateTime]$fileMeta.d } else { Get-Date }
+            
+            $tempDest = Get-DestinationPath `
+                -FileMeta  $fileMeta `
+                -Extension $extension `
+                -NewName   "" `
+                -FileDate  $fileDate
+                
+            $dynamicStopWords = @()
+            if ($tempDest -and $tempDest.CleanDestination) {
+                $dynamicStopWords = $tempDest.CleanDestination -split "/"
+            }
+
             $proposedName = Resolve-FinalName `
                 -FileMeta    $fileMeta `
                 -Extension   $extension `
                 -GPSLocation $gpsLocation `
                 -PathTags    $pathTags `
-                -Camera      $fileMeta.cam
-
-            $fileDate = if ($fileMeta.d) { [DateTime]$fileMeta.d } else { Get-Date }
+                -Camera      $fileMeta.cam `
+                -DynamicStopWords $dynamicStopWords
             
             $destInfo = Get-DestinationPath `
                 -FileMeta   $fileMeta `
@@ -192,7 +265,7 @@ foreach ($id in $files.Keys) {
         }
     }
 
-    $report.Add([PSCustomObject]@{
+    $reportItem = [PSCustomObject]@{
         Id                    = $id
         Name                  = $fileMeta.n
         ParentPath            = $fileMeta.p
@@ -203,16 +276,24 @@ foreach ($id in $files.Keys) {
         GPS                   = if ($fileMeta.GPS) { "$($fileMeta.GPS.lat),$($fileMeta.GPS.lon)" } else { "" }
         GPSLocation           = $gpsLocation
         RoutingAction         = $action
-        IsSupportedExt        = if ($isSupported) { "Yes" } else { "No" }
         IsAlreadyProcessed    = if ($isProcessed) { "Yes" } else { "No" }
         Status                = $status
         ProposedName          = $proposedName
         ProposedDestination   = $proposedDest
         FullProposedDest      = $fullProposedDest
-    })
+    }
+    
+    $report.Add($reportItem)
+    
+    if ($isAdult) {
+        $adultItem = $reportItem.PSObject.Copy()
+        $adultItem | Add-Member -MemberType NoteProperty -Name "MatchedKeyword" -Value $matchedKeyword
+        $adultReport.Add($adultItem)
+    }
 }
 
 Write-Progress -Activity "Evaluating files" -Completed
+Write-Host "Filtering complete. Found $matchedCount media files in watched folders." -ForegroundColor Green
 
 # Save report to CSV
 Write-Host "Saving report to $OutputFile..." -ForegroundColor Cyan
@@ -223,11 +304,16 @@ Write-Host "`n=== EVALUATION REPORT SUMMARY ===" -ForegroundColor Green
 $summary = $report | Group-Object Status | Select-Object Name, Count
 $summary | Format-Table -AutoSize
 
-# Filter by watched folders (those with supported extensions and active routing action)
-$watchedReport = $report | Where-Object { $_.IsSupportedExt -eq "Yes" -and $_.RoutingAction -ne "no_action" }
-Write-Host "Total watched files (supported extensions & active routing): $($watchedReport.Count)" -ForegroundColor Green
-$watchedSummary = $watchedReport | Group-Object RoutingAction | Select-Object Name, Count
+# Filter by watched action
+$watchedSummary = $report | Group-Object RoutingAction | Select-Object Name, Count
 $watchedSummary | Format-Table -AutoSize
 
 Write-Host "Evaluation report saved to $OutputFile" -ForegroundColor Green
+
+if ($adultReport.Count -gt 0) {
+    $adultOutputFile = Join-Path (Split-Path $OutputFile) "adult_content_report.csv"
+    $adultReport | Export-Csv -Path $adultOutputFile -NoTypeInformation -Encoding utf8 -Delimiter ";"
+    Write-Host "Adult content report ($($adultReport.Count) files) saved to $adultOutputFile" -ForegroundColor Red
+}
+
 Write-Host "You can open this CSV file in Microsoft Excel or another CSV viewer to examine original paths, resolved categories, and new paths." -ForegroundColor Yellow

@@ -257,7 +257,8 @@ function Extract-GPSWords {
     param([string]$GPSLocation)
 
     if (-not $GPSLocation) { return @() }
-    return Split-Words $GPSLocation
+    $words = Split-Words $GPSLocation
+    return Remove-DuplicatesFromList $words
 }
 
 function Extract-TagWords {
@@ -403,11 +404,18 @@ function Resolve-FinalName {
         [string]$Extension,
         [string]$GPSLocation,
         [string]$PathTags,
-        [string]$Camera
+        [string]$Camera,
+        [string[]]$DynamicStopWords
     )
 
     $rules = $Global:Rules.namingRules
     $stopWords = $rules.stopWords
+
+    # Add dynamic stop words to the main stopWords list
+    if ($DynamicStopWords) {
+        $stopWords += $DynamicStopWords
+    }
+
     $dateRef = [datetime]$FileMeta.d
 
     $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($FileMeta.n)
@@ -488,14 +496,14 @@ function Get-RoutingAction {
     $segments = $relativePath.Trim('/') -split '/'
     foreach ($seg in $segments) {
         if ([string]::IsNullOrWhiteSpace($seg)) { continue }
-        if ($folderRules.ContainsKey($seg)) {
-            $candidates += $folderRules[$seg]
+        if ($null -ne $folderRules.$seg) {
+            $candidates += $folderRules.$seg
         }
     }
 
     # 3) Règle globale "*.*" si rien trouvé
-    if (-not $candidates -and $folderRules.ContainsKey('*.*')) {
-        $candidates += $folderRules['*.*']
+    if (-not $candidates -and $null -ne $folderRules.'*.*') {
+        $candidates += $folderRules.'*.*'
     }
 
     # 4) Si toujours rien, fallback "default"
@@ -575,9 +583,9 @@ function Get-DestinationPath {
     if ($FileMeta.ani) {
         $media = "Animated" # Les images animées (GIF, WebP) sont traitées comme une catégorie à part
     }
-    elseif ($FileMeta.isCameraVideo) {
-        $media = "Images" # Les courtes vidéos de caméra restent avec les images
-    }
+    # elseif ($FileMeta.isCameraVideo) {
+    #     $media = "Images" # Les courtes vidéos de caméra restent avec les images
+    # }
     elseif ($extMap.ContainsKey($Extension)) {
         $media = $extMap[$Extension]
     }
@@ -712,6 +720,22 @@ function New-Plan {
     Write-Log "Scanning files (merged pipeline)..." "INFO"
 
     try {
+        # Load Adult Keywords
+        $adultKeywords = @()
+        $adultKeywordsFile = Join-Path (Split-Path $PSScriptRoot -Parent) "adult_keywords.json"
+        if (Test-Path $adultKeywordsFile) {
+            try {
+                $adultData = Get-Content $adultKeywordsFile -Raw | ConvertFrom-Json
+                if ($adultData.adultKeywords) {
+                    $adultKeywords = $adultData.adultKeywords
+                    Write-Log "Loaded $($adultKeywords.Count) adult keywords for filtering." "INFO"
+                }
+            } catch {
+                Write-Log "Failed to load adult_keywords.json" "WARN"
+            }
+        }
+        $adultReport = New-Object System.Collections.Generic.List[PSCustomObject]
+
         $FileIds = $Global:State.FilesToProcess.Keys
 
         if ($global:ProcessRange) {
@@ -731,6 +755,33 @@ function New-Plan {
                 $count++
                 $fileMeta = $Global:State.Cache.Files[$fileId]
                 $extension = [System.IO.Path]::GetExtension($fileMeta.n).ToLower()
+
+                # Adult Content Filter
+                $isAdult = $false
+                $matchedKeyword = ""
+                if ($adultKeywords) {
+                    $textToCheck = "$($fileMeta.p)/$($fileMeta.n)".ToLower()
+                    foreach ($kw in $adultKeywords) {
+                        if ($textToCheck -match "\b$([regex]::Escape($kw))\b" -or $textToCheck -match "$([regex]::Escape($kw))") {
+                            $isAdult = $true
+                            $matchedKeyword = $kw
+                            break
+                        }
+                    }
+                }
+
+                if ($isAdult) {
+                    Write-Log "Adult content detected: $($fileMeta.n) (keyword: $matchedKeyword). Ignored." "WARN"
+                    $adultReport.Add([PSCustomObject]@{
+                        Id = $fileId
+                        Name = $fileMeta.n
+                        ParentPath = $fileMeta.p
+                        MatchedKeyword = $matchedKeyword
+                    })
+                    $Global:State.ProcessedIds[$fileId] = $true
+                    Save-ProcessedIds -Id $fileId
+                    continue
+                }
 
                 $elapsed = (Get-Date) - $StartTime
                 $avgTime = $elapsed.TotalSeconds / [math]::Max($count, 1)
@@ -783,15 +834,29 @@ function New-Plan {
                     continue
                 }
 
+                # Compute dynamic destination folder stop words first
+                $tempDest = Get-DestinationPath `
+                    -FileMeta  $fileMeta `
+                    -Extension $extension `
+                    -NewName   "" `
+                    -FileDate  $fileDate
+                
+                $dynamicStopWords = @()
+                if ($tempDest -and $tempDest.CleanDestination) {
+                    $dynamicStopWords = $tempDest.CleanDestination -split "/"
+                }
+
                 $newName = Resolve-FinalName `
                     -FileMeta   $fileMeta `
                     -Extension  $extension `
                     -GPSLocation $GPSLocation `
                     -PathTags   $pathTags `
-                    -Camera     $camera
+                    -Camera     $camera `
+                    -DynamicStopWords $dynamicStopWords
 
                 Write-Log "Generated new name: $newName" "DEBUG"
 
+                # Get final destination path with real NewName
                 $dest = Get-DestinationPath `
                     -FileMeta  $fileMeta `
                     -Extension $extension `
@@ -845,6 +910,12 @@ function New-Plan {
         }
 
         Write-Progress -Activity "Analyse OneDrive" -Completed
+
+        if ($adultReport.Count -gt 0) {
+            $adultOutputFile = Join-Path (Split-Path $IndexFile -Parent) "adult_content_report.csv"
+            $adultReport | Export-Csv -Path $adultOutputFile -NoTypeInformation -Encoding utf8 -Delimiter ";"
+            Write-Log "Adult content report ($($adultReport.Count) files) saved to $adultOutputFile" "WARN"
+        }
 
         Write-Log "Plan generated: $($Global:State.PlannedActions.Count) files." "SUCCESS"
 
