@@ -34006,3 +34006,8 @@
 [18:28:46] [INFO] [2493/2493] Moving: hèque  no 364.jpg -> /Finances/Maison et Logement/95 Montpelier SaintBasileLeGrand/syndic copopriété/vertical/condo vertic cheques et releves 2022-2025/archives/20251213_194746_Finances_Maison_Logement_95_Montpelier_SaintBasileLeGrand_syndic_copopriete_vertical_condo_vertic_cheques_releves_2022_archives_heque_no_364--odr--.jpg
 [18:28:49] [SUCCESS] Move execution completed.
 [18:28:49] [SUCCESS] Organization process completed successfully.
+[16:02:10] [INFO] OneDriveTools.psm1 loaded
+[16:02:10] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[16:02:10] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[16:02:10] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\organizer_log.txt
+[16:02:10] [DEBUG] OneDriveCacheUtils.psm1 loaded

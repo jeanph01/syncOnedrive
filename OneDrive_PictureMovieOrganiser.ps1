@@ -608,179 +608,26 @@ th { background: #eee; }
 # =====================================================================
 # MAIN
 # =====================================================================
+# =====================================================================
+# MAIN ENTRY POINT
+# =====================================================================
 
-# Main entry point of the script
-function Start-OneDriveOrganizer {
-    <#
-    .SYNOPSIS
-        Main entry point of the OneDrive organizer.
-        Manages lifecycle: cleanup -> planning -> correction -> execution.
-    #>
-
-    # 1. LOG CLEANUP (single run at startup)
-    if (Test-Path $LogFile) {
-        try {
-            Remove-Item $LogFile -Force -ErrorAction SilentlyContinue
-            # Recreate an empty log file so Write-Log can write immediately
-            New-Item -Path $LogFile -ItemType File -Force | Out-Null
-        }
-        catch {
-            Write-Log "Unable to reset the log: $($_.Exception.Message)" -ForegroundColor Yellow
-        }
-    }
-
-    Write-Log "=== SESSION START: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ===" "INFO"
-
-    try {
-        # 1b. PRE-REQUISITE CHECK: Validate Sync cache before proceeding
-        Test-SyncPrerequisites -IndexFile $IndexFile -ProcessedLog $ProcessedLog -ConfigFile $ConfigFile -SourceRoot $PSScriptRoot
-
-        # 2. LOAD AND REPAIR IN-MEMORY DATA
-        # Note: Import-Set-Cache is called ONLY ONCE.
-        Import-Set-Cache
-
-        # --- OPTIMISATION : Amorçage du cache des dossiers ---
-        # On utilise l'index existant pour marquer tous les dossiers connus comme "vérifiés".
-        # Cela évite des centaines d'appels API "GET" inutiles.
-        Write-Log "Priming folder cache from OneDrive index..." "INFO"
-        foreach ($file in $Global:State.Cache.Files.Values) {
-            if ($null -eq $file.p) { continue }
-
-            $clean = $file.p -replace '^/drive/root:/?', ''
-            $clean = $clean.Trim('/')
-            if ([string]::IsNullOrWhiteSpace($clean)) { continue }
-
-            $segments = $clean -split '/'
-            $current = ""
-            foreach ($seg in $segments) {
-                if ($current -eq "") { $current = $seg } else { $current += "/$seg" }
-                $Global:State.VerifiedFolders[$current] = $true
-            }
-        }
-        Write-Log "Folder cache primed ($($Global:State.VerifiedFolders.Count) folders known)." "SUCCESS"
-
-        # Repair in-memory cache (remove invalid entries, etc.)
-        Repair-Cache
-
-        # Normalize metadata (paths, names, GPS)
-        Repair-Paths
-        Repair-Names
-        Repair-GPS
-
-        # 3. PLAN MANAGEMENT (Resume or New)
-        # Check whether a plan already exists for this exact cache file (via hash)
-        $hash = Get-CacheHash
-        $plan = if ($hash) { Get-ExistingPlan -CurrentHash $hash } else { $null }
-
-        if ($null -eq $plan) {
-            Write-Log "No valid plan found. Starting full analysis..." "INFO"
-            New-Plan
-
-            # Save the plan immediately using a safe atomic write
-            $cacheFolder = Split-Path $global:IndexFile -Parent
-            $planPath = Join-Path $cacheFolder "plan.json"
-            Write-Log "Saving plan to disk..." "INFO"
-            $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content "$planPath.tmp"
-            Move-Item -Path "$planPath.tmp" -Destination $planPath -Force
-
-            # After New-Plan, save the current hash for next time
-            if ($hash) {
-                $hashFile = Join-Path (Split-Path $IndexFile -Parent) "cache_hash.txt"
-                $hash | Set-Content $hashFile
-            }
-        }
-        else {
-            Write-Log "Existing plan resume detected (identical SHA256 hash)." "SUCCESS"
-            $Global:State.PlannedActions = [System.Collections.Generic.List[PSCustomObject]]$plan
-        }
-
-        # 3b. SORT AND FILTER PLAN
-        if ($Global:State.PlannedActions.Count -gt 0) {
-            Write-Log "Ordering plan by Category and Destination Name..." "INFO"
-            # Sort naturally by Category then by the generated DstName
-            $sortedPlan = $Global:State.PlannedActions | Sort-Object Category, DstName
-            $Global:State.PlannedActions = [System.Collections.Generic.List[PSCustomObject]]@($sortedPlan)
-
-            if ($global:ProcessRange) {
-                Write-Log "Applying ProcessRange filter: $($global:ProcessRange)" "INFO"
-                $filteredPlan = Get-FilteredFileIds -Range $global:ProcessRange -AllIds $Global:State.PlannedActions
-                $Global:State.PlannedActions = [System.Collections.Generic.List[PSCustomObject]]@($filteredPlan)
-                Write-Log "Plan filtered: $($Global:State.PlannedActions.Count) items remaining" "INFO"
-            }
-        }
-
-        # 4. CONFLICT RESOLUTION AND VALIDATION
-        # Check for name collisions in target destinations
-        Repair-Collisions
-
-        # Final plan analysis (remaining duplicates, too-long paths)
-        Test-Plan
-
-        # 5. EXECUTION MODE CHECK
-        if (-not $Execute) {
-            if (-not $Execute -and -not $StepByStep) {
-                Write-Log "DRY-RUN MODE: Rerun the script with -Execute `$true to apply changes." "INFO"
-                return
-            }
-
-            # 6. REAL EXECUTION (GRAPH API)
-            Write-Log "SWITCHING TO REAL EXECUTION MODE..." "WARN"
-            Connect-AzureGraph
-
-            # Proactively create destination folders to avoid 404 errors
-            Write-Log "Checking OneDrive folder hierarchy..." "INFO"
-            $uniqueDirs = $Global:State.PlannedActions.DstDir | Select-Object -Unique
-            $dirTotal = $uniqueDirs.Count
-            $dirIdx = 0
-            foreach ($dir in $uniqueDirs) {
-                $dirIdx++
-                # Vérifier la validité du jeton avant chaque vérification de chemin
-                Connect-AzureGraph
-
-                Write-Progress -Activity "Checking OneDrive folder hierarchy" `
-                    -Status "Folder $dirIdx / $dirTotal" `
-                    -PercentComplete (($dirIdx / $dirTotal) * 100)
-
-                $newFolders = Test-OneDrivePath $dir
-                if ($newFolders -gt 0) {
-                    Write-Log "[$dirIdx/$dirTotal] Verified folder path '$dir' ($newFolders new folders created)" "SUCCESS"
-                }
-            }
-            Write-Progress -Activity "Checking OneDrive folder hierarchy" -Completed
-
-            # Actual file move execution
-            if ($StepByStep) {
-                Invoke-MovesInteractive
-            }
-            else {
-                Invoke-Moves
-            }
-
-            Write-Log "Organization process completed successfully." "SUCCESS"
-        }
-        catch {
-            Write-Log "FATAL ERROR in Start-OneDriveOrganizer: $($_.Exception.Message)" "ERROR"
-            Write-Log "Details: $($_.ScriptStackTrace)" "DEBUG"
-        }
-    }
-
+if ($Analyze) {
+    Start-Analysis
+}
+elseif ($Validate) {
+    Start-Validation
+}
+elseif (-not [string]::IsNullOrWhiteSpace($DebugId)) {
+    Start-Debug -Id $DebugId
+}
+elseif ($DryRun) {
+    # Force l'exécution en mode lecture seule
+    $Execute = $false
+    $StepByStep = $false
+    Start-DryRunMode
+}
+else {
+    # Pipeline par défaut
     Start-OneDriveOrganizer
-    if ($Analyze) {
-        Start-Analysis
-    }
-    elseif ($Validate) {
-        Start-Validation
-    }
-    elseif (-not [string]::IsNullOrWhiteSpace($DebugId)) {
-        Start-Debug -Id $DebugId
-    }
-    elseif ($DryRun) {
-        # Set Execute to false to ensure no changes are made
-        $Execute = $false
-        $StepByStep = $false
-        Start-DryRunMode
-    }
-    else {
-        # Default execution pipeline (generates plan, and executes if -Execute or -StepByStep is true)
-        Start-OneDriveOrganizer
-    }
+}
