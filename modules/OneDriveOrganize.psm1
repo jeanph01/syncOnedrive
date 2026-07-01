@@ -24,7 +24,23 @@ function Read-AzureFileInfo {
     param($item)
 
     try {
-        if (-not ($item.file -and $item.file.hashes.sha1Hash)) {
+        if (-not $item) {
+            return $null
+        }
+
+        $hashValue = $null
+        $hashSource = $null
+
+        if ($item.file -and $item.file.hashes -and $item.file.hashes.sha1Hash) {
+            $hashValue = $item.file.hashes.sha1Hash.ToLower()
+            $hashSource = 'sha1'
+        }
+        elseif ($item.id) {
+            $hashValue = "id:$($item.id)"
+            $hashSource = 'id'
+            Write-Log "Read-AzureFileInfo: no SHA1 for '$($item.name)', using Graph ID fallback." "DEBUG"
+        }
+        else {
             return $null
         }
 
@@ -101,7 +117,8 @@ function Read-AzureFileInfo {
         return @{
             n             = $item.name
             s             = $item.size
-            h             = $item.file.hashes.sha1Hash.ToLower()
+            h             = $hashValue
+            hashSource    = $hashSource
             d             = $refDate
             p             = $item.parentReference.path
             GPS           = $GPS
@@ -137,6 +154,30 @@ function Get-MediaType {
     }
 
     return $null
+}
+
+function Get-AdultKeywords {
+    if ($script:AdultKeywordsLoaded) {
+        return $script:AdultKeywords
+    }
+
+    $script:AdultKeywordsLoaded = $true
+    $script:AdultKeywords = @()
+
+    try {
+        $adultKeywordsFile = Join-Path (Split-Path $PSScriptRoot -Parent) "adult_keywords.json"
+        if (Test-Path $adultKeywordsFile) {
+            $adultData = Get-Content $adultKeywordsFile -Raw | ConvertFrom-Json
+            if ($adultData.adultKeywords) {
+                $script:AdultKeywords = @($adultData.adultKeywords)
+            }
+        }
+    }
+    catch {
+        Write-Log "Get-AdultKeywords failure: $_" "WARN"
+    }
+
+    return $script:AdultKeywords
 }
 
 
@@ -374,10 +415,29 @@ function Build-FinalNameFromPattern {
     $maxLen = $NamingRules.maxNameLength
     $pattern = $NamingRules.finalPattern
 
-    $gps = ($GpsWords -join "_")
-    $tags = ($TagWords -join "_")
-    $orig = ($OrigWords -join "_")
-    $media = ($MediaWords -join "_")
+    $allWords = @()
+    foreach ($group in @($GpsWords, $TagWords, $OrigWords, $MediaWords)) {
+        if (-not $group) { continue }
+        foreach ($word in $group) {
+            if ([string]::IsNullOrWhiteSpace($word)) { continue }
+            $allWords += $word
+        }
+    }
+
+    $seenWords = @{}
+    $uniqueWords = @()
+    foreach ($word in $allWords) {
+        $key = $word.ToLower()
+        if (-not $seenWords.ContainsKey($key)) {
+            $seenWords[$key] = $true
+            $uniqueWords += $word
+        }
+    }
+
+    $gps = ($GpsWords | Where-Object { $_ } | ForEach-Object { $_ }) -join "_"
+    $tags = ($TagWords | Where-Object { $_ } | ForEach-Object { $_ }) -join "_"
+    $orig = ($OrigWords | Where-Object { $_ } | ForEach-Object { $_ }) -join "_"
+    $media = ($MediaWords | Where-Object { $_ } | ForEach-Object { $_ }) -join "_"
 
     $base = $pattern
     $base = $base.Replace("<timestamp>", $timestamp)
@@ -389,6 +449,21 @@ function Build-FinalNameFromPattern {
 
     $base = $base -replace "_+", "_"
     $base = $base.Trim("_")
+
+    $parts = $base -split "_" | Where-Object { $_ -and $_.Trim() -ne "" }
+    $dedupedParts = @()
+    $seenParts = @{}
+    foreach ($part in $parts) {
+        $key = $part.ToLower()
+        if (-not $seenParts.ContainsKey($key)) {
+            $seenParts[$key] = $true
+            $dedupedParts += $part
+        }
+    }
+
+    if ($dedupedParts.Count -gt 0) {
+        $base = $dedupedParts -join "_"
+    }
 
     $maxLenWithoutExt = $maxLen - $renameMarker.Length - $Extension.Length
     if ($maxLenWithoutExt -lt 10) { $maxLenWithoutExt = 10 }
@@ -410,10 +485,15 @@ function Resolve-FinalName {
 
     $rules = $Global:Rules.namingRules
     $stopWords = $rules.stopWords
+    $adultKeywords = Get-AdultKeywords
 
     # Add dynamic stop words to the main stopWords list
     if ($DynamicStopWords) {
         $stopWords += $DynamicStopWords
+    }
+
+    if ($adultKeywords) {
+        $stopWords += $adultKeywords
     }
 
     $dateRef = [datetime]$FileMeta.d
@@ -730,7 +810,8 @@ function New-Plan {
                     $adultKeywords = $adultData.adultKeywords
                     Write-Log "Loaded $($adultKeywords.Count) adult keywords for filtering." "INFO"
                 }
-            } catch {
+            }
+            catch {
                 Write-Log "Failed to load adult_keywords.json" "WARN"
             }
         }
@@ -773,11 +854,11 @@ function New-Plan {
                 if ($isAdult) {
                     Write-Log "Adult content detected: $($fileMeta.n) (keyword: $matchedKeyword). Ignored." "WARN"
                     $adultReport.Add([PSCustomObject]@{
-                        Id = $fileId
-                        Name = $fileMeta.n
-                        ParentPath = $fileMeta.p
-                        MatchedKeyword = $matchedKeyword
-                    })
+                            Id             = $fileId
+                            Name           = $fileMeta.n
+                            ParentPath     = $fileMeta.p
+                            MatchedKeyword = $matchedKeyword
+                        })
                     $Global:State.ProcessedIds[$fileId] = $true
                     Save-ProcessedIds -Id $fileId
                     continue
@@ -840,7 +921,7 @@ function New-Plan {
                     -Extension $extension `
                     -NewName   "" `
                     -FileDate  $fileDate
-                
+
                 $dynamicStopWords = @()
                 if ($tempDest -and $tempDest.CleanDestination) {
                     $dynamicStopWords = $tempDest.CleanDestination -split "/"

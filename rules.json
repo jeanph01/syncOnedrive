@@ -37,13 +37,13 @@
       },
 
       "administrative": {
-        "destination": "<level1>/<level2>/",
+        "destination": "<media>/<year>/<month>/",
         "filename": "<finalName>",
         "keepLevels": 2
       },
 
       "confidential": {
-        "destination": "<level1>/<level2>/<media>/<year>/<month>/",
+        "destination": "<media>/<year>/<month>/",
         "filename": "<finalName>",
         "keepLevels": 2
       },
@@ -106,9 +106,10 @@
     "stopWords": [
       "de", "du", "des", "la", "le", "les",
       "avec", "pour", "sur", "dans", "et",
-      "en", "a", "au", "aux"
+      "en", "a", "au", "aux",
+      "odr"
     ],
-    "renameMarker": "--odr--",
+    "renameMarker": "--odr2--",
     "maxNameLength": 180,
     "finalPattern": "<timestamp>_<gps>_<tags>_<original>_<media>_<dup>"
   },
