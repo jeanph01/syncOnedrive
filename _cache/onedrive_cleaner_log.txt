@@ -411,3 +411,23 @@
 [19:17:43] [INFO] [2/3] Grouping duplicate candidates...
 [19:18:05] [INFO] [3/3] Removing duplicate cloud items...
 [19:18:05] [INFO] [COMPLETE] 0 duplicates deleted from OneDrive.
+[07:27:43] [INFO] OneDriveTools.psm1 loaded
+[07:27:43] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[07:27:43] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[07:27:43] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cleaner_log.txt
+[07:27:43] [INFO] === ONEDRIVE CLOUD CLEANER ===
+[07:27:49] [INFO] Cache loaded: 116736 files
+[07:27:49] [INFO] [1/3] Connecting to Microsoft Graph...
+[07:27:49] [DEBUG] Get-GraphToken: checking existing token
+[07:27:49] [DEBUG] Valid token loaded from cache
+[07:27:49] [INFO] [2/3] Grouping duplicate candidates...
+[07:28:14] [INFO] [3/3] Removing duplicate cloud items...
+[07:28:14] [INFO] Group db1c451429afa2aa540a84bce3a4d883e8cc60b8 → KEEP: /drive/root:/Images/Screenshots/Screenshot_20260625_190651_Messages.jpg
+[07:28:14] [INFO] DEL: /drive/root:/Images/Screenshots/Screenshot_20260625_190651_Messages 1.jpg
+[07:28:15] [INFO] Group aad601d55f54945e45914be5c36dabebc894eedd → KEEP: /drive/root:/Images/Screenshots/Screenshot_20260622_162456_Dialogue.jpg
+[07:28:15] [INFO] DEL: /drive/root:/Images/Screenshots/Screenshot_20260622_162456_Dialogue 1.jpg
+[07:28:16] [INFO] Group c6ab348097c2d9cb2299913ca04fbf829ea0b8db → KEEP: /drive/root:/Images/Screenshots/Screenshot_20260622_161632_Dialogue.jpg
+[07:28:16] [INFO] DEL: /drive/root:/Images/Screenshots/Screenshot_20260622_161632_Dialogue 1.jpg
+[07:28:18] [INFO] Group 49142ad80f068c934e74220a8afb283ae9d00839 → KEEP: /drive/root:/Images/Screenshots/Screenshot_20260622_161814_Dialogue.jpg
+[07:28:18] [INFO] DEL: /drive/root:/Images/Screenshots/Screenshot_20260622_161814_Dialogue 1.jpg
+[07:28:18] [INFO] [COMPLETE] 4 duplicates deleted from OneDrive.

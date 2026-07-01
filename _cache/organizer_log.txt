@@ -34011,3 +34011,46 @@
 [16:02:10] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
 [16:02:10] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\organizer_log.txt
 [16:02:10] [DEBUG] OneDriveCacheUtils.psm1 loaded
+[19:22:15] [INFO] OneDriveTools.psm1 loaded
+[19:22:15] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[19:22:15] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[19:22:15] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\organizer_log.txt
+[19:22:15] [DEBUG] OneDriveCacheUtils.psm1 loaded
+[07:28:23] [INFO] OneDriveTools.psm1 loaded
+[07:28:23] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[07:28:23] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[07:28:23] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\organizer_log.txt
+[07:28:23] [DEBUG] OneDriveCacheUtils.psm1 loaded
+[07:33:23] [INFO] OneDriveTools.psm1 loaded
+[07:33:23] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[07:33:23] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[07:33:23] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\organizer_log.txt
+[07:33:23] [DEBUG] OneDriveCacheUtils.psm1 loaded
+[07:33:23] [WARN] === STARTING ONEDRIVE ORGANIZER PIPELINE ===
+[07:33:23] [INFO] Step 1: Connecting to Azure Graph...
+[07:33:23] [DEBUG] Checking Graph token validity...
+[07:33:23] [DEBUG] Get-GraphToken: checking existing token
+[07:33:23] [DEBUG] Valid token loaded from cache
+[07:33:23] [INFO] Step 2: Loading OneDrive cache...
+[07:33:23] [INFO] Loading OneDrive cache C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cache.json ...
+[07:33:53] [INFO] OneDriveTools.psm1 loaded
+[07:33:53] [DEBUG] ClientId=176fc7bc-42c9-4a25-82b5-0ad584d3c061
+[07:33:53] [DEBUG] TokenFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\graph_token.json
+[07:33:53] [DEBUG] LogFile=C:\Users\jeanp\github\syncOnedrive\.\_cache\organizer_log.txt
+[07:33:54] [DEBUG] OneDriveCacheUtils.psm1 loaded
+[07:33:54] [WARN] === STARTING ONEDRIVE ORGANIZER PIPELINE ===
+[07:33:54] [INFO] Step 1: Connecting to Azure Graph...
+[07:33:54] [DEBUG] Checking Graph token validity...
+[07:33:54] [DEBUG] Get-GraphToken: checking existing token
+[07:33:54] [DEBUG] Valid token loaded from cache
+[07:33:54] [INFO] Step 2: Loading OneDrive cache...
+[07:33:54] [INFO] Loading OneDrive cache C:\Users\jeanp\github\syncOnedrive\.\_cache\onedrive_cache.json ...
+[07:34:02] [INFO] Loading already processed IDs (C:\Users\jeanp\github\syncOnedrive\.\_cache\processed_ids.log) ...
+[07:34:02] [INFO] Already processed files : 0
+[07:34:02] [INFO] Discovering already processed files containing marker '--odr--' ...
+[07:34:04] [INFO] Discovery summary: 0 skipped (via processed log), 96579 skipped (via filename marker).
+[07:34:04] [INFO] Indexing complete. Files to process: 20157
+[07:34:04] [INFO] Step 3: Testing prerequisites...
+[07:34:04] [SUCCESS] All required cache files from OneDrive_Sync.ps1 are present.
+[07:34:04] [INFO] Step 4: Enumerating files from OneDrive...
+[07:34:04] [WARN] No files to process.

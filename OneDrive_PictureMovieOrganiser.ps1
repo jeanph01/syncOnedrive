@@ -606,6 +606,105 @@ th { background: #eee; }
 } # Export-ReportHtml
 
 # =====================================================================
+# MAIN PIPELINE ORCHESTRATOR
+# =====================================================================
+
+function Start-OneDriveOrganizer {
+    Write-Log "=== STARTING ONEDRIVE ORGANIZER PIPELINE ===" "WARN"
+
+    try {
+        # --- STEP 1: INITIALIZE AZURE CONNECTION ---
+        Write-Log "Step 1: Connecting to Azure Graph..." "INFO"
+        Connect-AzureGraph
+
+        # --- STEP 2: LOAD OR CREATE CACHE ---
+        Write-Log "Step 2: Loading OneDrive cache..." "INFO"
+        Import-Set-Cache
+
+        # --- STEP 3: REFRESH PREREQUISITES ---
+        Write-Log "Step 3: Testing prerequisites..." "INFO"
+        Test-SyncPrerequisites
+
+        # --- STEP 4: ENUMERATE FILES WITH PROGRESS ---
+        Write-Log "Step 4: Enumerating files from OneDrive..." "INFO"
+        $fileIds = Get-FilteredFileIds
+        $total = $fileIds.Count
+
+        if ($total -eq 0) {
+            Write-Log "No files to process." "WARN"
+            return
+        }
+
+        Write-Log "Found $total files to process." "INFO"
+
+        # --- STEP 5: PROCESS FILES AND BUILD PLAN ---
+        Write-Log "Step 5: Analyzing and building action plan..." "INFO"
+        $index = 0
+
+        foreach ($fileId in $fileIds) {
+            $index++
+            Write-Progress -Activity "Analyzing files" `
+                -Status "File $index of $total" `
+                -PercentComplete (($index / $total) * 100)
+
+            $fileItem = $Global:State.Cache.Files[$fileId]
+            if (-not $fileItem) { continue }
+
+            try {
+                # Read metadata
+                $item = Get-Item -Path "file://$fileId" -ErrorAction SilentlyContinue
+                if (-not $item) { continue }
+
+                # Classify and route file
+                $action = Get-RoutingAction -Item $item -FileId $fileId
+                if ($action) {
+                    $Global:State.PlannedActions.Add($action) > $null
+                }
+            }
+            catch {
+                Write-Log "Error processing file $fileId : $($_.Exception.Message)" "WARN"
+                continue
+            }
+        }
+
+        Write-Progress -Activity "Analyzing files" -Completed
+
+        # --- STEP 6: SAVE PLAN TO DISK ---
+        Write-Log "Step 6: Saving plan to disk..." "INFO"
+        $cacheFolder = Split-Path $global:IndexFile -Parent
+        $planPath = Join-Path $cacheFolder "plan.json"
+        $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content $planPath
+        Write-Log "Plan saved: $planPath" "DEBUG"
+
+        # --- STEP 7: DISPLAY SUMMARY ---
+        $actionCount = $Global:State.PlannedActions.Count
+        Write-Log "Analysis complete: $actionCount actions planned" "SUCCESS"
+
+        # --- STEP 8: EXECUTE OR DEFER MOVES ---
+        if ($actionCount -gt 0) {
+            if ($StepByStep) {
+                Write-Log "Step 8: Running in interactive step-by-step mode..." "INFO"
+                Invoke-MovesInteractive
+            }
+            elseif ($Execute) {
+                Write-Log "Step 8: Executing planned moves..." "INFO"
+                Invoke-Moves
+            }
+            else {
+                Write-Log "Step 8: Dry-run complete. Use -Execute to perform moves." "WARN"
+                Write-Log "Run with -Analyze to review the plan in detail." "INFO"
+            }
+        }
+
+        Write-Log "=== ONEDRIVE ORGANIZER PIPELINE COMPLETE ===" "SUCCESS"
+    }
+    catch {
+        Write-Log "Start-OneDriveOrganizer error: $($_.Exception.Message)" "ERROR"
+        throw
+    }
+}
+
+# =====================================================================
 # MAIN
 # =====================================================================
 # =====================================================================
