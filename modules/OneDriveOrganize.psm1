@@ -852,16 +852,13 @@ function New-Plan {
                 }
 
                 if ($isAdult) {
-                    Write-Log "Adult content detected: $($fileMeta.n) (keyword: $matchedKeyword). Ignored." "WARN"
+                    #Write-Log "Adult content detected: $($fileMeta.n) (keyword: $matchedKeyword). Will still be processed." "WARN"
                     $adultReport.Add([PSCustomObject]@{
                             Id             = $fileId
                             Name           = $fileMeta.n
                             ParentPath     = $fileMeta.p
                             MatchedKeyword = $matchedKeyword
                         })
-                    $Global:State.ProcessedIds[$fileId] = $true
-                    Save-ProcessedIds -Id $fileId
-                    continue
                 }
 
                 $elapsed = (Get-Date) - $StartTime

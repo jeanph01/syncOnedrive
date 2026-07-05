@@ -18,7 +18,7 @@ param (
     [string]$DebugId = "",            # Debug a specific file
     [bool]$ReportIgnored = $false,    # Generate ignored files report
     [string]$ProcessRange = "1+",       # Process only a subset of files (e.g., "1", "1..10", "10+")
-    [bool]$StepByStep = $false         # Interactive step-by-step mode with confirmation
+    [bool]$StepByStep = $true         # Interactive step-by-step mode with confirmation
 )
 
 # --- Force Write-Progress display in case another script disabled it
@@ -409,6 +409,183 @@ function Get-ConfirmationInteractive {
     }
 }
 
+function Initialize-TargetFolders {
+    param([array]$Actions)
+
+    $uniqueFolders = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($action in $Actions) {
+        if ($null -eq $action -or [string]::IsNullOrWhiteSpace($action.DstDir)) { continue }
+        $cleanFolder = $action.DstDir.Trim('/')
+        if ($cleanFolder) {
+            $null = $uniqueFolders.Add($cleanFolder)
+        }
+    }
+
+    if ($uniqueFolders.Count -eq 0) {
+        return
+    }
+
+    Write-Log "Pre-creating $($uniqueFolders.Count) unique destination folders..." "INFO"
+    foreach ($folder in $uniqueFolders) {
+        try {
+            Test-OneDrivePath $folder | Out-Null
+        }
+        catch {
+            Write-Log "Folder precreation failed for /$folder : $($_.Exception.Message)" "WARN"
+        }
+    }
+}
+
+function Register-MoveSuccess {
+    param([psobject]$Action)
+
+    $dstPathCache = $Action.DstDir.TrimStart('/')
+
+    "$(Get-Date -Format 'HH:mm:ss'),$($Action.Id),SUCCESS,$($Action.SrcPath),$($Action.FullDst)," |
+    Add-Content $global:ExecutionReport
+
+    $Action.Id | Add-Content $global:ProcessedLog -Encoding utf8
+
+    $Global:State.Cache.Files[$Action.Id].p = "/drive/root:/" + $dstPathCache
+    $Global:State.Cache.Files[$Action.Id].n = $Action.DstName
+}
+
+function Register-MoveFailure {
+    param(
+        [psobject]$Action,
+        [string]$ErrorDetails
+    )
+
+    "$(Get-Date -Format 'HH:mm'),$($Action.Id),ERROR,$($Action.SrcPath),$($Action.FullDst),$ErrorDetails" |
+    Add-Content $global:ExecutionReport
+}
+
+function Invoke-GraphSingleMove {
+    param(
+        [psobject]$Action,
+        [int]$Index,
+        [int]$Total
+    )
+
+    Write-Progress -Activity "OneDrive move" `
+        -Status "Moving [$Index/$Total] : $($Action.SrcName)" `
+        -PercentComplete (($Index / $Total) * 100)
+
+    Write-Log "[$Index/$Total] Moving: $($Action.SrcName) -> $($Action.FullDst)" "INFO"
+
+    try {
+        $dstPathCache = $Action.DstDir.TrimStart('/')
+        $body = @{
+            parentReference = @{ path = "/drive/root:/" + $dstPathCache }
+            name            = $Action.DstName
+        } | ConvertTo-Json
+
+        Invoke-RestMethod -Headers $Global:State.Headers `
+            -Uri "https://graph.microsoft.com/v1.0/me/drive/items/$($Action.Id)" `
+            -Method PATCH -Body $body -ErrorAction Stop > $null
+
+        Register-MoveSuccess -Action $Action
+        return $true
+    }
+    catch {
+        $errorDetails = Get-ErrorDetails $_
+        Write-Log "Error on $($Action.Id): $errorDetails" "ERROR"
+        Register-MoveFailure -Action $Action -ErrorDetails $errorDetails
+        return $false
+    }
+}
+
+function Invoke-GraphBatchMoves {
+    param(
+        [array]$Actions,
+        [int]$BatchSize = 20
+    )
+
+    $total = $Actions.Count
+    $completed = 0
+
+    for ($start = 0; $start -lt $total; $start += $BatchSize) {
+        $end = [Math]::Min($start + $BatchSize - 1, $total - 1)
+        $chunk = @($Actions[$start..$end])
+
+        $requests = @()
+        $requestMap = @{}
+        $requestIndex = 0
+
+        foreach ($action in $chunk) {
+            $requestIndex++
+            $requestId = [string]$requestIndex
+            $dstPathCache = $action.DstDir.TrimStart('/')
+
+            $requests += [pscustomobject]@{
+                id     = $requestId
+                method = 'PATCH'
+                url    = "/me/drive/items/$($action.Id)"
+                body   = @{
+                    parentReference = @{ path = "/drive/root:/" + $dstPathCache }
+                    name            = $action.DstName
+                }
+            }
+
+            $requestMap[$requestId] = $action
+        }
+
+        $payload = @{ requests = $requests } | ConvertTo-Json -Depth 10
+
+        try {
+            $batchResponse = Invoke-RestMethod -Headers $Global:State.Headers `
+                -Uri "https://graph.microsoft.com/v1.0/`$batch" `
+                -Method POST -Body $payload -ContentType "application/json" -ErrorAction Stop
+        }
+        catch {
+            Write-Log "Batch request failed for actions $($start + 1)-$($end + 1): $($_.Exception.Message)" "WARN"
+            foreach ($action in $chunk) {
+                $completed++
+                Invoke-GraphSingleMove -Action $action -Index $completed -Total $total | Out-Null
+            }
+            continue
+        }
+
+        foreach ($response in $batchResponse.responses) {
+            $action = $requestMap[$response.id]
+            if (-not $action) { continue }
+
+            $completed++
+            Write-Progress -Activity "OneDrive move" `
+                -Status "Moving [$completed/$total] : $($action.SrcName)" `
+                -PercentComplete (($completed / $total) * 100)
+
+            if ($response.status -ge 200 -and $response.status -lt 300) {
+                Write-Log "[$completed/$total] Moving: $($action.SrcName) -> $($action.FullDst)" "INFO"
+                Register-MoveSuccess -Action $action
+            }
+            else {
+                $errorDetails = $null
+                if ($response.body -and $response.body.error -and $response.body.error.message) {
+                    $errorDetails = $response.body.error.message
+                }
+                elseif ($response.body) {
+                    $errorDetails = ($response.body | ConvertTo-Json -Depth 5)
+                }
+                else {
+                    $errorDetails = "Batch request failed (HTTP $($response.status))"
+                }
+
+                Write-Log "Error on $($action.Id): $errorDetails" "ERROR"
+                Register-MoveFailure -Action $action -ErrorDetails $errorDetails
+            }
+        }
+
+        if ($completed % 50 -eq 0) {
+            Connect-AzureGraph
+            Write-Log "Saving intermediate cache state ($completed/$total)..." "DEBUG"
+            $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content "$($global:IndexFile).tmp"
+            Move-Item -Path "$($global:IndexFile).tmp" -Destination $global:IndexFile -Force
+        }
+    }
+}
+
 # =====================================================================
 # MOVES
 # =====================================================================
@@ -418,55 +595,11 @@ function Invoke-Moves {
     Write-Log "Starting move execution..." "WARN"
 
     try {
-        $total = $Global:State.PlannedActions.Count
-        $index = 0
+        $actions = @($Global:State.PlannedActions)
+        $total = $actions.Count
 
-        foreach ($action in $Global:State.PlannedActions) {
-
-            $index++
-            # Refresh token and save intermediate cache state every 50 files
-            if ($index % 50 -eq 0) {
-                Connect-AzureGraph
-                Write-Log "Saving intermediate cache state ($index/$total)..." "DEBUG"
-                $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content "$($global:IndexFile).tmp"
-                Move-Item -Path "$($global:IndexFile).tmp" -Destination $global:IndexFile -Force
-            }
-
-            # Mise à jour fluide de la barre de progression
-            Write-Progress -Activity "OneDrive move" `
-                -Status "Moving [$index/$total] : $($action.SrcName)" `
-                -PercentComplete (($index / $total) * 100)
-
-            # Affichage systématique pour créer le défilement dans la console et le log
-            Write-Log "[$index/$total] Moving: $($action.SrcName) -> $($action.FullDst)" "INFO"
-
-            try {
-                $dstPathCache = $action.DstDir.TrimStart('/')
-                $body = @{
-                    parentReference = @{ path = "/drive/root:/" + $dstPathCache }
-                    name            = $action.DstName
-                } | ConvertTo-Json
-
-                Invoke-RestMethod -Headers $Global:State.Headers `
-                    -Uri "https://graph.microsoft.com/v1.0/me/drive/items/$($action.Id)" `
-                    -Method PATCH -Body $body -ErrorAction Stop > $null
-
-                "$(Get-Date -Format 'HH:mm:ss'),$($action.Id),SUCCESS,$($action.SrcPath),$($action.FullDst)," |
-                Add-Content $global:ExecutionReport
-
-                $action.Id | Add-Content $global:ProcessedLog -Encoding utf8
-
-                $Global:State.Cache.Files[$action.Id].p = "/drive/root:/" + $dstPathCache
-                $Global:State.Cache.Files[$action.Id].n = $action.DstName
-            }
-            catch {
-                $errorDetails = Get-ErrorDetails $_
-                Write-Log "Error on $($action.Id): $errorDetails" "ERROR"
-
-                "$(Get-Date -Format 'HH:mm'),$($action.Id),ERROR,$($action.SrcPath),$($action.FullDst),$errorDetails" |
-                Add-Content $global:ExecutionReport
-            }
-        }
+        Initialize-TargetFolders -Actions $actions
+        Invoke-GraphBatchMoves -Actions $actions
 
         $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content "$($global:IndexFile).tmp"
         Move-Item -Path "$($global:IndexFile).tmp" -Destination $global:IndexFile -Force
@@ -627,7 +760,7 @@ function Start-OneDriveOrganizer {
 
         # --- STEP 4: ENUMERATE FILES WITH PROGRESS ---
         Write-Log "Step 4: Enumerating files from OneDrive..." "INFO"
-        $fileIds = Get-FilteredFileIds
+        $fileIds = Get-FilteredFileIds -Range $global:ProcessRange -AllIds $Global:State.FilesToProcess.Keys
         $total = $fileIds.Count
 
         if ($total -eq 0) {
@@ -639,42 +772,8 @@ function Start-OneDriveOrganizer {
 
         # --- STEP 5: PROCESS FILES AND BUILD PLAN ---
         Write-Log "Step 5: Analyzing and building action plan..." "INFO"
-        $index = 0
-
-        foreach ($fileId in $fileIds) {
-            $index++
-            Write-Progress -Activity "Analyzing files" `
-                -Status "File $index of $total" `
-                -PercentComplete (($index / $total) * 100)
-
-            $fileItem = $Global:State.Cache.Files[$fileId]
-            if (-not $fileItem) { continue }
-
-            try {
-                # Read metadata
-                $item = Get-Item -Path "file://$fileId" -ErrorAction SilentlyContinue
-                if (-not $item) { continue }
-
-                # Classify and route file
-                $action = Get-RoutingAction -Item $item -FileId $fileId
-                if ($action) {
-                    $Global:State.PlannedActions.Add($action) > $null
-                }
-            }
-            catch {
-                Write-Log "Error processing file $fileId : $($_.Exception.Message)" "WARN"
-                continue
-            }
-        }
-
-        Write-Progress -Activity "Analyzing files" -Completed
-
-        # --- STEP 6: SAVE PLAN TO DISK ---
-        Write-Log "Step 6: Saving plan to disk..." "INFO"
-        $cacheFolder = Split-Path $global:IndexFile -Parent
-        $planPath = Join-Path $cacheFolder "plan.json"
-        $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content $planPath
-        Write-Log "Plan saved: $planPath" "DEBUG"
+        $Global:State.PlannedActions.Clear()
+        New-Plan
 
         # --- STEP 7: DISPLAY SUMMARY ---
         $actionCount = $Global:State.PlannedActions.Count
