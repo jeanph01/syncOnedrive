@@ -294,6 +294,33 @@ function Remove-DateWordsFromList {
     return $Words | Where-Object { $toRemove -notcontains $_.ToLower() }
 }
 
+function Get-ReferenceDate {
+    param(
+        [hashtable]$FileMeta
+    )
+
+    $fallbackDate = [datetime]$FileMeta.d
+    if (-not $FileMeta -or [string]::IsNullOrWhiteSpace($FileMeta.n)) {
+        return $fallbackDate
+    }
+
+    $nameWithoutExtension = [System.IO.Path]::GetFileNameWithoutExtension($FileMeta.n)
+    if ($FileMeta.n -match '--odr\d*--' -and $nameWithoutExtension -match '^(\d{8})_(\d{6})') {
+        try {
+            return [datetime]::ParseExact(
+                "$($Matches[1])_$($Matches[2])",
+                'yyyyMMdd_HHmmss',
+                [System.Globalization.CultureInfo]::InvariantCulture
+            )
+        }
+        catch {
+            return $fallbackDate
+        }
+    }
+
+    return $fallbackDate
+}
+
 function Extract-GPSWords {
     param([string]$GPSLocation)
 
@@ -496,12 +523,12 @@ function Resolve-FinalName {
         $stopWords += $adultKeywords
     }
 
-    $dateRef = [datetime]$FileMeta.d
-
     $originalNameNoExt = [System.IO.Path]::GetFileNameWithoutExtension($FileMeta.n)
     if ([string]::IsNullOrWhiteSpace($originalNameNoExt)) {
         $originalNameNoExt = "unnamed"
     }
+
+    $dateRef = Get-ReferenceDate -FileMeta $FileMeta
 
     $gpsWords = Extract-GPSWords -GPSLocation $GPSLocation
 
@@ -692,9 +719,11 @@ function Get-DestinationPath {
     }
 
     # 5) keepLevels — CORRIGÉ
+    $preservedPath = $null
     if ($action.ContainsKey("keepLevels")) {
         $keep = [int]$action.keepLevels
         if ($keep -gt 0 -and $segments.Count -gt $keep) {
+            $preservedPath = ($segments[0..($keep - 1)] -join '/')
             $segments = $segments[0..($keep - 1)]
         }
     }
@@ -732,6 +761,10 @@ function Get-DestinationPath {
     $resolvedPath = Resolve-RoutingTemplate -Template $template -Values $values
     if ([string]::IsNullOrWhiteSpace($resolvedPath)) {
         $resolvedPath = "$media/$($FileDate.ToString('yyyy'))/$($FileDate.ToString('MM'))"
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($preservedPath)) {
+        $resolvedPath = "$preservedPath/$resolvedPath"
     }
 
     $cleanDestination = $resolvedPath.Trim('/')
@@ -889,7 +922,7 @@ function New-Plan {
                     continue
                 }
 
-                $fileDate = [DateTime]$fileMeta.d
+                $fileDate = Get-ReferenceDate -FileMeta $fileMeta
 
                 # GPS
                 $GPSLocation = $null

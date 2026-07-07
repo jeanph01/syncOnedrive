@@ -18,7 +18,7 @@ param (
     [string]$DebugId = "",            # Debug a specific file
     [bool]$ReportIgnored = $false,    # Generate ignored files report
     [string]$ProcessRange = "1+",       # Process only a subset of files (e.g., "1", "1..10", "10+")
-    [bool]$StepByStep = $true         # Interactive step-by-step mode with confirmation
+    [bool]$StepByStep = $false         # Interactive step-by-step mode with confirmation
 )
 
 # --- Force Write-Progress display in case another script disabled it
@@ -296,20 +296,25 @@ function Invoke-MovesInteractive {
             Write-Host "  Path: $($action.SrcPath)" -ForegroundColor Gray
             Write-Host "  Name: $($action.SrcName)" -ForegroundColor Gray
             Write-Host "  ID:   $($action.Id)" -ForegroundColor Gray
+
+            # --- STEP 2: Planned destination ---
+            $plannedDstDir = if ([string]::IsNullOrWhiteSpace($action.DstDir)) { "<unknown>" } else { $action.DstDir }
+            $plannedDstName = if ([string]::IsNullOrWhiteSpace($action.DstName)) { "<unknown>" } else { $action.DstName }
+            $plannedFullDst = if ([string]::IsNullOrWhiteSpace($action.FullDst)) { "<unknown>" } else { $action.FullDst }
+            Write-Host "`n[2] ELEMENT AFTER (Planned):" -ForegroundColor Yellow
+            Write-Host "  Category:     $($action.Category)" -ForegroundColor Green
+            Write-Host "  Destination:  $plannedDstDir" -ForegroundColor Green
+            Write-Host "  New name:     $plannedDstName" -ForegroundColor Green
+            Write-Host "  Full path:    $plannedFullDst" -ForegroundColor Green
+
             $confirmation = Get-ConfirmationInteractive "Continue?"
-            if ($confirmation -eq 'abort') { throw "User aborted"; }
+            if ($confirmation -eq 'abort') { Write-Log "Interactive move execution aborted by user." "WARN"; return }
             if ($confirmation -eq 'skip') { $skippedCount++; continue }
             if ($confirmation -ne 'y') { $skippedCount++; continue }
 
-            # --- STEP 2: Element After ---
-            Write-Host "`n[2] ELEMENT AFTER (Classification):" -ForegroundColor Yellow
-            Write-Host "  Category:     $($action.Category)" -ForegroundColor Green
             $cleanDst = $action.DstDir.TrimStart('/')
-            Write-Host "  Destination:  /$cleanDst" -ForegroundColor Green
-            Write-Host "  New name:     $($action.DstName)" -ForegroundColor Green
-            Write-Host "  Full path:    $($action.FullDst)" -ForegroundColor Green
             $confirmation = Get-ConfirmationInteractive "Proceed?"
-            if ($confirmation -eq 'abort') { throw "User aborted"; }
+            if ($confirmation -eq 'abort') { Write-Log "Interactive move execution aborted by user." "WARN"; return }
             if ($confirmation -ne 'y') { $skippedCount++; continue }
 
             # --- STEP 3: Azure - Create folders ---
@@ -329,13 +334,13 @@ function Invoke-MovesInteractive {
             catch {
                 Write-Host "  ✗ Error creating folders: $_" -ForegroundColor Red
                 $confirmation = Get-ConfirmationInteractive "Continue anyway?"
-                if ($confirmation -eq 'abort') { throw $_ }
+                if ($confirmation -eq 'abort') { Write-Log "Interactive move execution aborted by user." "WARN"; return }
                 if ($confirmation -ne 'y') { $skippedCount++; continue }
             }
 
             if (-not $skipFolderConfirm) {
                 $confirmation = Get-ConfirmationInteractive "Confirm folder creation?"
-                if ($confirmation -eq 'abort') { throw "User aborted"; }
+                if ($confirmation -eq 'abort') { Write-Log "Interactive move execution aborted by user." "WARN"; return }
                 if ($confirmation -ne 'y') { $skippedCount++; continue }
             }
 
@@ -344,7 +349,7 @@ function Invoke-MovesInteractive {
             Write-Host "  From: $($action.SrcPath)/$($action.SrcName)" -ForegroundColor Cyan
             Write-Host "  To:   $($action.FullDst)" -ForegroundColor Cyan
             $confirmation = Get-ConfirmationInteractive "Execute move?"
-            if ($confirmation -eq 'abort') { throw "User aborted"; }
+            if ($confirmation -eq 'abort') { Write-Log "Interactive move execution aborted by user." "WARN"; return }
             if ($confirmation -ne 'y') { $skippedCount++; continue }
 
             try {
@@ -378,6 +383,7 @@ function Invoke-MovesInteractive {
                 $skippedCount++
             }
         }
+
 
         $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content "$($global:IndexFile).tmp"
         Move-Item -Path "$($global:IndexFile).tmp" -Destination $global:IndexFile -Force
@@ -596,7 +602,6 @@ function Invoke-Moves {
 
     try {
         $actions = @($Global:State.PlannedActions)
-        $total = $actions.Count
 
         Initialize-TargetFolders -Actions $actions
         Invoke-GraphBatchMoves -Actions $actions
