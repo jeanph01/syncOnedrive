@@ -104,6 +104,9 @@ function Save-GraphToken {
     param($Auth)
 
     try {
+        if ($Auth -and $Auth.PSObject.Properties.Name -notcontains 'acquired_on') {
+            $Auth | Add-Member -NotePropertyName acquired_on -NotePropertyValue ((Get-Date).ToUniversalTime().ToFileTimeUtc())
+        }
         $Auth | ConvertTo-Json | Set-Content $TokenFile -ErrorAction Stop
         Write-Log "Graph token saved" "DEBUG"
     }
@@ -137,41 +140,70 @@ function Get-GraphToken {
 
         $existing = Read-GraphToken
         $tenant = "consumers"
+        $maxTokenAgeMinutes = 55
+        $maxTokenAgeTicks = [TimeSpan]::FromMinutes($maxTokenAgeMinutes).Ticks
 
         if ($existing -and $existing.access_token) {
-            # 1. Vérification expiration locale avec marge de sécurité de 2 minutes
-            $margin = [TimeSpan]::FromMinutes(2).Ticks
-            $now = (Get-Date).ToUniversalTime().ToFileTimeUtc()
-
-            if ($existing.expires_on -gt ($now + $margin)) {
-                Write-Log "Valid token loaded from cache" "DEBUG"
-                return $existing
-            }
-
-            # 2. Si expiré ou proche de l'expiration -> Tenter rafraîchissement silencieux
-            if ($existing.refresh_token) {
-                Write-Log "[AUTH] Token expired or expiring soon. Attempting silent refresh..." "INFO"
+            $issuedOnUtc = $null
+            if ($existing.PSObject.Properties.Name -contains 'acquired_on' -and $existing.acquired_on) {
                 try {
-                    $Auth = Invoke-RestMethod -Method POST `
-                        -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/token" `
-                        -Body @{
-                        client_id     = $ClientId
-                        grant_type    = "refresh_token"
-                        refresh_token = $existing.refresh_token
-                        scope         = "Files.ReadWrite.All offline_access User.Read"
-                    } -ErrorAction Stop
-
-                    # Ajout expiration locale
-                    $Auth | Add-Member -NotePropertyName expires_on -NotePropertyValue (
-                        (Get-Date).AddSeconds($Auth.expires_in).ToUniversalTime().ToFileTimeUtc()
-                    )
-
-                    Save-GraphToken $Auth
-                    Write-Log "[AUTH] Silent refresh successful" "SUCCESS"
-                    return $Auth
+                    $issuedOnUtc = [datetime]::FromFileTimeUtc([int64]$existing.acquired_on)
                 }
                 catch {
-                    Write-Log "[AUTH] Silent refresh failed: $($_.Exception.Message). Falling back to interactive auth." "WARN"
+                    $issuedOnUtc = $null
+                }
+            }
+            elseif (Test-Path $TokenFile) {
+                $issuedOnUtc = (Get-Item $TokenFile).LastWriteTimeUtc
+            }
+
+            if ($issuedOnUtc) {
+                $ageTicks = ((Get-Date).ToUniversalTime() - $issuedOnUtc).Ticks
+                if ($ageTicks -gt $maxTokenAgeTicks) {
+                    Write-Log "Cached token exceeded max age ($maxTokenAgeMinutes min). Forcing regeneration." "WARN"
+                    $existing = $null
+                }
+            }
+
+            if ($existing) {
+                # 1. Vérification expiration locale avec marge de sécurité de 2 minutes
+                $margin = [TimeSpan]::FromMinutes(2).Ticks
+                $now = (Get-Date).ToUniversalTime().ToFileTimeUtc()
+
+                if ($existing.expires_on -gt ($now + $margin)) {
+                    if (Test-GraphToken -AccessToken $existing.access_token) {
+                        Write-Log "Valid token loaded from cache" "DEBUG"
+                        return $existing
+                    }
+
+                    Write-Log "Cached token rejected by Graph, forcing refresh/auth." "WARN"
+                }
+
+                # 2. Si expiré ou proche de l'expiration -> Tenter rafraîchissement silencieux
+                if ($existing.refresh_token) {
+                    Write-Log "[AUTH] Token expired or expiring soon. Attempting silent refresh..." "INFO"
+                    try {
+                        $Auth = Invoke-RestMethod -Method POST `
+                            -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/token" `
+                            -Body @{
+                            client_id     = $ClientId
+                            grant_type    = "refresh_token"
+                            refresh_token = $existing.refresh_token
+                            scope         = "Files.ReadWrite.All offline_access User.Read"
+                        } -ErrorAction Stop
+
+                        # Ajout expiration locale
+                        $Auth | Add-Member -NotePropertyName expires_on -NotePropertyValue (
+                            (Get-Date).AddSeconds($Auth.expires_in).ToUniversalTime().ToFileTimeUtc()
+                        )
+
+                        Save-GraphToken $Auth
+                        Write-Log "[AUTH] Silent refresh successful" "SUCCESS"
+                        return $Auth
+                    }
+                    catch {
+                        Write-Log "[AUTH] Silent refresh failed: $($_.Exception.Message). Falling back to interactive auth." "WARN"
+                    }
                 }
             }
         }
@@ -181,31 +213,67 @@ function Get-GraphToken {
         Assert-ValidParam -Name "ClientId" -Value $ClientId
 
         # === DEVICE CODE FLOW ===
-        $DeviceCode = Invoke-RestMethod -Method POST `
-            -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/devicecode" `
-            -Body @{
-            client_id = $ClientId
-            scope     = "Files.ReadWrite.All offline_access User.Read"
-        }
-
-        Write-Log $DeviceCode.message
-
-        # === POLLING TOKEN ===
         $Auth = $null
-        while (-not $Auth) {
-            Start-Sleep 5
-            try {
-                $Auth = Invoke-RestMethod -Method POST `
-                    -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/token" `
-                    -Body @{
-                    grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
-                    client_id   = $ClientId
-                    device_code = $DeviceCode.device_code
+        $deviceCodeRetry = 0
+        while (-not $Auth -and $deviceCodeRetry -lt 3) {
+            $deviceCodeRetry++
+            $DeviceCode = Invoke-RestMethod -Method POST `
+                -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/devicecode" `
+                -Body @{
+                client_id = $ClientId
+                scope     = "Files.ReadWrite.All offline_access User.Read"
+            }
+
+            $deviceIssuedUtc = Get-Date
+            $deviceExpiresIn = 900
+            if ($DeviceCode.PSObject.Properties.Name -contains 'expires_in' -and $DeviceCode.expires_in) {
+                $deviceExpiresIn = [int]$DeviceCode.expires_in
+            }
+
+            $pollInterval = 5
+            if ($DeviceCode.PSObject.Properties.Name -contains 'interval' -and $DeviceCode.interval) {
+                $pollInterval = [Math]::Max(5, [int]$DeviceCode.interval)
+            }
+
+            Write-Log $DeviceCode.message
+            Write-Log "Device code valid for $deviceExpiresIn seconds. It will be renewed automatically if you wait too long." "INFO"
+
+            while (-not $Auth) {
+                $elapsedSeconds = ((Get-Date) - $deviceIssuedUtc).TotalSeconds
+                if ($elapsedSeconds -ge $deviceExpiresIn) {
+                    Write-Log "Device code expired before authorization. Generating a new code..." "WARN"
+                    break
+                }
+
+                Start-Sleep -Seconds $pollInterval
+                try {
+                    $Auth = Invoke-RestMethod -Method POST `
+                        -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/token" `
+                        -Body @{
+                        grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
+                        client_id   = $ClientId
+                        device_code = $DeviceCode.device_code
+                    } -ErrorAction Stop
+                }
+                catch {
+                    $msg = $_.Exception.Message
+                    if ($msg -match 'authorization_pending|slow_down') {
+                        Write-Log "Waiting for browser authorization..." "DEBUG"
+                        continue
+                    }
+
+                    if ($msg -match 'expired_token|invalid_grant|authorization_declined|code.*expired') {
+                        Write-Log "Device code no longer valid. A new code will be requested." "WARN"
+                        break
+                    }
+
+                    Write-Log "Attempting to obtain token..." "DEBUG"
                 }
             }
-            catch {
-                Write-Log "Attempting to obtain token..." "DEBUG"
-            }
+        }
+
+        if (-not $Auth) {
+            throw "Unable to obtain Graph token after repeated device-code renewals."
         }
 
         # Ajout expiration locale

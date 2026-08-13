@@ -147,7 +147,7 @@ function Load-Scan {
         }
 
         # Requested fields
-        $select = "name,id,size,file,hashes,fileSystemInfo,parentReference,photo,location,video,audio,image"
+        $select = "name,id,size,file,hashes,fileSystemInfo,parentReference,photo,location,video,audio,image,createdDateTime"
         $baseUrl = "https://graph.microsoft.com/v1.0/me/drive/root/delta?`$select=$select"
 
         # Full or incremental delta
@@ -279,9 +279,28 @@ function Analyze-LocalFiles {
             catch { $script:LocalHashCache = @{} }
         }
 
-        # Local files
-        $LocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse |
-        Where-Object { $_.FullName -notlike "*_Duplicates*" }
+        # Local files - try a full recurse, fallback to per-directory scanning on failure
+        $LocalFiles = @()
+        try {
+            $LocalFiles = Get-ChildItem -Path $LocalFolder -File -Recurse -ErrorAction Stop |
+            Where-Object { $_.FullName -notlike "*_Duplicates*" }
+        }
+        catch {
+            Write-Log "Get-ChildItem full recurse failed: $($_.Exception.Message)" "DEBUG"
+            # Fallback: enumerate top-level entries and probe each one separately
+            $topDirs = Get-ChildItem -Path $LocalFolder -Directory -ErrorAction SilentlyContinue
+            foreach ($d in $topDirs) {
+                try {
+                    $items = Get-ChildItem -Path $d.FullName -File -Recurse -ErrorAction Stop |
+                    Where-Object { $_.FullName -notlike "*_Duplicates*" }
+                    if ($items) { $LocalFiles += $items }
+                }
+                catch {
+                    Write-Log "Skipping directory $($d.FullName): $($_.Exception.Message)" "DEBUG"
+                    continue
+                }
+            }
+        }
 
         $script:cDel = 0
         $script:cMove = 0
@@ -297,10 +316,22 @@ function Analyze-LocalFiles {
                 Write-Log "Progression: $i / $($script:total)"
             }
 
-            # Disallowed extension -> remove
+            # Disallowed extension -> remove (safe)
             if (-not $global:AllowedExtSet.Contains($file.Extension.ToLower())) {
-                Remove-Item -LiteralPath $file.FullName -Force
-                $script:cDel++
+                if (Test-Path -LiteralPath $file.FullName) {
+                    try {
+                        Remove-Item -LiteralPath $file.FullName -Force -ErrorAction Stop
+                        $script:cDel++
+                    }
+                    catch {
+                        Write-Log "Failed to remove $($file.FullName): $($_.Exception.Message)" "WARN"
+                        $script:cSkipped++
+                    }
+                }
+                else {
+                    # file already gone (transient) — count as skipped
+                    $script:cSkipped++
+                }
                 continue
             }
 
@@ -327,9 +358,36 @@ function Analyze-LocalFiles {
                             $idx++
                         }
 
-                        [System.IO.File]::Move($file.FullName, $dest)
-                        $script:cMove++
-                        continue
+                        try {
+                            [System.IO.File]::Move($file.FullName, $dest)
+                            $script:cMove++
+                            continue
+                        }
+                        catch {
+                            if (-not (Test-Path -LiteralPath $file.FullName)) {
+                                Write-Log "Source missing, skipping $($file.FullName)" "DEBUG"
+                                $script:cSkipped++
+                                continue
+                            }
+
+                            Write-Log "Failed to move $($file.FullName) -> $dest : $($_.Exception.Message)" "WARN"
+                            try {
+                                Copy-Item -LiteralPath $file.FullName -Destination $dest -ErrorAction Stop
+                                if (Test-Path -LiteralPath $file.FullName) {
+                                    Remove-Item -LiteralPath $file.FullName -Force -ErrorAction Stop
+                                }
+                                else {
+                                    Write-Log "Source disappeared after copy, treating as moved: $($file.FullName)" "DEBUG"
+                                }
+                                $script:cMove++
+                                continue
+                            }
+                            catch {
+                                Write-Log "Fallback move failed for $($file.FullName): $($_.Exception.Message)" "WARN"
+                                $script:cSkipped++
+                                continue
+                            }
+                        }
                     }
                 }
             }
@@ -354,8 +412,33 @@ function Analyze-LocalFiles {
                     $idx++
                 }
 
-                [System.IO.File]::Move($file.FullName, $dest)
-                $script:cMove++
+                try {
+                    [System.IO.File]::Move($file.FullName, $dest)
+                    $script:cMove++
+                }
+                catch {
+                    if (-not (Test-Path -LiteralPath $file.FullName)) {
+                        Write-Log "Source missing, skipping $($file.FullName)" "DEBUG"
+                        $script:cSkipped++
+                        continue
+                    }
+
+                    Write-Log "Failed to move $($file.FullName) -> $dest : $($_.Exception.Message)" "WARN"
+                    try {
+                        Copy-Item -LiteralPath $file.FullName -Destination $dest -ErrorAction Stop
+                        if (Test-Path -LiteralPath $file.FullName) {
+                            Remove-Item -LiteralPath $file.FullName -Force -ErrorAction Stop
+                        }
+                        else {
+                            Write-Log "Source disappeared after copy, treating as moved: $($file.FullName)" "DEBUG"
+                        }
+                        $script:cMove++
+                    }
+                    catch {
+                        Write-Log "Fallback move failed for $($file.FullName): $($_.Exception.Message)" "WARN"
+                        $script:cSkipped++
+                    }
+                }
             }
         }
 
@@ -377,15 +460,37 @@ function Remove-EmptyFolders {
     try {
         Write-Log "[4/4] Cleaning empty folders"
 
-        Get-ChildItem -Path $LocalFolder -Directory -Recurse |
-        Sort-Object { $_.FullName.Length } -Descending |
-        ForEach-Object -Parallel {
-            if ((Get-ChildItem -LiteralPath $_.FullName -ErrorAction SilentlyContinue).Count -eq 0) {
-                if ($_.FullName -notlike "*_Duplicates*") {
-                    Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
+        # Try full recursive enumeration first, otherwise fallback to per-directory probing
+        $Dirs = @()
+        try {
+            $Dirs = Get-ChildItem -Path $LocalFolder -Directory -Recurse -ErrorAction Stop
+        }
+        catch {
+            Write-Log "Get-ChildItem recursive directory enumeration failed: $($_.Exception.Message)" "WARN"
+            $topDirs = Get-ChildItem -Path $LocalFolder -Directory -ErrorAction SilentlyContinue
+            foreach ($d in $topDirs) {
+                try {
+                    $sub = Get-ChildItem -Path $d.FullName -Directory -Recurse -ErrorAction SilentlyContinue
+                    $Dirs += $d
+                    if ($sub) { $Dirs += $sub }
+                }
+                catch {
+                    Write-Log "Skipping directory $($d.FullName): $($_.Exception.Message)" "DEBUG"
+                    continue
                 }
             }
-        } -ThrottleLimit 4
+        }
+
+        if ($Dirs.Count -gt 0) {
+            $Dirs | Sort-Object { $_.FullName.Length } -Descending |
+            ForEach-Object -Parallel {
+                if ((Get-ChildItem -LiteralPath $_.FullName -ErrorAction SilentlyContinue).Count -eq 0) {
+                    if ($_.FullName -notlike "*_Duplicates*") {
+                        Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction SilentlyContinue -Confirm:$false
+                    }
+                }
+            } -ThrottleLimit 4
+        }
     }
     catch {
         Write-Log "Error Remove-EmptyFolders : $($_.Exception.Message)" "ERROR"

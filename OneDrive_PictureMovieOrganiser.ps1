@@ -8,7 +8,7 @@
 # =====================================================================
 
 param (
-    [bool]$Execute = $false,                          # Actually performs the moves
+    [bool]$Execute = $true,                          # Actually performs the moves
     [bool]$ResetCache = $false,                      # Resets internal files except GPS and OneDrive cache
     [string]$ConfigFile = ".\config.ini",          # Application configuration
     # === NEW PARAMETERS ===
@@ -281,15 +281,15 @@ function Invoke-MovesInteractive {
     Write-Log "Starting interactive move execution (step-by-step)..." "WARN"
 
     try {
-        $total = $Global:State.PlannedActions.Count
+        Connect-AzureGraph
         $index = 0
         $processedCount = 0
         $skippedCount = 0
 
         foreach ($action in $Global:State.PlannedActions) {
             $index++
-            Write-Host "`n================ ACTION $index / $total ================" -ForegroundColor Cyan
-            Write-Log "Interactive session progress: $index / $total" "DEBUG"
+            Write-Host "`n================ ACTION $index / $($Global:State.PlannedActions.Count) ================" -ForegroundColor Cyan
+            Write-Log "Interactive session progress: $index / $($Global:State.PlannedActions.Count)" "DEBUG"
 
             # --- STEP 1: Element Before ---
             Write-Host "`n[1] ELEMENT BEFORE:" -ForegroundColor Yellow
@@ -433,14 +433,15 @@ function Initialize-TargetFolders {
     }
 
     Write-Log "Pre-creating $($uniqueFolders.Count) unique destination folders..." "INFO"
-    foreach ($folder in $uniqueFolders) {
-        try {
-            Test-OneDrivePath $folder | Out-Null
-        }
-        catch {
-            Write-Log "Folder precreation failed for /$folder : $($_.Exception.Message)" "WARN"
-        }
-    }
+    Write-Log "skipped ..... !!!!! "
+    # foreach ($folder in $uniqueFolders) {
+    #     try {
+    #         Test-OneDrivePath $folder | Out-Null
+    #     }
+    #     catch {
+    #         Write-Log "Folder precreation failed for /$folder : $($_.Exception.Message)" "WARN"
+    #     }
+    # }
 }
 
 function Register-MoveSuccess {
@@ -470,13 +471,12 @@ function Register-MoveFailure {
 function Invoke-GraphSingleMove {
     param(
         [psobject]$Action,
-        [int]$Index,
-        [int]$Total
+        [int]$Index
     )
 
     Write-Progress -Activity "OneDrive move" `
-        -Status "Moving [$Index/$Total] : $($Action.SrcName)" `
-        -PercentComplete (($Index / $Total) * 100)
+        -Status "Moving [$Index/$($Global:State.PlannedActions.Count)] : $($Action.SrcName)" `
+        -PercentComplete (($Index / $Global:State.PlannedActions.Count) * 100)
 
     Write-Log "[$Index/$Total] Moving: $($Action.SrcName) -> $($Action.FullDst)" "INFO"
 
@@ -508,11 +508,10 @@ function Invoke-GraphBatchMoves {
         [int]$BatchSize = 20
     )
 
-    $total = $Actions.Count
     $completed = 0
 
-    for ($start = 0; $start -lt $total; $start += $BatchSize) {
-        $end = [Math]::Min($start + $BatchSize - 1, $total - 1)
+    for ($start = 0; $start -lt $Actions.Count; $start += $BatchSize) {
+        $end = [Math]::Min($start + $BatchSize - 1, $Actions.Count - 1)
         $chunk = @($Actions[$start..$end])
 
         $requests = @()
@@ -548,7 +547,7 @@ function Invoke-GraphBatchMoves {
             Write-Log "Batch request failed for actions $($start + 1)-$($end + 1): $($_.Exception.Message)" "WARN"
             foreach ($action in $chunk) {
                 $completed++
-                Invoke-GraphSingleMove -Action $action -Index $completed -Total $total | Out-Null
+                Invoke-GraphSingleMove -Action $action -Index $completed | Out-Null
             }
             continue
         }
@@ -559,11 +558,11 @@ function Invoke-GraphBatchMoves {
 
             $completed++
             Write-Progress -Activity "OneDrive move" `
-                -Status "Moving [$completed/$total] : $($action.SrcName)" `
-                -PercentComplete (($completed / $total) * 100)
+                -Status "Moving [$completed/$($Actions.Count)] : $($action.SrcName)" `
+                -PercentComplete (($completed / $Actions.Count) * 100)
 
             if ($response.status -ge 200 -and $response.status -lt 300) {
-                Write-Log "[$completed/$total] Moving: $($action.SrcName) -> $($action.FullDst)" "INFO"
+                Write-Log "[$completed/$($Actions.Count)] Moving: $($action.SrcName) -> $($action.FullDst)" "INFO"
                 Register-MoveSuccess -Action $action
             }
             else {
@@ -585,7 +584,7 @@ function Invoke-GraphBatchMoves {
 
         if ($completed % 50 -eq 0) {
             Connect-AzureGraph
-            Write-Log "Saving intermediate cache state ($completed/$total)..." "DEBUG"
+            Write-Log "Saving intermediate cache state ($completed/$($Actions.Count))..." "DEBUG"
             $Global:State.Cache | ConvertTo-Json -Depth 10 | Set-Content "$($global:IndexFile).tmp"
             Move-Item -Path "$($global:IndexFile).tmp" -Destination $global:IndexFile -Force
         }
@@ -601,6 +600,7 @@ function Invoke-Moves {
     Write-Log "Starting move execution..." "WARN"
 
     try {
+        Connect-AzureGraph
         $actions = @($Global:State.PlannedActions)
 
         Initialize-TargetFolders -Actions $actions
@@ -759,6 +759,12 @@ function Start-OneDriveOrganizer {
         Write-Log "Step 2: Loading OneDrive cache..." "INFO"
         Import-Set-Cache
 
+        $currentHash = Get-CacheHash
+        $existingPlan = $null
+        if ($currentHash) {
+            $existingPlan = Get-ExistingPlan -CurrentHash $currentHash
+        }
+
         # --- STEP 3: REFRESH PREREQUISITES ---
         Write-Log "Step 3: Testing prerequisites..." "INFO"
         Test-SyncPrerequisites
@@ -778,7 +784,13 @@ function Start-OneDriveOrganizer {
         # --- STEP 5: PROCESS FILES AND BUILD PLAN ---
         Write-Log "Step 5: Analyzing and building action plan..." "INFO"
         $Global:State.PlannedActions.Clear()
-        New-Plan
+        if ($existingPlan) {
+            Write-Log "Reusing existing plan from cache." "SUCCESS"
+            $Global:State.PlannedActions = @($existingPlan)
+        }
+        else {
+            New-Plan
+        }
 
         # --- STEP 7: DISPLAY SUMMARY ---
         $actionCount = $Global:State.PlannedActions.Count

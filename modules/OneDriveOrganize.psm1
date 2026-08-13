@@ -28,6 +28,21 @@ function Read-AzureFileInfo {
             return $null
         }
 
+        function ConvertTo-DateTimeSafe {
+            param($Value)
+
+            if ([string]::IsNullOrWhiteSpace([string]$Value)) {
+                return $null
+            }
+
+            try {
+                return [datetime]::Parse($Value)
+            }
+            catch {
+                return $null
+            }
+        }
+
         $hashValue = $null
         $hashSource = $null
 
@@ -90,11 +105,19 @@ function Read-AzureFileInfo {
 
         # EXIF date or fallback
         $refDate = $null
-        if ($item.photo -and $item.photo.takenDateTime) {
-            $refDate = [DateTime]$item.photo.takenDateTime
+        foreach ($candidateDate in @(
+                $item.photo.takenDateTime,
+                $item.fileSystemInfo.lastModifiedDateTime,
+                $item.createdDateTime
+            )) {
+            $refDate = ConvertTo-DateTimeSafe $candidateDate
+            if ($refDate) {
+                break
+            }
         }
+
         if (-not $refDate) {
-            $refDate = [DateTime]$item.fileSystemInfo.lastModifiedDateTime
+            $refDate = Get-Date
         }
 
         # Détection "Animé" (GIF, WebP animé, etc.)
@@ -1033,7 +1056,12 @@ function New-Plan {
         try {
             $cacheFolder = Split-Path $IndexFile -Parent
             $planFile = Join-Path $cacheFolder "plan.json"
+            $hashFile = Join-Path $cacheFolder "cache_hash.txt"
             $Global:State.PlannedActions | ConvertTo-Json -Depth 10 | Set-Content $planFile
+            $currentHash = Get-CacheHash
+            if ($currentHash) {
+                $currentHash | Set-Content $hashFile
+            }
             Write-Log "Plan saved to $planFile" "SUCCESS"
         }
         catch {
