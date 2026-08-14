@@ -130,6 +130,62 @@ function Test-GraphToken {
     }
 }
 
+function Open-DeviceLoginBrowser {
+    param(
+        [string]$VerificationUri,
+        [string]$UserCode,
+        [string]$FallbackUri = "https://www.microsoft.com/link"
+    )
+
+    $candidates = [System.Collections.Generic.List[string]]::new()
+
+    if (-not [string]::IsNullOrWhiteSpace($VerificationUri)) {
+        $candidates.Add($VerificationUri.TrimEnd('/'))
+    }
+
+    $bases = @(
+        $FallbackUri,
+        "https://www.microsoft.com/devicelogin",
+        "https://microsoft.com/devicelogin",
+        "https://www.microsoft.com/link",
+        "https://microsoft.com/link"
+    )
+
+    foreach ($base in $bases) {
+        if ([string]::IsNullOrWhiteSpace($base)) { continue }
+
+        $base = $base.TrimEnd('/')
+        $candidates.Add($base)
+
+        if (-not [string]::IsNullOrWhiteSpace($UserCode)) {
+            foreach ($paramName in @('otc', 'user_code', 'code')) {
+                $encoded = [System.Uri]::EscapeDataString($UserCode)
+                $candidates.Add("$base?$paramName=$encoded")
+            }
+        }
+    }
+
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($candidate in $candidates) {
+        if ([string]::IsNullOrWhiteSpace($candidate) -or -not $seen.Add($candidate)) {
+            continue
+        }
+
+        try {
+            Write-Log "Opening browser for device login: $candidate" "INFO"
+            Start-Process $candidate | Out-Null
+            return $candidate
+        }
+        catch {
+            Write-Log "Unable to open browser for '$candidate': $($_.Exception.Message)" "WARN"
+        }
+    }
+
+    Write-Log "Browser auto-open could not be triggered. Please open https://www.microsoft.com/link and enter the displayed code manually." "WARN"
+    return $null
+}
+
 
 # ============================================================
 # GET-GRAPHTOKEN (DURCI)
@@ -236,6 +292,9 @@ function Get-GraphToken {
             }
 
             Write-Log $DeviceCode.message
+            if ($DeviceCode.PSObject.Properties.Name -contains 'user_code' -and $DeviceCode.user_code) {
+                Open-DeviceLoginBrowser -VerificationUri $DeviceCode.verification_uri -UserCode $DeviceCode.user_code -FallbackUri "https://www.microsoft.com/link"
+            }
             Write-Log "Device code valid for $deviceExpiresIn seconds. It will be renewed automatically if you wait too long." "INFO"
 
             while (-not $Auth) {

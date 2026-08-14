@@ -1,0 +1,34 @@
+{
+  "servers": {
+    "microsoft-learn": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\jeanp\\github\\syncOnedrive"
+      ]
+    },
+    "onedrive-sharepoint-graph": {
+      "type": "http",
+      "url": "https://agent365.svc.cloud.microsoft/agents/tenants/${input:tenant_id}/servers/mcp_ODSPRemoteServer",
+      "inputs": [
+        {
+          "id": "tenant_id",
+          "type": "promptString",
+          "description": "Microsoft Entra tenant ID (GUID) for OneDrive / SharePoint access"
+        }
+      ]
+    }
+  }
+}
