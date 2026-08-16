@@ -433,15 +433,14 @@ function Initialize-TargetFolders {
     }
 
     Write-Log "Pre-creating $($uniqueFolders.Count) unique destination folders..." "INFO"
-    Write-Log "skipped ..... !!!!! "
-    # foreach ($folder in $uniqueFolders) {
-    #     try {
-    #         Test-OneDrivePath $folder | Out-Null
-    #     }
-    #     catch {
-    #         Write-Log "Folder precreation failed for /$folder : $($_.Exception.Message)" "WARN"
-    #     }
-    # }
+    foreach ($folder in $uniqueFolders) {
+        try {
+            Test-OneDrivePath $folder | Out-Null
+        }
+        catch {
+            Write-Log "Folder precreation failed for /$folder : $($_.Exception.Message)" "WARN"
+        }
+    }
 }
 
 function Register-MoveSuccess {
@@ -510,7 +509,12 @@ function Invoke-GraphBatchMoves {
 
     $completed = 0
 
+    # Refresh token before a long batch sequence; this prevents a mid-run 401 after the
+    # token lifetime is exceeded while the script is still processing dozens of requests.
+    Connect-AzureGraph
+
     for ($start = 0; $start -lt $Actions.Count; $start += $BatchSize) {
+        Connect-AzureGraph
         $end = [Math]::Min($start + $BatchSize - 1, $Actions.Count - 1)
         $chunk = @($Actions[$start..$end])
 
