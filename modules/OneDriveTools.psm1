@@ -130,6 +130,113 @@ function Test-GraphToken {
     }
 }
 
+function Get-FreeLocalPort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    $listener.Start()
+    $port = $listener.LocalEndpoint.Port
+    $listener.Stop()
+    return $port
+}
+
+function New-PkceCodePair {
+    # RFC 7636: code_verifier must be 43-128 chars and code_challenge must be 43-128 chars for S256.
+    # Use a standard 32-byte verifier so the derived challenge is always 43 chars and valid for Entra.
+    $bytes = New-Object byte[] 32
+    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    $rng.GetBytes($bytes)
+
+    $verifier = [Convert]::ToBase64String($bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_')
+    if ($verifier.Length -gt 128) { $verifier = $verifier.Substring(0, 128) }
+    if ($verifier.Length -lt 43) {
+        # Keep looping until we hit the required minimum verifier length.
+        do {
+            $extra = New-Object byte[] 16
+            $rng.GetBytes($extra)
+            $verifier += [Convert]::ToBase64String($extra).TrimEnd('=').Replace('+', '-').Replace('/', '_')
+        } while ($verifier.Length -lt 43)
+    }
+    $verifier = $verifier.Substring(0, [Math]::Min($verifier.Length, 128))
+
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $hash = $sha.ComputeHash([System.Text.Encoding]::ASCII.GetBytes($verifier))
+    $challenge = [Convert]::ToBase64String($hash).TrimEnd('=').Replace('+', '-').Replace('/', '_')
+
+    return @{ Verifier = $verifier; Challenge = $challenge }
+}
+
+function Request-GraphAuthCodeInteractive {
+    param(
+        [string]$Tenant = "common"
+    )
+
+    # Personal Microsoft accounts and work/school accounts both use the common endpoint.
+    # Match the app registration redirect exactly: http://localhost
+    $redirectUri = "http://localhost/"
+    $state = [System.Guid]::NewGuid().ToString()
+    $nonce = [System.Guid]::NewGuid().ToString()
+    $pkce = New-PkceCodePair
+    $scopes = "Files.ReadWrite.All offline_access User.Read openid profile"
+
+    $authorizeParams = @(
+        "client_id=$([System.Uri]::EscapeDataString($ClientId))",
+        "response_type=code",
+        "redirect_uri=$([System.Uri]::EscapeDataString($redirectUri))",
+        "response_mode=query",
+        "scope=$([System.Uri]::EscapeDataString($scopes))",
+        "state=$state",
+        "nonce=$nonce",
+        "code_challenge=$($pkce.Challenge)",
+        "code_challenge_method=S256"
+    )
+    $authorizeUri = "https://login.microsoftonline.com/$Tenant/oauth2/v2.0/authorize?" + [string]::Join('&', $authorizeParams)
+
+    Write-Log "Opening Microsoft sign-in page for interactive auth (tenant: $Tenant)" "INFO"
+    Start-Process $authorizeUri | Out-Null
+
+    $listener = [System.Net.HttpListener]::new()
+    $listener.Prefixes.Add($redirectUri)
+    $listener.Start()
+
+    try {
+        $context = $listener.GetContext()
+        $query = [System.Web.HttpUtility]::ParseQueryString($context.Request.Url.Query)
+        $callbackCode = $query['code']
+        $callbackState = $query['state']
+
+        if ([string]::IsNullOrWhiteSpace($callbackCode)) {
+            throw "No authorization code returned after browser login."
+        }
+
+        if ($callbackState -ne $state) {
+            throw "OAuth state mismatch while processing browser redirect."
+        }
+
+        $response = [System.Text.Encoding]::UTF8.GetBytes("<html><body><h1>Authentication complete</h1><p>You can close this window.</p></body></html>")
+        $context.Response.StatusCode = 200
+        $context.Response.ContentType = "text/html"
+        $context.Response.ContentLength64 = $response.Length
+        $context.Response.OutputStream.Write($response, 0, $response.Length)
+        $context.Response.OutputStream.Close()
+
+        $tokenResponse = Invoke-RestMethod -Method POST `
+            -Uri "https://login.microsoftonline.com/$Tenant/oauth2/v2.0/token" `
+            -Body @{
+            client_id     = $ClientId
+            grant_type    = "authorization_code"
+            code          = $callbackCode
+            redirect_uri  = $redirectUri
+            code_verifier = $pkce.Verifier
+            scope         = $scopes
+        } -ErrorAction Stop
+
+        return $tokenResponse
+    }
+    finally {
+        if ($listener.IsListening) { $listener.Stop() }
+        $listener.Close()
+    }
+}
+
 function Open-DeviceLoginBrowser {
     param(
         [string]$VerificationUri,
@@ -195,7 +302,7 @@ function Get-GraphToken {
         Write-Log "Get-GraphToken: checking existing token" "DEBUG"
 
         $existing = Read-GraphToken
-        $tenant = "consumers"
+        $tenant = "common"
         $maxTokenAgeMinutes = 55
         $maxTokenAgeTicks = [TimeSpan]::FromMinutes($maxTokenAgeMinutes).Ticks
 
@@ -268,71 +375,81 @@ function Get-GraphToken {
 
         Assert-ValidParam -Name "ClientId" -Value $ClientId
 
-        # === DEVICE CODE FLOW ===
+        # Preferred flow: browser-based interactive login for a personal Microsoft account
+        # or a work/school account. The common endpoint avoids requiring an enterprise tenant.
         $Auth = $null
-        $deviceCodeRetry = 0
-        while (-not $Auth -and $deviceCodeRetry -lt 3) {
-            $deviceCodeRetry++
-            $DeviceCode = Invoke-RestMethod -Method POST `
-                -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/devicecode" `
-                -Body @{
-                client_id = $ClientId
-                scope     = "Files.ReadWrite.All offline_access User.Read"
-            }
+        try {
+            $Auth = Request-GraphAuthCodeInteractive -Tenant $tenant
+            Write-Log "[AUTH] Interactive browser auth succeeded" "SUCCESS"
+        }
+        catch {
+            Write-Log "[AUTH] Browser auth failed: $($_.Exception.Message)" "WARN"
 
-            $deviceIssuedUtc = Get-Date
-            $deviceExpiresIn = 900
-            if ($DeviceCode.PSObject.Properties.Name -contains 'expires_in' -and $DeviceCode.expires_in) {
-                $deviceExpiresIn = [int]$DeviceCode.expires_in
-            }
-
-            $pollInterval = 5
-            if ($DeviceCode.PSObject.Properties.Name -contains 'interval' -and $DeviceCode.interval) {
-                $pollInterval = [Math]::Max(5, [int]$DeviceCode.interval)
-            }
-
-            Write-Log $DeviceCode.message
-            if ($DeviceCode.PSObject.Properties.Name -contains 'user_code' -and $DeviceCode.user_code) {
-                Open-DeviceLoginBrowser -VerificationUri $DeviceCode.verification_uri -UserCode $DeviceCode.user_code -FallbackUri "https://www.microsoft.com/link"
-            }
-            Write-Log "Device code valid for $deviceExpiresIn seconds. It will be renewed automatically if you wait too long." "INFO"
-
-            while (-not $Auth) {
-                $elapsedSeconds = ((Get-Date) - $deviceIssuedUtc).TotalSeconds
-                if ($elapsedSeconds -ge $deviceExpiresIn) {
-                    Write-Log "Device code expired before authorization. Generating a new code..." "WARN"
-                    break
+            # Fallback: legacy device-code flow if the tenant/app does not support this path.
+            $deviceCodeRetry = 0
+            while (-not $Auth -and $deviceCodeRetry -lt 3) {
+                $deviceCodeRetry++
+                $DeviceCode = Invoke-RestMethod -Method POST `
+                    -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/devicecode" `
+                    -Body @{
+                    client_id = $ClientId
+                    scope     = "Files.ReadWrite.All offline_access User.Read"
                 }
 
-                Start-Sleep -Seconds $pollInterval
-                try {
-                    $Auth = Invoke-RestMethod -Method POST `
-                        -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/token" `
-                        -Body @{
-                        grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
-                        client_id   = $ClientId
-                        device_code = $DeviceCode.device_code
-                    } -ErrorAction Stop
+                $deviceIssuedUtc = Get-Date
+                $deviceExpiresIn = 900
+                if ($DeviceCode.PSObject.Properties.Name -contains 'expires_in' -and $DeviceCode.expires_in) {
+                    $deviceExpiresIn = [int]$DeviceCode.expires_in
                 }
-                catch {
-                    $msg = $_.Exception.Message
-                    if ($msg -match 'authorization_pending|slow_down') {
-                        Write-Log "Waiting for browser authorization..." "DEBUG"
-                        continue
-                    }
 
-                    if ($msg -match 'expired_token|invalid_grant|authorization_declined|code.*expired') {
-                        Write-Log "Device code no longer valid. A new code will be requested." "WARN"
+                $pollInterval = 5
+                if ($DeviceCode.PSObject.Properties.Name -contains 'interval' -and $DeviceCode.interval) {
+                    $pollInterval = [Math]::Max(5, [int]$DeviceCode.interval)
+                }
+
+                Write-Log $DeviceCode.message
+                if ($DeviceCode.PSObject.Properties.Name -contains 'user_code' -and $DeviceCode.user_code) {
+                    Open-DeviceLoginBrowser -VerificationUri $DeviceCode.verification_uri -UserCode $DeviceCode.user_code -FallbackUri "https://www.microsoft.com/link"
+                }
+                Write-Log "Device code valid for $deviceExpiresIn seconds. It will be renewed automatically if you wait too long." "INFO"
+
+                while (-not $Auth) {
+                    $elapsedSeconds = ((Get-Date) - $deviceIssuedUtc).TotalSeconds
+                    if ($elapsedSeconds -ge $deviceExpiresIn) {
+                        Write-Log "Device code expired before authorization. Generating a new code..." "WARN"
                         break
                     }
 
-                    Write-Log "Attempting to obtain token..." "DEBUG"
+                    Start-Sleep -Seconds $pollInterval
+                    try {
+                        $Auth = Invoke-RestMethod -Method POST `
+                            -Uri "https://login.microsoftonline.com/$tenant/oauth2/v2.0/token" `
+                            -Body @{
+                            grant_type  = "urn:ietf:params:oauth:grant-type:device_code"
+                            client_id   = $ClientId
+                            device_code = $DeviceCode.device_code
+                        } -ErrorAction Stop
+                    }
+                    catch {
+                        $msg = $_.Exception.Message
+                        if ($msg -match 'authorization_pending|slow_down') {
+                            Write-Log "Waiting for browser authorization..." "DEBUG"
+                            continue
+                        }
+
+                        if ($msg -match 'expired_token|invalid_grant|authorization_declined|code.*expired') {
+                            Write-Log "Device code no longer valid. A new code will be requested." "WARN"
+                            break
+                        }
+
+                        Write-Log "Attempting to obtain token..." "DEBUG"
+                    }
                 }
             }
         }
 
         if (-not $Auth) {
-            throw "Unable to obtain Graph token after repeated device-code renewals."
+            throw "Unable to obtain Graph token via browser auth or device code fallback."
         }
 
         # Ajout expiration locale

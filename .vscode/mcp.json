@@ -18,17 +18,6 @@
         "@modelcontextprotocol/server-filesystem",
         "C:\\Users\\jeanp\\github\\syncOnedrive"
       ]
-    },
-    "onedrive-sharepoint-graph": {
-      "type": "http",
-      "url": "https://agent365.svc.cloud.microsoft/agents/tenants/${input:tenant_id}/servers/mcp_ODSPRemoteServer",
-      "inputs": [
-        {
-          "id": "tenant_id",
-          "type": "promptString",
-          "description": "Microsoft Entra tenant ID (GUID) for OneDrive / SharePoint access"
-        }
-      ]
     }
   }
 }
