@@ -170,8 +170,9 @@ function Request-GraphAuthCodeInteractive {
     )
 
     # Personal Microsoft accounts and work/school accounts both use the common endpoint.
-    # Match the app registration redirect exactly: http://localhost
-    $redirectUri = "http://localhost/"
+    # Keep an explicit port because HttpListener refuses a bare localhost prefix without a port.
+    $port = 45123
+    $redirectUri = "http://localhost:$port/"
     $state = [System.Guid]::NewGuid().ToString()
     $nonce = [System.Guid]::NewGuid().ToString()
     $pkce = New-PkceCodePair
