@@ -790,7 +790,20 @@ function Start-OneDriveOrganizer {
         $Global:State.PlannedActions.Clear()
         if ($existingPlan) {
             Write-Log "Reusing existing plan from cache." "SUCCESS"
-            $Global:State.PlannedActions = @($existingPlan)
+            $idLookup = @{}
+            foreach ($id in $fileIds) {
+                if ($null -ne $id) {
+                    $idLookup[[string]$id] = $true
+                }
+            }
+
+            $Global:State.PlannedActions = @(
+                $existingPlan | Where-Object {
+                    $_ -and $_.Id -and $idLookup.ContainsKey([string]$_.Id)
+                }
+            )
+
+            Write-Log "Cached plan filtered to current range: $($Global:State.PlannedActions.Count) actions selected." "INFO"
         }
         else {
             New-Plan

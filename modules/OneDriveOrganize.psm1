@@ -663,12 +663,8 @@ function Resolve-RoutingTemplate {
 
     $result = $Template
 
-    # 1) Gérer les blocs optionnels [ ... ] — REGEX CORRIGÉE
-    $result = [regex]::Replace($result, '
-
-\[(.*?)\]
-
-', {
+    # 1) Gérer les blocs optionnels [ ... ]
+    $result = [regex]::Replace($result, '(?s)\[(.*?)\]', {
             param($m)
             $block = $m.Groups[1].Value
             $blockResolved = $block
